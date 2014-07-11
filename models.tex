@@ -65,11 +65,17 @@ y_t = U_t\beta + \phi_1x_{t-1,1} + \phi_2x_{t-2,1} + \cdots \phi_Px_{t-P,1} + \g
 \end{equation}
 where $\epsilon_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2)$.
 
-In the frequentist setting, this model is completely specified by defining the distribution of the initial state, $x_0$, which consists of the presample errors. It is often desired that $x_0$ come from the stationary distribution of the ARMA process, given by
+It is often desired that constraints be imposed on $\phi$ and $\gamma$ such that the ARMA process is stationary and invertible. Stationarity ensures that the long term behavior of $x_t$ is predictable and invertibility ensures that current and future states do not depend on the distant past \citep{shum:stof:2006:timeseries}. We require that roots of the AR polynomial
+\[\phi(z) = 1 - \phi_1z - \phi_2z^2 - \cdots - \phi_Pz^P\]
+lie outside of the unit circle in the complex plane to ensure stationarity. To ensure invertibility, we impose the same constraint on the MA polynomial, given by
+\[\gamma(z) = 1 + \gamma_1z + \gamma_2z^2 + \cdots + \gamma_Pz^Q.\]
+In Chapter \ref{ch:fmri}, we impose these constraints when fitting regression models with ARMA errors to fMRI data using maximum likelihood estimation.
+
+In a Bayesian context, these models are completely specified by defining the prior distribution $p(x_0, \theta)$, where the initial state, $x_0$, consists of the presample errors. It is often desired that $x_0$ come from the stationary distribution of the ARMA process, given by
 \begin{equation}
 x_0|\theta \sim \mbox{N}(0, \sigma^2\Omega), \label{eqn:arma:prior}
 \end{equation}
-where $\mbox{vec}(\Omega) = (I_m - G\otimes G)^{-1} \mbox{vec}(ee')$. In Chapter \ref{ch:fmri} we impose this stationary constraint when fitting these models to fMRI data using maximum likelihood estimation. For Bayesian estimation of unknown parameters in regression models with ARMA errors, we refer the reader to \citet{chib:greenberg:1994:arma}.
+where $\mbox{vec}(\Omega) = (I_m - G\otimes G)^{-1} \mbox{vec}(ee')$ and $\phi$ is restricted to the region of stationarity. For a Bayesian treatment of unknown parameters in regression models with stationary and invertible ARMA errors, we refer the reader to \citet{chib:greenberg:1994:arma}.
 
 \subsection{Dynamic regression \label{sec:dlm:arwn}}
 
@@ -145,4 +151,4 @@ In Chapter \ref{ch:comp} we evaluate the abilities of several particle filters t
 p(y_{1:t}) = \prod_t p(y_t|y_{1:t-1}) \label{eqn:ll:marglik}
 \end{equation}
 
-The remaining DLMs described in sections \ref{sec:dlm:arma} and \ref{sec:dlm:arwn} do not emit analytically tractable forms of the posterior. When analytical tractability is not present, we turn to numerical methods including deterministic versions, e.g. the extended Kalman filter \cite[Sec 1.6][]{hay:2001:kal} and the Gaussian sum filter \citep{Alsp:Sore:nonl:1972}, or Monte Carlo versions such as particle filters. In Chapter \ref{ch:meth}, we describe a variety of particle filtering algorithms that can be used to estimate states and unknown fixed parameters in state-space models for which the filtered distribution is intractable.
+The remaining DLMs described in sections \ref{sec:dlm:arma} and \ref{sec:dlm:arwn} do not emit analytically tractable forms of the posterior. When analytical tractability is not present, we turn to numerical methods including deterministic versions, e.g. the extended Kalman filter \cite[Sec 1.6][]{hay:2001:kal} and the Gaussian sum filter \citep{Alsp:Sore:nonl:1972}, or Monte Carlo versions such as particle filters. In Chapter \ref{ch:meth}, we describe a variety of particle filtering algorithms that can be used to estimate states and unknown fixed parameters in state-space models for which the filtered distribution is intractable. 
