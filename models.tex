@@ -92,7 +92,7 @@ y_t = (\beta_0 + x_t) + \beta_1u_t + v_t \label{eqn:arwn:dynint}
 \end{equation}
 shows that we can interpret this model as a \emph{dynamic intercept model}, i.e. a simple linear regression model with an intercept that changes over time according to an AR(1) process. We can represent a dynamic intercept model as a DLM defined by equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} where $U_t = (1, u_t)$, $\beta = (\beta_0, \beta_1)'$, $F_t = 1$ for all $t$, $V = \sigma^2_m$, $G = \phi$, and $W = \sigma^2_s$. Letting instead $F_t = u_t$ yields a \emph{dynamic slope model}, or a simple linear regression model with a slope that changes over time. This can be seen by multiplying out equation \eqref{eqn:dlm:reg:obs}:
 \begin{equation}
-y_t = \beta_0 + \beta_1u_t + x_tu_t + v_t = \beta_0 + (\beta_1 + x_t) + v_t. \label{eqn:arwn:dynslo}
+y_t = \beta_0 + \beta_1u_t + x_tu_t + v_t = \beta_0 + (\beta_1 + x_t)u_t + v_t. \label{eqn:arwn:dynslo}
 \end{equation}
 
 Finally, we consider a model with both a dynamic slope and a dynamic intercept by letting $x_t = (x_{t,1},x_{t,2})'$ be two-dimensional and adjusting $F_t$, $G$, and $W$ such that
@@ -101,11 +101,11 @@ F_t = (1, u_t) \quad G = \left(\begin{array}{cc} \phi & 0 \\ 0 & \rho \end{array
 \end{equation}
 Multiplying out both equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state}, we have
 \begin{align}
-y_t &= (\beta_0 + x_{t,1}) + (\beta_1 + x_{t,2}) + v_t. \label{eqn:arwn:dynboth:obs} \\
+y_t &= (\beta_0 + x_{t,1}) + (\beta_1 + x_{t,2})u_t + v_t. \label{eqn:arwn:dynboth:obs} \\
 x_{t,1} &= \phi x_{t-1,1} + w_{t,1} \label{eqn:arwn:dynboth:state1} \\
 x_{t,2} &= \rho x_{t-1,2} + w_{t,2} \label{eqn:arwn:dynboth:state2}
 \end{align}
-where $w_{t,1} \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_s)$, $w_{t,2} \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_b)$, and $\theta = (\beta_0,\beta_1,\phi,\rho,\sigma^2_s,\sigma^2_b,\sigma^2_m)'$ are the unknown parameters. In this model, $\phi$ now represents the lag-1 autocorrelation for the change in the intercept, $\rho$ is the lag-1 autocorrelation for the change in the slope, $\sigma^2_s$ is the innovations variance for the dynamic intercept, and $\sigma^2_b$ is the innovations variance for the dynamic slope.
+where $w_{t,1} \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_s)$, $w_{t,2} \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_b)$, and $\theta = (\beta_0,\beta_1,\phi,\rho,\sigma^2_s,\sigma^2_b,\sigma^2_m)'$ are the unknown parameters. In this model, $\phi$ now represents the lag-1 autocorrelation for the change in the intercept, $\rho$ is the lag-1 autocorrelation for the change in the slope, $\sigma^2_s$ is the variance of the dynamic intercept, and $\sigma^2_b$ is the variance of the dynamic slope.
 
 In Chapter \ref{ch:fmri}, we compare the dynamic slope, dynamic intercept, and simple linear regression models for fitting fMRI data. For ease of reference, we adopt notation to refer to models within a general class of dynamic regression models. Let $M_{ijk}$ represent a (possibly) dynamic regression model where $i$ is the order of the AR process for the dynamic intercept, $j$ is the order of the AR process for the dynamic slope, and $k$ is either 1 or 0 indicating whether or not the observation variance $\sigma^2_m$ is constrained to be 0. Letting $i$ or $j$ be equal to 0 removes the stochasticity in that component. Thus, $M_{101}$ corresponds to the dynamic intercept model described by equations \ref{eqn:arwn:obs} and \ref{eqn:arwn:state}, $M_{011}$ is the dynamic slope model described by equations \ref{eqn:arwn:dynslo} and \ref{eqn:arwn:state}, $M_{111}$ is the model with both a dynamic intercept and dynamic slope described by equations \ref{eqn:arwn:dynboth:obs}, \ref{eqn:arwn:dynboth:state1}, and \ref{eqn:arwn:dynboth:state2}, and $M_{001}$ describes a simple linear regression model with fixed coefficients and independent errors.
 
@@ -114,7 +114,7 @@ In all of these dynamic regression models, we allow for nonstationarity of the s
 &\beta|\sigma^2_m \sim \mbox{N}(b_0, \sigma^2_mB_0) \qquad \sigma^2_m \sim \mbox{IG}(a_{m_0}, b_{m_0}) \label{eqn:dynreg:prior1} \\
 &\phi|\sigma^2_s \sim \mbox{N}(\phi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0}) \label{eqn:dynreg:prior2}
 \end{align}
-with hyperparameters $b_0$, $B_0$, $\phi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ assumed known.
+and the hyperparameters $b_0$, $B_0$, $\phi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ assumed known.
 
 \section{Sequential estimation \label{sec:sequential}}
 
@@ -131,7 +131,7 @@ f_t &= F_ta_t &\qquad Q_t &= F_tR_tF_t' + V \nonumber \\
 m_t &= a_t + R_tF_t'Q_t^{-1}(y_t-f_t) &\qquad C_t &= R_t - R_tF_t'Q_t^{-1}F_tR_t \nonumber
 \end{align}
 
-When unknown fixed parameters are present in DLMs, analytical tractibility exists in only a few cases such as the local level DLM described in Section \ref{sec:dlm:ll} with common observation and state variance factor. In this case, $p(x_t,\theta|y_{1:t})$ is given by
+When unknown fixed parameters are present in DLMs, analytical tractibility exists in only a few cases such as the local level DLM described in Section \ref{sec:dlm:ll} with common observation and state variance factor \cite[Sec 4.3][]{petris:camp:2009:dynamic}. In this case, $p(x_t,\theta|y_{1:t})$ is given by
 \begin{equation}
 x_t|\theta,y_{1:t} \sim \mbox{N}(m_t,\theta c_t) \quad \theta|y_{1:t} \sim \mbox{IG}(\delta_t, \nu_t) \label{eqn:ll:post}
 \end{equation}
@@ -139,7 +139,7 @@ where $m_t$, $c_t$, $\delta_t$, and $\nu_t$ are calculated recursively according
 \begin{align}
 f_t &= m_{t-1} &\qquad q_t &= c_{t-1} + \lambda + 1 \label{eqn:ll:kal} \\
 m_t &= (1 - c_t)f_t + c_ty_t &\qquad C_t &= 1 - \frac{1}{q_t} \nonumber \\
-a_t &= a_{t-1} + \frac{1}{2} &\qquad b_t &= b_{t-1} + \frac{(y_t-f_t)^2}{2q_t}. \nonumber
+\delta_t &= \delta_{t-1} + \frac{1}{2} &\qquad \nu_t &= \nu_{t-1} + \frac{(y_t-f_t)^2}{2q_t}. \nonumber
 \end{align}
 starting with $m_0 = 0$, $c_0 = 1$, and known $\delta_0$ and $b_0$. These equations also provide the marginal posterior distribution of the state, $p(x_t|y_{1:t})$, and one-step ahead predictive density, $p(y_t|y_{1:t-1})$, given by
 \begin{align}
