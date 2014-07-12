@@ -1,0 +1,44 @@
+\documentclass[12pt,oneside,final]{ucthesis}
+
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage{enumitem}
+\usepackage{graphicx}
+
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=1.25in,bmargin=1.25in,lmargin=1.50in,rmargin=1.25in}
+
+\def\newblock{}
+
+\graphicspath{{/Users/Danny/Documents/"UCSB - Research"/Thesis/graphs/},
+{/Users/Danny/Documents/"UCSB - Research"/Thesis/graphs/fmri/}
+}
+
+\begin{document}
+
+\input{Title}          % First Page
+\maketitle             % Make Title Page
+
+\begin{frontmatter}
+\input{Frontmatter}    % acknowledgement and CV
+\tableofcontents
+\listofnotation
+\listoffigures
+\listoftables
+\end{frontmatter}
+
+\dsp
+
+\input{intro}
+\input{models}
+\input{meth}
+%\input{epid}
+%\input{comp}
+%\input{fmri}
+
+\ssp
+
+\bibliographystyle{dcu}   %%% abbrv, agsm
+\bibliography{danny}
+
+\end{document}
