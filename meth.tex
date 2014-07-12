@@ -1,5 +1,7 @@
 \chapter{Methods \label{ch:meth}}
 
+The most common approach to approximating Bayesian posterior distributions when they cannot be calculated analytically is Markov-chain Monte Carlo (MCMC) \citep{Gelf:Smit:samp:1990}.  MCMC prescribes methodology for providing a sample-based estimate of the posterior distribution through generating dependent samples from distributions whose densities can be evaluated up to a proportionality constant. In sequential analysis using state-space models, MCMC is inefficient due to the increase in computational cost incurred by the need for the entire MCMC to be rerun as each new observation arrives.
+
 \section{Markov-chain Monte Carlo \label{sec:mcmc}}
 
 \subsection{Particle MCMC \label{sec:pmcmc}}
@@ -143,4 +145,4 @@ p(y_t|y_{1:t-1}) \approx \sum_{j=1}^J w^{(j)}_{t-1}\alpha^{(j)}_t \label{eqn:con
 Having now prescribed a method for approximating $p(y_{1:t})$ sequentially within the resample-move algorithm, we can compare a set of possible models ${M_1,M_2,\ldots,M_p}$ by calculating posterior model probabilities by
 \begin{equation}
 p(M_i|y_{1:t}) = \frac{p(y_{1:t}|M_i)p(M_i)}{\sum_{i=1}^p p(y_{1:t}|M_i)p(M_i)} \label{eqn:modelcomp}
-\end{equation}
+\end{equation} 
