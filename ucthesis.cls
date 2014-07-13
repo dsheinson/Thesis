@@ -1087,6 +1087,9 @@
      & of its corresponding untruncated normal \\
      & given by $\mu$ and $\Sigma$, respectively \\
     \hline
+    $\mbox{N}(\mu,\Sigma)$ & the log-normal distribution with mean $\mu$ \\
+     & and covariance matrix $\Sigma$ on the log scale \\
+    \hline
     $\mbox{IG}(a,b)$ & the inverse gamma distribution with \\
      & shape $a$ and rate $b$ \\
     \hline
