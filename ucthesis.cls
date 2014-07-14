@@ -1087,13 +1087,16 @@
      & of its corresponding untruncated normal \\
      & given by $\mu$ and $\Sigma$, respectively \\
     \hline
-    $\mbox{N}(\mu,\Sigma)$ & the log-normal distribution with mean $\mu$ \\
+    $\mbox{LN}(\mu,\Sigma)$ & the log-normal distribution with mean $\mu$ \\
      & and covariance matrix $\Sigma$ on the log scale \\
     \hline
     $\mbox{IG}(a,b)$ & the inverse gamma distribution with \\
      & shape $a$ and rate $b$ \\
     \hline
     $\mbox{Unif}(a,b)$ & the continuous uniform distribution on $[a,b]$ \\
+    \hline
+    $\mbox{I}_{(x)}$ & an indicator function that places point mass at $x$ \\
+     & a.k.a. the Dirac delta function \\
     \hline
     $. \sim f$ & `.' distributed according to $f$ \\
     \hline
