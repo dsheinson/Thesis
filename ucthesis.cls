@@ -1095,8 +1095,8 @@
     \hline
     $\mbox{Unif}(a,b)$ & the continuous uniform distribution on $[a,b]$ \\
     \hline
-    $\mbox{I}_{(x)}$ & an indicator function that places point mass at $x$ \\
-     & a.k.a. the Dirac delta function \\
+    $\mbox{I}_{(x)}$ & an indicator distribution that places point mass \\
+     & at $x$; a.k.a. the Dirac delta function \\
     \hline
     $. \sim f$ & `.' distributed according to $f$ \\
     \hline
