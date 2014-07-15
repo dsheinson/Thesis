@@ -12,13 +12,13 @@ MCMC methods provide sample-based estimates of the posterior distribution throug
 
 \subsection{MCMC applied to epidemic model \label{sec:mcmc:epid}}
 
-Consider the state-space model of an epidemic described in Section \ref{sec:epid}, where $x_t = (s_t,i_t)'$ is the latent state, $\theta = (\beta,\gamma,\nu)$ is are the unknown, fixed parameters, equation \eqref{eqn:epid:state} describes the evolution of $x_t$ given $x_{t-1}$, and \eqref{eqn:epid:obs} gives the likelihood of new data, $y_t$, given the current state, $x_t$. The prior distribution, $p(x_0,\theta)$, is assumed to be of the form
+Consider the state-space model of an epidemic described in Section \ref{sec:epid}, where $x_t = (s_t,i_t)'$ is the latent state, $\theta = (\beta,\gamma,\nu)$ are the unknown, fixed parameters, equation \eqref{eqn:epid:state} describes the evolution of $x_t$ given $x_{t-1}$, and \eqref{eqn:epid:obs} gives the likelihood of new data, $y_t$, given the current state, $x_t$. The prior distribution, $p(x_0,\theta)$, is assumed to be of the form
 \begin{equation}
 p(x_0,\theta) = p(x_0)p(\theta) = p(s_0,i_0)p(\beta,\gamma)p(\nu) \label{eqn:epid:prior}
 \end{equation}
 where $p(s_0,i_0)$ is given by equation \eqref{eqn:epid:prior:state}.
 
-Suppose we observe syndromic surveillance data, $y_t$, for $t = 1, 2, \ldots, T$. Using the fact that, for state-space models, we can express the joint density of the data, states, fixed parameters by
+Suppose we observe syndromic surveillance data, $y_t$, for $t = 1, 2, \ldots, T$. Using the fact that, for state-space models, we can express the joint density of the data, states, and fixed parameters by
 \begin{equation}
 p(y_{1:T},x_{0:T},\theta) = \prod_{t = 1}^T \left\{p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)\right\}p(x_0,\theta), \label{eqn:joint}
 \end{equation}
@@ -102,7 +102,7 @@ and $x_0 = 0$ (i.e. $p(x_0) = \mbox{I}_{(0)}$, where $\mbox{I}_(x)$ is an indica
 Suppose we observe $y_t$ for $t = 1,2,\ldots,T$. We generate samples from $p(x_{0:T},\theta|y_{1:t})$ using the following Gibbs sampling algorithm:
 \begin{enumerate}
 \item Start with initial draws $\theta^{(0)} = (\beta^{(0)}, \phi^{(0)}, {\sigma^2_s}^{(0)}, {\sigma^2_m}^{(0)})'$ and \\ $x^{(0)}_{0:T} = (x^{(0)}_0, x^{(0)}_1, \ldots, x^{(0)}_T)'$. Set $j = 1$.
-\item \label{step:gibbs:dr} Jointly sample ${\sigma^2_m}^{(j)} \sim \mbox{IG}(a_{m_T}, b_{m_T})$ and $\beta^{(j)}|{\sigma^2_m}^{(j)} \sim \mbox{N}(b_T,B_T)$, where
+\item \label{step:gibbs:dr:beta} Jointly sample ${\sigma^2_m}^{(j)} \sim \mbox{IG}(a_{m_T}, b_{m_T})$ and $\beta^{(j)}|{\sigma^2_m}^{(j)} \sim \mbox{N}(b_T,B_T)$, where
 \begin{align}
 a_{m_T} &= T/2 + a_{m_0} \label{eqn:dr:am} \\
 b_{m_T} &= \frac{1}{2}(\mbox{SS}_y + b_0'B_0^{-1}b_0 - b_T'B_T^{-1}b_T) + b_{m_0} \label{eqn:dr:bm} \\
@@ -110,7 +110,7 @@ b_{m_T} &= \frac{1}{2}(\mbox{SS}_y + b_0'B_0^{-1}b_0 - b_T'B_T^{-1}b_T) + b_{m_0
 b_T &= B_T\left( \sum^T_{t=1} U_t'(y_t - F_tx_t) + B_0^{-1}b_0\right) \label{eqn:dr:b} \\
 B_T &= \left(\sum^T_{t=1} U_t'U_t + B_0^{-1}\right)^{-1} \label{eqn:dr:B}
 \end{align}
-\item Jointly sample ${\sigma^2_s}^{(j)} \sim \mbox{IG}(a_{s_T}, b_{s_T})$ and $\phi^{(j)}|{\sigma^2_s}^{(j)} \sim \mbox{N}(\phi_T,\Phi_T)$, where
+\item \label{step:gibbs:dr:phi} Jointly sample ${\sigma^2_s}^{(j)} \sim \mbox{IG}(a_{s_T}, b_{s_T})$ and $\phi^{(j)}|{\sigma^2_s}^{(j)} \sim \mbox{N}(\phi_T,\Phi_T)$, where
 \begin{align}
 a_{s_T} &= T/2 + a_{s_0} \label{eqn:dr:as} \\
 b_{s_T} &= \frac{1}{2}(\mbox{SS}_x + \phi_0'\Phi_0^{-1}\phi_0 - \phi_T'\Phi_T^{-1}\phi_T) + b_{s_0} \label{eqn:dr:bs} \\
@@ -138,7 +138,7 @@ p(x_t,\theta| y_{1:t}) \approx \sum_{j=1}^J w_t^{(j)} \mbox{I}_{\left(x_t^{(j)},
 \end{equation}
 where $\left(x_t^{(j)},\theta^{(j)}\right)$ is the location of the $j^{\mbox{th}}$ particle at time $t$ and $w_t^{(j)}$ is the weight of that particle with $\sum_{j=1}^J w_t^{(j)}=1$. A variety of SMC techniques have been developed to provide more efficient approximations to equation \eqref{eqn:filtered} in the sense that with the same computation time a better approximation is achieved. In this section, we describe five particle filtering techniques: the bootstrap filter (BF), auxiliary particle filter (APF), kernel density particle filter (KDPF), resample-move particle filter (RM), and particle learning algorithm (PL).
 
-Each of the five algorithms comes with its own advantages and disadvantages. The BF and APF are the simplest and most straightforward, but are unequipped to efficiently deal with state-space models that contain unknown fixed parameters. The PL performs the most efficiently, but can only be applied to special cases of state-space models such as DLMs. The RM, while equipped to handle state-space models of any form, requires an MCMC step in addition to the SMC, and thus is not a truly sequential algorithm. The KDPF, while being the only truly sequential particle filtering algorithm that can be applied to any state-space model, is outperformed by RM, PL, and MCMC in many model settings.
+Each of the five algorithms comes with its own advantages and disadvantages. The BF and APF are the simplest and most straightforward to implement, but are unequipped to efficiently deal with state-space models that contain unknown fixed parameters. The PL performs the most efficiently, but can only be applied to special cases of state-space models such as DLMs. The RM, while equipped to handle state-space models of any form, requires an MCMC step in addition to the SMC, and thus is not a truly sequential algorithm. The KDPF, while being the only truly sequential particle filtering algorithm that can be applied to any state-space model, is outperformed by RM, PL, and MCMC in many model settings.
 
 In Chapter \ref{ch:epid}, we compare the efficiency of the BF, APF, and KDPF in the syndromic surveillance context. In Chapter \ref{ch:comp}, we compare the KDPF, RM, and PL in terms of their efficiency in estimating the marginal likelihood. Finally, in Chapter \ref{ch:fmri}, we employ the PL for estimating states and unknown fixed parameters in DLMs using real and simulated fMRI data.
 
@@ -203,11 +203,12 @@ To use the KDPF with normal kernels, it is necessary to parameterize the fixed p
 
 In Chapter \ref{ch:epid}, we show that the KDPF can be an effective tool for handling unknown, fixed parameters in state-space models. However, the choice of a mixture normal distribution for regenerating fixed parameter values is somewhat arbitrary, and efficiency of the algorithm can be increased by using a kernel that matches $p(\theta|y_{1:t})$ more closely. The resample-move algorithm (RM), introduced by \citet{Gilk:Berz:foll:2001}, does precisely this by regenerating fixed parameter values from an MCMC transition kernel with stationary distribution equal to $p(\theta|y_{1:t})$. The algorithm works by running one or a few iterations of an MCMC algorithm within each step of the particle filter for the purpose of jittering fixed parameter values. Since the weighted sample of fixed parameter values already represents an approximation to $p(\theta|y_{1:t})$, the resulting sample after running an MCMC for each particle yields a sample that can only improve the approximation.
 
-The general RM algorithm proceeds as follows. Given a particle approximation of the posterior $p(x_{0:t-1},\theta|y_{1:t-1})$ we move to a particle sample approximation of $p(x_{0:t},\theta|y_{1:t})$ by the following steps:
+The general RM algorithm proceeds as follows. Given a particle approximation of the posterior $p(x_{0:t},\theta|y_{1:t})$ we move to a particle sample approximation of $p(x_{0:t+1},\theta|y_{1:t+1})$ by the following steps for each particle $j=1,\ldots,J$:
 \begin{enumerate}
-\item Augmentation: For each $j = 1,\ldots,J$, draw $\tilde{x}^{(j)}_t$ from some state evolution distribution $p\left(x_t|x^{(j)}_{t-1},\theta^{(j)}_{t-1}\right)$. Add $\tilde{x}^{(j)}_t$ to particle $j$ and denote the new augmented particle by $\left(\tilde{x}^{(j)}_{0:t},\theta^{(j)}_{t-1}\right)$.
-\item Update weights: For each $j = 1,\ldots,J$, calculate the \emph{incremental weight} $\alpha^{(j)}_t = p\left(y_t|\tilde{x}^{(j)}_t,\theta^{(j)}_{t-1}\right)$ and then the \emph{unnormalized weight} $\bar{w}^{(j)}_t = w^{(j)}_{t-1}\alpha^{(j)}_t$.
-\item Renormalize weights: For each $j = 1,2,\ldots,J$, calculate the \emph{normalized weights}, $\tilde{w}^{(j)}_t$, by setting $\tilde{w}^{(j)}_t = \bar{w}^{(j)}_t / \sum_{l=1}^J \bar{w}^{(l)}_t$.
+\item Augmentation: Draw $\tilde{x}^{(j)}_t$ from some state evolution distribution $p\left(x_t|x^{(j)}_{t-1},\theta^{(j)}_{t-1}\right)$. Add $\tilde{x}^{(j)}_t$ to particle $j$ and denote the new augmented particle by $\left(\tilde{x}^{(j)}_{0:t},\theta^{(j)}_{t-1}\right)$.
+\item Calculate weights and renormalize: 
+    \[\tilde{w}^{(j)}_t = p\left(y_t|\tilde{x}^{(j)}_t,\theta^{(j)}_{t-1}\right) \qquad w^{(j)}_t = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}. \right.\]
+%\item Renormalize weights: For each $j = 1,2,\ldots,J$, calculate the \emph{normalized weights}, $\tilde{w}^{(j)}_t$, by setting $\tilde{w}^{(j)}_t = \bar{w}^{(j)}_t / \sum_{l=1}^J \bar{w}^{(l)}_t$.
 \item Resample: For each $j$, sample an index $k_j$ from $\{1,2,\ldots,j,\ldots,J\}$ with associated probabilities $\{\tilde{w}^{(1)}_t,\tilde{w}^{(2)}_t,\ldots,\tilde{w}^{(j)}_t,\ldots,\tilde{w}^{(J)}_t\}$.
 \item {\tt if( }resampling was performed{\tt )\{} \\
 \begin{enumerate}[label=\alph*.]
@@ -240,31 +241,77 @@ We consider a particle filtering algorithm called particle learning \citep{Carv:
 \item Update: calculate $s_{t+1}^{(j)} = S\left(y_{t+1},x_{t+1}^{(j)},s_t^{(k)}\right)$,
 \item Regenerate: sample $\theta_{t+1}^{(j)} \sim p\left(\theta|s_{t+1}^{(j)}\right)$.
 \end{enumerate}
-Note that the algorithm requires the ability to evaluate the conditional predictive distribution $p(y_{t+1}|x_t,\theta)$, sample from the conditional posterior distribution $p(x_{t+1}|y_{t+1},x_t,\theta)$, and sample from $p(\theta|s_t)$. Thus, particle learning is only applicable to models for which the form of these distributions is analytically tractable. In addition, we must define the recursive map $S$ to update the sufficient statistics based on the new observation $y_{t+1}$ and the newly sampled state $x_{t+1}^{(j)}$. We now describe these in detail for implementing the PL for the local level DLM described in Section \ref{sec:dlm:ll} and the dynamic regression models described Section \ref{sec:dlm:arwn}.
+Note that the algorithm requires the ability to evaluate the conditional predictive distribution $p(y_{t+1}|x_t,\theta)$, sample from the conditional posterior distribution $p(x_{t+1}|y_{t+1},x_t,\theta)$, and sample from $p(\theta|s_t)$. Thus, particle learning is only applicable to models for which the form of these distributions is analytically tractable. In addition, we must define the recursive map $S$ to update the sufficient statistics based on the new observation $y_{t+1}$ and the newly sampled state $x_{t+1}^{(j)}$. We now show how to implement the PL for the local level DLM described in Section \ref{sec:dlm:ll} and the dynamic regression models described Section \ref{sec:dlm:arwn}.
 
 \subsubsection{PL for local level DLM}
 
-%This is true for the local level DLM described in Section \ref{sec:dlm:ll}, where
-%\begin{align}
-%&y_{t+1}|x_t,\theta \sim \mbox{N}\left(x_t,\theta(1+\lambda)\right) \label{eqn:pl:ll:pred} \\
-%&x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau^2) \label{eqn:pl:ll:state} \\
-%&\mu_t = \frac{\lambda}{1+\lambda}(y_{t+1} + x_t / \lambda) \nonumber \\
-%&\tau^2 = \theta\frac{\lambda}{1+\lambda} \nonumber \\
-%&\theta \sim \mbox{IG}(\delta_t,\nu_t) \label{eqn:pl:ll:theta} \\
-%&\delta_t = \delta_0 + 1/2 + t \nonumber \\
-%&\nu_t = \nu_0 + \frac{1}{2}\left(\sum_{k=1}^t (y_k - x_k)^2 + \frac{1}{\lambda}\sum_{k=1}^t (x_k - x_{k-1})^2 + x_0^2\right) \nonumber
-%\end{align}
+To implement a particle learning algorithm for the local level DLM given by equations \eqref{eqn:ll:obs} and \eqref{eqn:ll:state}, we derive the conditional predictive and conditional posterior distributions
+\begin{align}
+&y_{t+1}|x_t,\theta \sim \mbox{N}\left(x_t,\theta(1+\lambda)\right) \label{eqn:pl:ll:pred} \\
+&x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau^2) \label{eqn:pl:ll:state}
+\end{align}
+where \[\mu_t = \frac{\lambda}{1+\lambda}(y_{t+1} + x_t / \lambda) \qquad \tau^2 = \theta\frac{\lambda}{1+\lambda}.\]
+The conditional posterior $p(\theta|y_{1:t},x_{0:t})$ is given by
+\begin{equation}
+\theta|y_{1:t},x_{0:t} \sim \mbox{IG}(\delta_t,\nu_t)
+\end{equation}
+where
+\begin{align*}
+\delta_t &= t + 1/2 + \delta_0 \\
+\nu_t &= \frac{1}{2}\left(\sum_{k=1}^t (y_k - x_k)^2 + \frac{1}{\lambda}\sum_{k=1}^t (x_k - x_{k-1})^2 + x_0^2\right) + \nu_0
+\end{align*}
+Thus, $s_t = (\delta_t,\nu_t)$ are the conditional sufficient statistics for $\theta$ at time $t$, updated by the recursive map $S$ defined by
+\begin{align}
+\delta_{t+1} &= \delta_t + 1, t \ge 1 \label{eqn:pl:ll:delta} \\
+\nu_{t+1} &= \frac{1}{2}\left((y_{t+1}-x_{t+1})^2 + \frac{1}{\lambda}(x_{t+1}-x_t)^2\right) + \nu_t, t \ge 1 \label{eqn:pl:ll:nu}
+\end{align}
+with initial conditions
+\begin{align*}
+\delta_1 &= 3/2 + \delta_0 \\
+\nu_1 &= \frac{1}{2}\left((y_1-x_1)^2 + \frac{1}{\lambda}(x_1-x_0)^2 + x_0^2\right) + \nu_0
+\end{align*}
 
 \subsubsection{PL for dynamic regression}
 
-%as well as for the dynamic regression models described Section \ref{sec:dlm:arwn}, where
-%\begin{align}
-%&y_{t+1}|x_t,\theta \sim \mbox{N}(U_{t+1}\beta + F_t\phi x_t, F_t^2\sigma^2_s + \sigma^2_m) \label{eqn:pl:dr:pred} \\
-%&x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau^2) \label{eqn:pl:dr:state} \\
-%&\mu_t = \tau^2\left(\frac{(y_{t+1}-U_{t+1}\beta)F_{t+1}}{\sigma^2_m} + \frac{\phi x_t}{\sigma^2_s}\right) \nonumber \\
-%&\tau^2 = \left(\frac{F_{t+1}^2}{\sigma^2_m} + \frac{1}{\sigma^2_s}\right)^{-1} \nonumber
-%\end{align}
-%and sampling from $p(\theta|
+Consider the dynamic regression models $M_{101}$ and $M_{011}$ described in Section \ref{sec:dlm:arwn} and given by equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with
+\begin{align*}
+U_t &= (1, u_t) &\quad \beta &= (\beta_0, \beta_1)' \\
+V &= \sigma^2_m &\quad F_t &= \left\{\begin{array}{ll} 1, & \mbox{for} M_{101} \\ u_t, & \mbox{for} M_{011} \end{array}\right. \\
+G &= \phi &\quad W &= \sigma^2_s,
+\end{align*}
+
+To implement a particle learning algorithm with this model, we derive the conditional predictive and conditional posterior distributions
+\begin{align}
+&y_{t+1}|x_t,\theta \sim \mbox{N}(U_{t+1}\beta + F_t\phi x_t, F_t^2\sigma^2_s + \sigma^2_m) \label{eqn:pl:dr:pred} \\
+&x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau^2) \label{eqn:pl:dr:state}
+\end{align}
+where \[\mu_t = \tau^2\left(\frac{(y_{t+1}-U_{t+1}\beta)F_{t+1}}{\sigma^2_m} + \frac{\phi x_t}{\sigma^2_s}\right) \qquad \tau^2 = \left(\frac{F_{t+1}^2}{\sigma^2_m} + \frac{1}{\sigma^2_s}\right)^{-1},\]
+In addition, we derive $p(\theta|y_{1:t},x_{0:t})$ using the fact that
+\begin{equation}
+p(\theta|y_{1:t},x_{0:t}) \propto \left(\prod_{k=1}^t p(y_k|x_k,\beta,\sigma^2_m)p(x_k|x_{k-1},\phi,\sigma^2_s)\right)p(\beta,\sigma^2_m)p(\beta,\sigma^2_m) \label{eqn:pl:dr:theta}
+\end{equation}
+where the prior distributions $p(\beta,\sigma^2_m)$ and $p(\phi,\sigma^2_s)$ are specified by
+\begin{align}
+\beta|\sigma^2_m &\sim \mbox{N}(b_0, \sigma^2_m B_0) &\quad \sigma^2_m &\sim \mbox{IG}(a_{m_0},b_{m_0}) \label{eqn:pl:prior:beta} \\
+\phi|\sigma^2_s &\sim \mbox{N}(\phi_0, \sigma^2_s \Phi_0) &\quad \sigma^2_s &\sim \mbox{IG}(a_{s_0},b_{s_0}) \label{eqn:pl:prior:phi}
+\end{align}
+with the hyperparameters $b_0$, $B_0$, $\phi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ assumed known. The conditional posterior distributions for $\theta$ are then given by
+\begin{align}
+\beta|\sigma^2_m,y_{1:t},x_{0:t} &\sim \mbox{N}(b_t, \sigma^2_m B_t) &\quad \sigma^2_m|y_{1:t},x_{0:t} &\sim \mbox{IG}(a_{m_t},b_{m_t}) \label{eqn:pl:post:beta} \\
+\phi|\sigma^2_s,y_{1:t},x_{0:t} &\sim \mbox{N}(\phi_t, \sigma^2_s \Phi_t) &\quad \sigma^2_s|y_{1:t},x_{0:t} &\sim \mbox{IG}(a_{s_t},b_{s_t}) \label{eqn:pl:post:phi}
+\end{align}
+where $b_t$, $B_t$, $\phi_t$, $\Phi_t$, $a_{m_t}$, $b_{m_t}$, $a_{s_t}$, and $b_{m_t}$ are calculated according to the equations in Steps \ref{step:gibbs:dr:beta} and \ref{step:gibbs:dr:phi} of the Gibbs sampler outlined in Section \ref{sec:mcmc:dr} (with $T = t$). Thus, $s_t = (b_t, B_t, a_{m_t}, \xi_{m_t}, \phi_t, \Phi_t, a_{s_t}, \xi_{s_t})$ form the sufficient statistics for $\theta$ and are updated by the recursive map given by
+\begin{align}
+B_t^{-1}b_t &= B_{t-1}^{-1}b_{t-1} + U_t'(y_t - F_tx_t) & B_t^{-1} &= B_{t-1}^{-1} + U_t'U_t \label{eqn:pl:dr:suff} \\
+a_{m_t} &= a_{m_{t-1}} + 1/2 & \xi_{m_t} &= \xi_{m_{t-1}} + (y_t - F_tx_t)^2 \nonumber \\
+\Phi_t^{-1}\phi_t &= \Phi_{t-1}^{-1}\phi_{t-1} + x_tx_{t-1} & \Phi_t^{-1} &= \Phi_{t-1}^{-1} + x_{t-1}^2 \nonumber \\
+a_{s_t} &= a_{s_{t-1}} + 1/2 & \xi_{s_t} &= \xi_{s_{t-1}} + x_t^2 \nonumber 
+\end{align}
+Note that we update $\xi_{m_t}$ and $\xi_{s_t}$ in the recursive map and calculate the inverse-gamma rate parameters $b_{m_t}$ and $b_{s_t}$ according to
+\begin{align}
+b_{m_t} &= \frac{1}{2}\left(\xi_{m_t} + b_0'B_0^{-1}b_0 - b_t'B_t^{-1}b_t\right) + b_{m_0} \label{eqn:pl:dr:rate} \\
+b_{s_t} &= \frac{1}{2}\left(\xi_{s_t} + \phi_0'\Phi_0^{-1}\phi_0 - \phi_t'\Phi_t^{-1}\phi_t\right) + b_{s_0} \nonumber
+\end{align}
 
 \section{Resampling \label{sec:resample}}
 
@@ -278,20 +325,24 @@ The algorithms described in Sections \ref{sec:bf} through \ref{sec:pl} were cons
 
 \section{Model Comparison \label{sec:comp}}
 
-%Using the algorithm described in Section \ref{sec:rm} we obtain an approximation to $p(\theta_t|y_{1:t})$ through $\sum_{j=1}^J w_{j,t}\delta_{\theta_{j,t}}(x)$, where $\delta_{x_0}(x)$ is the Dirac delta mass function centered at $x_0$. In addition we can use the weighted particle sample to obtain an approximation to the marginal likelihood $p(y_{1:t})$. We first note that given $p(y_{1:t-1})$, $p(y_{1:t})$ can be updated recursively by
-%
-%\begin{equation}
-%p(y_{1:t}) = p(y_t|y_{1:t-1})p(y_{1:t-1}) \label{eqn:marglik}
-%\end{equation}
-%
-%\noindent Next, we note that an approximation of $p(y_t|y_{1:t-1})$ can be obtained from the weighted particle sample by
-%\begin{equation}
-%p(y_t|y_{1:t-1}) \approx \sum_{j=1}^J w^{(j)}_{t-1}\alpha^{(j)}_t \label{eqn:condmarg}
-%\end{equation}
-%
-%Having now prescribed a method for approximating $p(y_{1:t})$ sequentially within the resample-move algorithm, we can compare a set of possible models ${M_1,M_2,\ldots,M_p}$ by calculating posterior model probabilities by
-%\begin{equation}
-%p(M_i|y_{1:t}) = \frac{p(y_{1:t}|M_i)p(M_i)}{\sum_{i=1}^p p(y_{1:t}|M_i)p(M_i)} \label{eqn:modelcomp}
-%\end{equation} 
+Each of the particle filters described in previous sections, in addition to generating a weighted sample approximation to $p(x_t,\theta|y_{1:t})$, provide an approximation to the marginal likelihood, $p(y_{1:t})$. We first note that given $p(y_{1:t-1})$, $p(y_{1:t})$ can be updated recursively by
+\begin{equation}
+p(y_{1:t}) = p(y_t|y_{1:t-1})p(y_{1:t-1}). \label{eqn:marglik:recurse}
+\end{equation}
+Thus, $p(y_{1:t})$ can be calculated through the one-step ahead predictive densities, $p(y_k|y_{1:k-1})$, for $k=1,\ldots,t$ (letting $p(y_1|y_0) = p(y_1)$) according to
+\begin{equation}
+p(y_{1:t}) = \prod_{k=1}^t p(y_k|y_{1:k-1}). \label{eqn:marglik}
+\end{equation}
+At each step of the particle filter (i.e. at each time $t$), an approximation to $p(y_t|y_{1:t-1})$ can be obtained using
+\begin{equation}
+p(y_t|y_{1:t-1}) \approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{t-1}\alpha^{(j)}_t, & \mbox{for the BF, RM, and PL} \\ \left(\frac{1}{J}\sum_{j=1}^J \tilde{w}^{(j)}_{t-1}\right)\left(\sum_{j=1}^J\tilde{g}^{(j)}_t\right), & \mbox{for the APF and KDPF} \end{array} \right.\label{eqn:onestep:pf}
+\end{equation}
+Given approximations to $p(y_k|y_{1:k-1})$ for $k = 1,\ldots,t$, the marginal likelihood can be approximated via equation \eqref{eqn:marglik}. 
 
-\section{Particle MCMC \label{sec:pmcmc}}
+Having prescribed a method for approximating $p(y_{1:t})$ sequentially using particle filtering, we can compare a set of possible models ${M_1,M_2,\ldots,M_p}$ according to their posterior model probabiities, given by
+\begin{equation}
+p(M_i|y_{1:t}) = \frac{p(y_{1:t}|M_i)p(M_i)}{\sum_{i=1}^p p(y_{1:t}|M_i)p(M_i)} \label{eqn:modelcomp}
+\end{equation}
+In Chapter \ref{ch:comp}, we compare estimated marginal likelihoods using the KDPF, RM and PL with the true marginal likelihood under the local level DLM. In Chapter \ref{ch:fmri} we compare posterior model probabilities for models $M_{101}$, $M_{011}$, and $M_{001}$ using the PL.
+
+\section{Particle MCMC \label{sec:pmcmc}} 
