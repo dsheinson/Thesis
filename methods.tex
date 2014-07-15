@@ -203,40 +203,34 @@ To use the KDPF with normal kernels, it is necessary to parameterize the fixed p
 
 In Chapter \ref{ch:epid}, we show that the KDPF can be an effective tool for handling unknown, fixed parameters in state-space models. However, the choice of a mixture normal distribution for regenerating fixed parameter values is somewhat arbitrary, and efficiency of the algorithm can be increased by using a kernel that matches $p(\theta|y_{1:t})$ more closely. The resample-move algorithm (RM), introduced by \citet{Gilk:Berz:foll:2001}, does precisely this by regenerating fixed parameter values from an MCMC transition kernel with stationary distribution equal to $p(\theta|y_{1:t})$. The algorithm works by running one or a few iterations of an MCMC algorithm within each step of the particle filter for the purpose of jittering fixed parameter values. Since the weighted sample of fixed parameter values already represents an approximation to $p(\theta|y_{1:t})$, the resulting sample after running an MCMC for each particle yields a sample that can only improve the approximation.
 
-The general RM algorithm proceeds as follows. Given a particle approximation of the posterior $p(x_{0:t},\theta|y_{1:t})$ we move to a particle sample approximation of $p(x_{0:t+1},\theta|y_{1:t+1})$ by the following steps for each particle $j=1,\ldots,J$:
+Because an MCMC kernel will often depend on all the observed data and unobserved states, we must track the entire history of states in each particle. That is, particle $j$ is represented by $\left(x_{0:t}^{(j)},\theta_t^{(j)}\right)$ with weight $w_t^{(j)}$, where $x_{0:t}^{(j)} = (x_0^{(j)},x_1^{(j)},\ldots,x_t^{(j)})$. The entire collection of $J$ particles now represents an approximation to $p(x_{0:t},\theta|y_{1:t})$. The general RM algorithm proceeds as follows. Given a particle approximation to the posterior, $p(x_{0:t},\theta|y_{1:t})$, we move to a particle approximation to $p(x_{0:t+1},\theta|y_{1:t+1})$ by the following steps for each particle $j=1,\ldots,J$:
 \begin{enumerate}
-\item Augmentation: Draw $\tilde{x}^{(j)}_t$ from some state evolution distribution $p\left(x_t|x^{(j)}_{t-1},\theta^{(j)}_{t-1}\right)$. Add $\tilde{x}^{(j)}_t$ to particle $j$ and denote the new augmented particle by $\left(\tilde{x}^{(j)}_{0:t},\theta^{(j)}_{t-1}\right)$.
-\item Calculate weights and renormalize: 
-    \[\tilde{w}^{(j)}_t = p\left(y_t|\tilde{x}^{(j)}_t,\theta^{(j)}_{t-1}\right) \qquad w^{(j)}_t = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}. \right.\]
-%\item Renormalize weights: For each $j = 1,2,\ldots,J$, calculate the \emph{normalized weights}, $\tilde{w}^{(j)}_t$, by setting $\tilde{w}^{(j)}_t = \bar{w}^{(j)}_t / \sum_{l=1}^J \bar{w}^{(l)}_t$.
-\item Resample: For each $j$, sample an index $k_j$ from $\{1,2,\ldots,j,\ldots,J\}$ with associated probabilities $\{\tilde{w}^{(1)}_t,\tilde{w}^{(2)}_t,\ldots,\tilde{w}^{(j)}_t,\ldots,\tilde{w}^{(J)}_t\}$.
-\item {\tt if( }resampling was performed{\tt )\{} \\
-\begin{enumerate}[label=\alph*.]
-\item Update weights: Set $w^{(j)}_t = 1 / J$ for all $j$.
-\item \label{step:move} Move particles: For each $j = 1,2,\ldots,J$, draw a new particle $\left(x^{(j)}_{0:t},\theta^{(j)}_t\right)$ from some transition kernel $q\left(x_{0:t},\theta|\tilde{x}^{(j)}_{0:t},\theta^{(j)}_{t-1}\right)$ with invariant distribution $p(x_{0:t},\theta|y_{1:t})$.
-\end{enumerate}
-{\tt \} else \{} For each $j = 1,2,\ldots,J$, set $w^{(j)}_t = \tilde{w}^{(j)}_t$ and $\left(x^{(j)}_{0:t},\theta^{(j)}_t\right) = \left(\tilde{x}^{(j)}_{0:t},\theta^{(j)}_{t-1}\right)$.{\tt\}}
+\item Propagate: draw $\tilde{x}^{(j)}_{t+1}$ from $p\left(x_{t+1}|x^{(j)}_t,\theta^{(j)}_t\right)$. Add $\tilde{x}^{(j)}_{t+1}$ to particle $j$ and denote the new augmented particle by $\left(\tilde{x}^{(j)}_{0:t+1},\theta^{(j)}_t\right)$.
+\item Calculate weights and renormalize:
+    \[\tilde{w}^{(j)}_t = p\left(y_{t+1}|\tilde{x}^{(j)}_{t+1},\theta^{(j)}_t\right) \qquad w^{(j)}_{t+1} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}. \right.\]
+\item Resample: sample an index $k$ from $\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{\tilde{w}^{(1)}_{t+1},\ldots,\tilde{w}^{(j)}_{t+1},\ldots,\tilde{w}^{(J)}_{t+1}\}$.
+\item \label{step:move} Move particles: draw a new particle $\left(x^{(j)}_{0:t+1},\theta^{(j)}_{t+1}\right)$ from some transition kernel $q\left(x_{0:t+1},\theta|\tilde{x}^{(k)}_{0:t+1},\theta^{(k)}_t\right)$ with invariant distribution $p(x_{0:t+1},\theta|y_{1:t+1})$.
 \end{enumerate}
 
-In Chapter \ref{ch:comp}, we run this algorithm on data simulated from the local level DLM with unknown common variance factor , $\theta$ (described in Section \ref{sec:dlm:ll}). To do this, we define an MCMC algorithm for the ``Move particles'' step in the above algorithm. In this case, Step \ref{step:move} in the RM proceeds as follows:
-For each $j = 1,2,\ldots,J$,
+In Chapter \ref{ch:comp}, we run this algorithm on data simulated from the local level DLM with unknown common variance factor, $\theta$ (described in Section \ref{sec:dlm:ll}). To do this, we define an MCMC algorithm for the ``Move particles'' step in the above algorithm. In this case, this step proceeds as follows, for each $j = 1,2,\ldots,J$:
 \begin{enumerate}
-\item \label{step:move:ll} Sample $\theta^{(j)} \sim \mbox{IG}(\nu_j, \delta_j)$, where
+\item \label{step:move:ll} Sample $\theta^{(j)}_{t+1} \sim \mbox{IG}(\nu_j, \delta_j)$, where
 \begin{align*}
 \delta_j &= \delta_0 + 1/2 + t \\
-\nu_j &= \nu_0 + \frac{1}{2}\left(\sum_{k=1}^t (y_k - x_k)^2 + \frac{1}{\lambda}\sum_{k=1}^t (x_k - x_{k-1})^2 + x_0^2\right)
+\nu_j &= \nu_0 + \frac{1}{2}\left(\sum_{k=1}^t (y_k - x_k^{(j)})^2 + \frac{1}{\lambda}\sum_{k=1}^t (x_k^{(j)} - x_{k-1}^{(j)})^2 + {x^{(j)}_0}^2\right)
 \end{align*}
-\item Sample $x_{0:t}^{(j)}$ using FFBS (see Step \ref{step:ffbs} of Gibbs sampler from Section \ref{sec:mcmc:dr}) with
-\[m_0 = 0 \quad C_0 = V = \theta^{(j)} \quad W = \theta^{(j)}\lambda \quad F_t = G = 1\]
+\item Sample $x_{0:t+1}^{(j)}$ using FFBS (see Step \ref{step:ffbs} of Gibbs sampler from Section \ref{sec:mcmc:dr}) with
+\[m_0 = 0 \quad C_0 = V = \theta^{(j)}_{t+1} \quad W = \theta_{t+1}^{(j)}\lambda \quad F_t = G = 1\]
 \end{enumerate}
-
 Notice in this algorithm that, because of the increase in computation required with increasing $t$, the RM is not a truly sequential particle filter.
 
 \subsection{Particle Learning \label{sec:pl}}
 
-We consider a particle filtering algorithm called particle learning \citep{Carv:Joha:Lope:Pols:part} that can be used for a particular class of state-space models which includes DLMs. Like all other particle filters, particle learning prescribes a recursive formula for updating the discrete approximation to the filtered distribution over time. To avoid particle degeneracy in the fixed parameters, sampled values for $\theta$ are refreshed at each time point using conditional sufficient statistics. Let $s_t$ denote the sufficient statistics for $\theta$ conditional on the current state $x_t$. Then, we add the sampled values of the sufficient statistics, $s_t^{(j)}$, to the particles, i.e. particle $j$ and time $t$ is now represented by $\left(x_t^{(j)},s_t^{(j)},\theta_t^{(j)}\right)$. We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\theta|y_{1:t+1})$ by the following procedure for each particle $j = 1,2,\ldots,J$:
+We consider a particle filtering algorithm called particle learning \citep{Carv:Joha:Lope:Pols:part} that can be used for a particular class of state-space models which includes DLMs. For models within this class, particle learning prescribes a truly sequential algorithm that samples new values for $\theta$ from $p(\theta|y_{1:t})$ using conditional sufficient statistics. Let $s_t$ denote the sufficient statistics for $\theta$ conditional on the current state $x_t$. Then, we add the sampled values of the sufficient statistics, $s_t^{(j)}$, to the particles, i.e. particle $j$ and time $t$ is now represented by $\left(x_t^{(j)},s_t^{(j)},\theta_t^{(j)}\right)$. We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\theta|y_{1:t+1})$ by the following procedure for each particle $j = 1,2,\ldots,J$:
 \begin{enumerate}
-\item Resample: sample an index $k \in \{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{g_{t+1}^{(1)},\ldots,g_{t+1}^{(j)},\ldots,g_{t+1}^{(J)}\}$, where \[\tilde{g}_{t+1}^{(j)} = p\left(y_{t+1}|x_t^{(j)},\theta_t^{(j)}\right) \qquad g_{t+1}^{(j)} = \tilde{g}_{t+1}^{(j)} \left/ \sum_{l=1}^J \tilde{g}_{t+1}^{(l)}\right.,\]
+\item Calculate weights an renormalize:
+    \[\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}|x_t^{(j)},\theta_t^{(j)}\right) \qquad w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)} \left/ \sum_{l=1}^J \tilde{w}_{t+1}^{(l)}\right.,\]
+\item Resample: sample an index $k \in \{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w_{t+1}^{(1)},\ldots,w_{t+1}^{(j)},\ldots,w_{t+1}^{(J)}\}$
 \item Propagate: sample $x_{t+1}^{(j)} \sim p\left(x_{t+1}|y_{t+1},x_t^{(k)},\theta_t^{(k)}\right)$,
 \item Update: calculate $s_{t+1}^{(j)} = S\left(y_{t+1},x_{t+1}^{(j)},s_t^{(k)}\right)$,
 \item Regenerate: sample $\theta_{t+1}^{(j)} \sim p\left(\theta|s_{t+1}^{(j)}\right)$.
@@ -305,7 +299,7 @@ where $b_t$, $B_t$, $\phi_t$, $\Phi_t$, $a_{m_t}$, $b_{m_t}$, $a_{s_t}$, and $b_
 B_t^{-1}b_t &= B_{t-1}^{-1}b_{t-1} + U_t'(y_t - F_tx_t) & B_t^{-1} &= B_{t-1}^{-1} + U_t'U_t \label{eqn:pl:dr:suff} \\
 a_{m_t} &= a_{m_{t-1}} + 1/2 & \xi_{m_t} &= \xi_{m_{t-1}} + (y_t - F_tx_t)^2 \nonumber \\
 \Phi_t^{-1}\phi_t &= \Phi_{t-1}^{-1}\phi_{t-1} + x_tx_{t-1} & \Phi_t^{-1} &= \Phi_{t-1}^{-1} + x_{t-1}^2 \nonumber \\
-a_{s_t} &= a_{s_{t-1}} + 1/2 & \xi_{s_t} &= \xi_{s_{t-1}} + x_t^2 \nonumber 
+a_{s_t} &= a_{s_{t-1}} + 1/2 & \xi_{s_t} &= \xi_{s_{t-1}} + x_t^2 \nonumber
 \end{align}
 Note that we update $\xi_{m_t}$ and $\xi_{s_t}$ in the recursive map and calculate the inverse-gamma rate parameters $b_{m_t}$ and $b_{s_t}$ according to
 \begin{align}
@@ -337,7 +331,7 @@ At each step of the particle filter (i.e. at each time $t$), an approximation to
 \begin{equation}
 p(y_t|y_{1:t-1}) \approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{t-1}\alpha^{(j)}_t, & \mbox{for the BF, RM, and PL} \\ \left(\frac{1}{J}\sum_{j=1}^J \tilde{w}^{(j)}_{t-1}\right)\left(\sum_{j=1}^J\tilde{g}^{(j)}_t\right), & \mbox{for the APF and KDPF} \end{array} \right.\label{eqn:onestep:pf}
 \end{equation}
-Given approximations to $p(y_k|y_{1:k-1})$ for $k = 1,\ldots,t$, the marginal likelihood can be approximated via equation \eqref{eqn:marglik}. 
+Given approximations to $p(y_k|y_{1:k-1})$ for $k = 1,\ldots,t$, the marginal likelihood can be approximated via equation \eqref{eqn:marglik}.
 
 Having prescribed a method for approximating $p(y_{1:t})$ sequentially using particle filtering, we can compare a set of possible models ${M_1,M_2,\ldots,M_p}$ according to their posterior model probabiities, given by
 \begin{equation}
