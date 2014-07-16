@@ -379,9 +379,9 @@
     \ddsp
     \noindent
     \leftskip 40truept
-    \@chair, Chair
+    \@committeeII, Co-chair
 %    \@committee
-    \ifnum\@nummembers>1 \\ \@committeeII \fi
+    \ifnum\@nummembers>1 \\ \@chair, Co-chair \fi
     \ifnum\@nummembers>2 \\ \@committeeIII \fi
     \ifnum\@nummembers>3 \\ \@committeeIV \fi
     \ifnum\@nummembers>4 \\ \@committeeV \fi
@@ -421,10 +421,10 @@
   \begin{centering}\ssp
     The {\@report} of \par
     {\@author} is approved: \par\vskip 0.45cm
-    \ifnum\@nummembers>1
-       \vskip .4cm \vbox{\medskip}\centerline{\hbox to 10cm{\hrulefill}}
-       \@committeeII \\
-    \fi
+%    \ifnum\@nummembers>1
+%       \vskip .4cm \vbox{\medskip}\centerline{\hbox to 10cm{\hrulefill}}
+%       \@committeeII \\
+%    \fi
     \ifnum\@nummembers>2
        \vskip .4cm \vbox{\medskip}\centerline{\hbox to 10cm{\hrulefill}}
        \@committeeIII \\
@@ -440,10 +440,16 @@
     \ifnum\@nummembers>5
        \vskip .4cm \vbox{\medskip}\centerline{\hbox to 10cm{\hrulefill}}
        \@committeeVI \\
+
     \fi
 
     \vskip .4cm \vbox{\medskip}\centerline{\hbox to 10cm{\hrulefill}}
-    \par \@chair, Committee Chairperson \par\vskip 1.25cm\vbox{}
+    \par \@committeeII, Committee Co-chairperson \\
+
+%    \fi
+
+    \vskip .4cm \vbox{\medskip}\centerline{\hbox to 10cm{\hrulefill}}
+    \par \@chair, Committee Co-chairperson \par\vskip 1.25cm\vbox{}
     \centerline{\@approvalmonth~\@approvalyear}\vfill\vskip 1cm\vbox{}
   \end{centering}}
 
