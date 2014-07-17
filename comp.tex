@@ -1,0 +1,56 @@
+\chapter{Comparison of the performance of particle filter algorithms for model selection}
+
+%For an illustration of particle learning, we consider the local level or random-walk DLM. In this example, an analytical form for $p(x_t,\theta|y_{1:t})$ exists, and so a particle filtering algorithm is not needed for this situation in practice. However, we offer this example so that we can evaluate the performance of particle learning through comparison with known distributions.
+%
+%The local level model is specified by state and observation equations
+%\begin{align}
+%y_t &= x_t + v_t \label{eqn:llobs} \\
+%x_t &= x_{t-1} + w_t \label{eqn:llstate}
+%\end{align}
+%where $y_t$ and $x_t$ are univariate, $v_t \stackrel{\mbox{iid}}{\sim} \mbox{N}(0,\theta)$, $w_t \stackrel{\mbox{iid}}{\sim} \mbox{N}(0,\theta\lambda)$, and $v_t \perp w_s$ for all $s$ and $t$. We regard $\theta$ as an unknown parameter representing the common state and observation variance (up to a constant) and $\lambda$, which represents the signal to noise ratio, is regarded as known. We define the following prior distribution on the initial state $x_0$ and fixed parameter $\theta$:
+%\begin{equation}
+%x_0|\theta \sim \mbox{N}(m_0,\theta C_0) \qquad \theta \sim \mbox{IG}(a_0,b_0) \label{eqn:llprior}
+%\end{equation}
+%where $\mbox{IG}(a,b)$ represents the inverse-gamma distribution with shape parameter $a$ and rate parameter $b$. The hyperparameters $m_0$, $C_0$, $a_0$, and $b_0$ are regarded as known.
+%
+%As mentioned, an explicit form for the posterior $p(x_t,\theta|y_{1:t})$ can be calculated and updated recursively using the well-known Kalman filter equations \cite[Chap. 2]{petris2009dynamic}. Denote the prior distribution $p(x_0, \theta)$ defined in equation \eqref{eqn:llprior} by $(x_0, \theta) \sim \mbox{NG}(m_0, C_0, a_0, b_0)$. Given $(x_{t-1},\theta)|y_{1:t-1} \sim \mbox{NG}(m_{t-1},C_{t-1}, a_{t-1}, b_{t-1})$ for $t \ge 1$ (with the convention $p(x_0,\theta|y_{1:0}) = p(x_0, \theta)$), the posterior distribution $p(x_t,\phi|y_{1:t})$ is $\mbox{NG}(m_t,C_t,a_t,b_t)$ where $m_t$, $C_t$, $a_t$, and $b_t$ are calculated through the following equations:
+%\begin{align}
+%f_t &= m_{t-1} &\qquad Q_t &= C_{t-1} + \lambda + 1 \label{eqn:obs.pred} \\
+%m_t &= (1 - C_t)f_t + C_ty_t &\qquad C_t &= 1 - \frac{1}{Q_t} \\
+%a_t &= a_{t-1} + \frac{1}{2} &\qquad b_t &= b_{t-1} + \frac{(y_t-f_t)^2}{2Q_t}
+%\end{align}
+%We can also calculate the marginal posterior distributions $p(x_t|y_{1:t})$ and $p(\theta|y_{1:t})$, given by
+%\begin{equation}
+%x_t|y_{1:t} \sim \mbox{T}(m_t,C_t \frac{b_t}{a_t},2a_t) \qquad \theta|y_{1:t} \sim \mbox{IG}(a_t, b_t), \label{eqn:margpost}
+%\end{equation}
+%and the one-step ahead predictive density $p(y_t|y_{1:t-1})$ using equation \eqref{eqn:obs.pred} since \[y_t|y_{1:t-1} \sim \mbox{T}(f_t,Q_t \frac{b_{t-1}}{a_{t-1}},2a_{t-1})\]
+%where $\mbox{T}(\mu,\sigma^2,d)$ represents the non-standard student-t distribution with location parameter $\mu$, scale parameter $\sigma^2$, and $d$ degrees of freedom.
+%
+%To implement a particle learning algorithm to approximate $p(x_t,\theta|y_{1:t})$ for all $t$, we derive the following conditional distributions given the current state $x_t$ and fixed parameter $\theta$:
+%\begin{align*}
+%&y_{t+1}|x_t,\theta \sim \mbox{N}\left(x_t,\theta(1+\lambda)\right) \\
+%&x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau^2)
+%\end{align*}
+%where \[\mu_t = \frac{\lambda}{1+\lambda}(y_{t+1} + x_t / \lambda) \qquad \tau^2 = \theta\frac{\lambda}{1+\lambda}\]
+%\noindent We also note the conditional posterior for $\theta$:
+%\begin{equation}
+%\theta|y_{1:t+1},x_{0:t+1} \sim \mbox{IG}(a_{t+1},b_{t+1})
+%\end{equation}
+%where
+%\begin{align*}
+%a_t &= t + 1/2 + a_0, t \ge 1 \\
+%b_t &= \frac{1}{2}\left(\sum_{k=1}^t (y_k - x_k)^2 + \frac{1}{\lambda}\sum_{k=1}^t (x_k - x_{k-1})^2 + x_0^2\right) + b_0
+%\end{align*}
+%Thus, the sufficient statistics $a_t$ and $b_t$ are updated through the recursive map $S$ defined by
+%\begin{align*}
+%a_1 &= 3/2 + a_0 \qquad a_{t+1} = a_t + 1, t \ge 1 \\
+%b_1 &= \frac{1}{2}\left((y_1-x_1)^2 + \frac{1}{\lambda}(x_1-x_0)^2 + x_0^2\right) + b_0 \qquad b_{t+1} = \frac{1}{2}\left((y_{t+1}-x_{t+1})^2 + \frac{1}{\lambda}(x_{t+1}-x_t)^2\right) + b_t, t \ge 1
+%\end{align*}
+%
+%\begin{figure}
+%\includegraphics[width=1.0\textwidth]{cv_pl_loglik-5-10-20-1-20}
+%\end{figure}
+%
+%\begin{figure}
+%\includegraphics[width=1.0\textwidth]{cv_pl_ternary-5-10-20-1-20}
+%\end{figure} 

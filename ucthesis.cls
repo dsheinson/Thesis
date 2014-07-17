@@ -1132,8 +1132,8 @@
     $p(x_t,\theta|y_{1:t})$ & filtered distribution of current state \\
      & and fixed parameters (at time $t$) \\
     \hline
-    $p(x_{0:t},\theta|y_{1:t})$ & filtered distribution of state history/trajectory \\
-     & and fixed parameters \\
+    $p(x_{0:t},\theta|y_{1:t})$ & filtered distribution of state history/ \\
+     & trajectory and fixed parameters \\
     \hline
     $p(x_s,\theta|y_{1:t})$, $s < t$ & smoothed distribution of state at time $s$ \\
      & and fixed parameters at time $t$ \\
@@ -1141,7 +1141,8 @@
     $p(x_t|y_{1:t},\theta)$ & filtered distribution of current state \\
      & conditional on fixed parameters \\
     \hline
-    $p(x_t|y_{1:t})$ & marginal filtered distribution of current state \\
+    $p(x_t|y_{1:t})$ & marginal filtered distribution of current \\
+     & state \\
     \hline
     $p(\theta|y_{1:t},x_{0:t})$ & filtered distribution of fixed parameters \\
      & conditional on states \\
@@ -1152,6 +1153,9 @@
     $p(y_{1:t})$ & marginal likelihood of the data \\
     \hline
     $p(y_t|y_{1:t-1})$ & one-step ahead predictive density \\
+    \hline
+    $p(x_0,\theta)$ & prior distribution of the initial \\
+     & state and fixed parameters \\
     \hline
     \end{longtable}
     \end{center}
