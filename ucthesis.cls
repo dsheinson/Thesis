@@ -1136,7 +1136,7 @@
      & trajectory and fixed parameters \\
     \hline
     $p(x_s,\theta|y_{1:t})$, $s < t$ & smoothed distribution of state at time $s$ \\
-     & and fixed parameters at time $t$ \\
+     & and fixed parameters \\
     \hline
     $p(x_t|y_{1:t},\theta)$ & filtered distribution of current state \\
      & conditional on fixed parameters \\
