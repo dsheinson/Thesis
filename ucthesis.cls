@@ -1156,6 +1156,13 @@
     \hline
     $p(x_0,\theta)$ & prior distribution of the initial \\
      & state and fixed parameters \\
+     \hline
+     $p(y_{t+1}|x_t,\theta)$ & conditional predictive distribution \\
+    \hline
+    $p(x_{t+1}|y_{t+1},x_t,\theta)$ & filtered distribution of $x_{t+1}$ \\
+     & conditional on $x_t$ and $\theta$ \\
+     \hline
+    $p(x|\hdots)$ & full conditional distribution for $x$ \\
     \hline
     \end{longtable}
     \end{center}
