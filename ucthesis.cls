@@ -1063,25 +1063,34 @@
 % Single-space list of figures, add it to the table of contents.
 \def\listofnotation{\@restonecolfalse
   \if@twocolumn\@restonecoltrue\onecolumn\fi
-  \chapter*{List of Notation\@mkboth{\uppercase{List of Notation}}%
-{\uppercase{List of Notation}}}
-   \addcontentsline{toc}{chapter}{List of Notation}
+  \chapter*{List of Notation and Terminology\@mkboth{\uppercase{List of Notation and Terminology}}%
+{\uppercase{List of Notation and Terminology}}}
+   \addcontentsline{toc}{chapter}{List of Notation and Terminology}
    {\ssp\@starttoc{lof}}\if@restonecol
     \twocolumn\fi
-    \begin{table}[h]
-    \begin{tabular}{|c|l|}
+    \renewcommand{\arraystretch}{0.5}
+    \begin{center}
+    \begin{longtable}{|c|l|}
+    \endfirsthead
+    \multicolumn{2}{c}{\textit{Continued from previous page}} \\
     \hline
-    $y_t$ & observed data at time $t$ \\
+    \endhead
     \hline
-    $x_t$ & unobserved state at time $t$ \\
+    \multicolumn{2}{r}{\textit{Continued on next page}} \\
+    \endfoot
+    \endlastfoot
     \hline
-    $\theta$ & unknown, fixed parameters \\
+    $y_t$ & vector of observed data at time $t$ \\
+    \hline
+    $x_t$ & unobserved state vector at time $t$ \\
+    \hline
+    $\theta$ & vector of unknown, fixed parameters \\
     \hline
     $y_{s:t}$ & collection of variables $(y_s,y_{s+1},\ldots,y_{t-1},y_t)$ \\
     \hline
     capital symbols, e.g. $F$, $G$, $\Phi$, $\Sigma$ & matrices \\
     \hline
-    lowercase symbols, e.g. $a$, $b$, $\beta$, $\gamma$ & vectors and scalars \\
+    lowercase symbols, e.g. $a$, $b$, $\beta$, $\gamma$ & vectors or scalars \\
     \hline
     $I_n$ & the $n \times n$ identity matrix \\
     \hline
@@ -1097,12 +1106,13 @@
      & and covariance matrix $\Sigma$ on the log scale \\
     \hline
     $\mbox{IG}(a,b)$ & the inverse gamma distribution with \\
-     & shape $a$ and rate $b$ \\
+     & shape $a$ and rate $b$, i.e. with pdf given by \\
+     & $p(x|a,b) = \frac{b^a}{\Gamma(a)}x^{1-a}\exp(-b/x)$ \\
     \hline
     $\mbox{Unif}(a,b)$ & the continuous uniform distribution on $[a,b]$ \\
     \hline
-    $\mbox{I}_{(x)}$ & an indicator distribution that places point mass \\
-     & at $x$; a.k.a. the Dirac delta function \\
+    $\delta_x$ & the Dirac delta function that places \\
+     & point mass at $x$ \\
     \hline
     $. \sim f$ & `.' distributed according to $f$ \\
     \hline
@@ -1119,9 +1129,33 @@
     \hline
     $\mbox{vec}(A)$ & column-wise vectorization of the matrix $A$ \\
     \hline
-    \end{tabular}
-    \end{table}
-    }
+    $p(x_t,\theta|y_{1:t})$ & filtered distribution of current state \\
+     & and fixed parameters (at time $t$) \\
+    \hline
+    $p(x_{0:t},\theta|y_{1:t})$ & filtered distribution of state history/trajectory \\
+     & and fixed parameters \\
+    \hline
+    $p(x_s,\theta|y_{1:t})$, $s < t$ & smoothed distribution of state at time $s$ \\
+     & and fixed parameters at time $t$ \\
+    \hline
+    $p(x_t|y_{1:t},\theta)$ & filtered distribution of current state \\
+     & conditional on fixed parameters \\
+    \hline
+    $p(x_t|y_{1:t})$ & marginal filtered distribution of current state \\
+    \hline
+    $p(\theta|y_{1:t},x_{0:t})$ & filtered distribution of fixed parameters \\
+     & conditional on states \\
+    \hline
+    $p(\theta|y_{1:t})$ & marginal filtered distribution of fixed \\
+     & parameters \\
+    \hline
+    $p(y_{1:t})$ & marginal likelihood of the data \\
+    \hline
+    $p(y_t|y_{1:t-1})$ & one-step ahead predictive density \\
+    \hline
+    \end{longtable}
+    \end{center}
+}
 
 % LIST OF FIGURES
 %
