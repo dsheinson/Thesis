@@ -1185,6 +1185,11 @@
 \def\listoffigures{\@restonecolfalse
   \if@twocolumn\@restonecoltrue\onecolumn\fi
   \chapter*{\listfigurename\@mkboth{\uppercase{\listfigurename}}%
+   {\uppercase{\listfigurename}}}\@starttoc{lof}\if@restonecol
+  \twocolumn\fi}
+\def\listoffigures{\@restonecolfalse
+  \if@twocolumn\@restonecoltrue\onecolumn\fi
+  \chapter*{\listfigurename\@mkboth{\uppercase{\listfigurename}}%
 {\uppercase{\listfigurename}}}
    \addcontentsline{toc}{chapter}{\listfigurename}
    {\ssp\@starttoc{lof}}\if@restonecol
