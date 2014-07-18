@@ -1075,18 +1075,9 @@
     \multicolumn{2}{c}{\textit{Continued from previous page}} \\
     \hline
     \endhead
-    \hline
     \multicolumn{2}{r}{\textit{Continued on next page}} \\
     \endfoot
     \endlastfoot
-    \hline
-    $y_t$ & vector of observed data at time $t$ \\
-    \hline
-    $x_t$ & unobserved state vector at time $t$ \\
-    \hline
-    $\theta$ & vector of unknown, fixed parameters \\
-    \hline
-    $y_{s:t}$ & collection of variables $(y_s,y_{s+1},\ldots,y_{t-1},y_t)$ \\
     \hline
     capital symbols, e.g. $F$, $G$, $\Phi$, $\Sigma$ & matrices \\
     \hline
@@ -1098,9 +1089,8 @@
      & and covariance matrix $\Sigma$ \\
     \hline
     $\mbox{N}_{\Omega}(\mu,\Sigma)$ & the normal distribution truncated onto \\
-     & the set $\Omega$ with mean and covariance \\
-     & of its corresponding untruncated normal \\
-     & given by $\mu$ and $\Sigma$, respectively \\
+     & the set $\Omega$ with untruncated mean $\mu$ \\
+     & and covariance $\Sigma$ \\
     \hline
     $\mbox{LN}(\mu,\Sigma)$ & the log-normal distribution with mean $\mu$ \\
      & and covariance matrix $\Sigma$ on the log scale \\
@@ -1111,8 +1101,8 @@
     \hline
     $\mbox{Unif}(a,b)$ & the continuous uniform distribution on $[a,b]$ \\
     \hline
-    $\delta_x$ & the Dirac delta function that places \\
-     & point mass at $x$ \\
+    $\delta_{x_0}(x)$ & the Dirac delta function that places \\
+     & point mass at $x_0$ \\
     \hline
     $. \sim f$ & `.' distributed according to $f$ \\
     \hline
@@ -1129,11 +1119,25 @@
     \hline
     $\mbox{vec}(A)$ & column-wise vectorization of the matrix $A$ \\
     \hline
+    $y_t$ & vector of observed data at time $t$ \\
+    \hline
+    $x_t$ & unobserved state vector at time $t$ \\
+    \hline
+    $\theta$ & vector of unknown fixed parameters \\
+    \hline
+    $y_{s:t}$ & collection of variables $(y_s,y_{s+1},\ldots,y_{t-1},y_t)$ \\
+    \hline
+    $p(y_t|x_t,\theta)$ & observation equation, i.e. conditional \\
+     & likelihood \\
+    \hline
+    $p(x_t|x_{t-1},\theta)$ & state equation, i.e. state transition \\
+     & density \\
+    \hline
     $p(x_t,\theta|y_{1:t})$ & filtered distribution of current state \\
      & and fixed parameters (at time $t$) \\
     \hline
-    $p(x_{0:t},\theta|y_{1:t})$ & filtered distribution of state history/ \\
-     & trajectory and fixed parameters \\
+    $p(x_{0:t},\theta|y_{1:t})$ & filtered distribution of state history \\
+     & and fixed parameters \\
     \hline
     $p(x_s,\theta|y_{1:t})$, $s < t$ & smoothed distribution of state at time $s$ \\
      & and fixed parameters \\
@@ -1143,6 +1147,12 @@
     \hline
     $p(x_t|y_{1:t})$ & marginal filtered distribution of current \\
      & state \\
+    \hline
+    $p(x_{0:t}|y_{1:t},\theta)$ & filtered distribution of state history \\
+     & conditional on fixed parameters \\
+    \hline
+    $p(x_{0:t}|y_{1:t})$ & marginal filtered distribution of state \\
+     & history \\
     \hline
     $p(\theta|y_{1:t},x_{0:t})$ & filtered distribution of fixed parameters \\
      & conditional on states \\
@@ -1158,6 +1168,7 @@
      & state and fixed parameters \\
      \hline
      $p(y_{t+1}|x_t,\theta)$ & conditional predictive distribution \\
+      & given current state and fixed parameters \\
     \hline
     $p(x_{t+1}|y_{t+1},x_t,\theta)$ & filtered distribution of $x_{t+1}$ \\
      & conditional on $x_t$ and $\theta$ \\
