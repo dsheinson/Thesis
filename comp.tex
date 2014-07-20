@@ -1,22 +1,80 @@
 \chapter{Simulation study: SMC model comparison \label{ch:comp}}
 
-\begin{figure}
+In Chapter \ref{ch:epid}, we illustrated the improved performance of the KDPF over the BF and APF within the context of tracking an epidemic using a model that contains unknown fixed parameters. In this chapter, we compare the KDPF with more advanced strategies, specifically the RM and PL. In particular, we focus on how efficiently these algorithms perform in terms of estimating the marginal likelihood and comparing possible data-generating models. To evaluate the relative performance of the particle filters, we simulate data from the local level DLM with common observation and state variance factor described in Section \ref{sec:dlm:ll}, since this model emits tractable forms of the filtered distribution and marginal likelihood.
+
+This short chapter consists of three sections. Section \ref{sec:comp:data} describes simulated data from the local level DLM and analytical estimation of states and the unknown common variance factor. Section \ref{sec:comp:est} describes estimation using the KDPF, RM, and PL. Finally, Section \ref{sec:comp:models} discusses estimation of the marginal likelihood and gives results assessing the performance of the KDPF, RM, and PL for comparing models with different signal-to-noise ratios.
+
+\section{Simulated data and estimation of states and variance factor} \label{sec:comp:data}
+
+Recall the local level DLM with unknown common state and observation variance factor, $\theta$, and known signal-to-noise ratio, $\lambda$, given by equations \eqref{eqn:ll:obs} and \eqref{eqn:ll:state} and rewritten here as
+\begin{align*}
+y_t &\sim \mbox{N}(x_t, \theta) \\
+x_t &\sim \mbox{N}(x_{t-1}, \theta\lambda).
+\end{align*}
+A time series of length $T = 100$ was simulated from this model with true $\theta = \lambda = 1$. The data along with the true unobserved $x_t$ are shown by the black dots and lines in the left panel of Figure \ref{fig:comp:data}.
+ 
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{Simulated data from local level DLM} \label{fig:comp:data}
+\begin{minipage}{0.45\linewidth}
+\includegraphics[width=1.0\textwidth]{cv-test-states-1}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\includegraphics[width=1.0\textwidth]{cv-test-precision-1}
+\end{minipage}
+\end{figure}
+ 
+We specify the prior distribution, $p(x_0,\theta)$, according to equation \eqref{eqn:ll:prior} with $a_0 = b_0 = 1$. The red and blue lines in the left panel of Figure \ref{fig:comp:data} show 95\% credible intervals, at each time $t$, for the marginal filtered distribution of $x_t$ and the one-step ahead predictions for $y_t$, respectively. We can display these intervals without need for running a particle filter because these distributions can be calculated analytically according to equations \eqref{eqn:ll:marg} and \eqref{eqn:ll:onestep}. Similarly, we can calculate sequential 95\% credible intervals for the marginal filtered distribution of the unknown common state and observation precision factor (which we refer to as simply the unknown precision), $1/\theta$, since this is known analytically to follow a gamma distribution with shape $a_t$ and rate $b_t$ calculated recursively according to equation \eqref{eqn:ll:kal} (see right panel of Figure \ref{fig:comp:data}).
+
+In practice, particle filters are not needed to analyze data using this local level DLM since analytical forms for the filtered distributions of interest are available. However, in the remaining sections of this chapter, we use the analytical solutions for these distributions (referred to as the ``true posterior'' or ``true filtered distribution'') to assess the performance of the KDPF, RM, and PL by examining which algorithm yields the best approximation of the truth while requiring the fewest number of particles.
+
+\section{Estimation using particle filters} \label{sec:comp:est}
+
+Each of the KDPF, RM, and PL were run twenty times on the simulated data with number of particles $J = 100, 500, 1000, \mbox{ and } 5000$. Resampling was performed in each algorithm at time points where the effective sample size dropped below $0.8J$ (this is the same resampling threshold used in Chapter \ref{ch:epid}). For the KDPF, the discount factor $\Delta$ was set to 0.99, and the RM and PL were implemented as described in Sections \ref{sec:rm} and \ref{sec:pl}.
+
+Sequential 95\% credible intervals for the marginal filtered distributions of $x_t$ and $1/\theta$ for each $J$ are displayed in Figure \ref{fig:comp:quant}. Compared with the 95\% credible intervals of the true filtered distribution of the states, all algorithms seem to perform well, yielding credible intervals in line with the truth for $J > 100$. The KDPF, however, is outperformed by the other two algorithms, with credible intervals for the filtered precision that are inaccurate for $J < 1000$ and exhibit wide variability around the true upper bounds of the intervals for $J >= 1000$.
+
+The RM and PL both perform well, giving reasonable approximations for the marginal filtered distributions of both $x_t$ and $1/\theta$ for $J = 100$ and becoming almost indistinguishable from the true posterior by $J = 5000$. When looking at the filtered precision for $J = 100$, however, the RM appears to exhibit more variability than the PL between successive time points within a single particle filter run.
+
+\begin{figure}[ht]
 \ssp
 \centering
 \caption{Comparing sequential credible intervals for KDPF, RM, and PL} \label{fig:comp:quant}
 \includegraphics[width=0.7\textwidth]{cv-pl-quant-10-1-20-5}
 \end{figure}
 
-\begin{figure}
+\section{Comparing models with varying signal-to-noise ratio} \label{sec:comp:models}
+
+We now discuss estimation of the marginal likelihood of the simulated data. Recall that, given the density of the one-step ahead predictions, the marginal likelihood can be calculated by equation \eqref{eqn:ll:marglik}. Since the distribution of the one-step ahead predictions, $p(y_t|y_{1:t-1})$, is known for our local level DLM for all $t$, the marginal likelihood $p(y_{1:T})$ can be calculated analytically. For computational stability, we will focus most often on the log marginal likelihood, $\log p(y_{1:T})$.
+
+The true signal-to-noise ratio $\lambda$ for our simulated data is 1. However, we can consider the marginal likelihood that the data was generated from a model with a different $\lambda$. Figure \ref{fig:comp:lambda} displays the true log marginal likelihood of the data when assuming different values of $\lambda$. Notice that, starting at $\lambda = 0$, there is a sharp increase in $\log p(y_{1:T})$ to maximum value as we approach the true $\lambda$ of 1, with a gradual decrease in $\log p(y_{1:T})$ for $\lambda > 1$.
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{Log marginal likelihood versus $\lambda$} \label{fig:comp:lambda}
+\includegraphics[width=1.0\textwidth]{cv_loglikvsW}
+\end{figure}
+
+In addition to the runs of the KDPF, RM, and PL that assume $\lambda = 1$, we ran each particle filter twenty more times for each $J = 100, 500, 1000, \mbox{ and } 5000$ with $\lambda$ assumed to be 0.5 and 2. Notice from Figure \ref{fig:comp:lambda} that these two values of $\lambda$ yield lower log marginal likelihoods than the true value, but are approximately equal competitors with perhaps a slight edge going toward $\lambda = 0.5$. Figure \ref{fig:comp:loglik} shows kernel density approximations of the empirical distribution of the twenty log marginal likelihood estimates, $\log p(y_{1:T})$, of each particle filter for each $J$ and $\lambda$. For $\lambda = 1 \mbox{ and } 2$, the PL appears to provide a better estimate of $\log p(y_{1:T})$ the fastest as a function $J$, as indicated by the more concentrated densities around the truth relative to the RM and KDPF. For $J > 100$ and $\lambda = 0.5$, the RM is competitive with the PL, while the KDPF appears to be outperformed in all scenarios.
+
+\begin{figure}[ht]
 \ssp
 \centering
 \caption{Comparing log marginal likelihood for KDPF, RM, and PL} \label{fig:comp:loglik}
 \includegraphics[width=1.0\textwidth]{cv_pl_loglik-5-10-20-1-20}
 \end{figure}
 
-\begin{figure}
+Lastly, we can consider posterior model probabilities among the set of models that assume $\lambda = 0.5, 1, \mbox{ and } 2$ by letting the prior probability of each model be $1/3$ and using the marginal likelihood to calculate posterior model probabilities according to equation \eqref{eqn:modcomp} (where $N = 3$ and $M_1$, $M_2$, and $M_3$ represent models with $\lambda = 0.5, 1, \mbox{ and } 2$, respectively). Thus, for each $\lambda$, we can calculate the true posterior model probability and compare with twenty estimates of the posterior model probability for each particle filter and each $J$. 
+
+Figure \ref{fig:comp:post} summarizes these results using compositional plots, where each corner of a ternary diagram represents one of the three possible models. Each point in a diagram represents a set of three posterior probabilities -- one for each model -- estimated by a specific particle filtering algorithm with number of particles $J$. The PL appears to perform the best, as the clustering of red points hones in around the point representing the true posterior probabilities the fastest with increasing $J$. The KDPF, again, is outperformed, needing at least 5000 particles to even start clustering around the true posterior.
+
+\begin{figure}[ht]
 \ssp
 \centering
 \caption{Comparing posterior model probabilities for KDPF, RM, and PL} \label{fig:comp:post}
 \includegraphics[width=1.0\textwidth]{cv_pl_ternary-5-10-20-1-20}
 \end{figure}
+
+In this chapter, we provide an illustration of the relative performance of the KDPF, RM, and PL for comparing local level DLMs with common state and observation variance factor and different signal-to-noise ratios. The superior performance of the PL relative to the RM is convenient from the practitioner's perspective, since this algorithm is easier to implement in that it does not require the specification of an MCMC algorithm in addition to the SMC. However, the PL can only be used for specific models where the the distributions $p(y_{t+1}|x_t,\theta)$, $p(x_{t+1}|y_t,x_t,\theta)$, and $p(\theta|y_{1:t},x_{0:t})$ are analytically tractable. The dynamic regression models described in Section \ref{sec:dlm:arwn} emit tractable forms for these distributions, and so we use the PL for comparing these models in Chapter \ref{ch:fmri}. 
