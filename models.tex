@@ -235,8 +235,8 @@ a_t &= a_{t-1} + \frac{1}{2} &\qquad b_t &= b_{t-1} + \frac{(y_t-f_t)^2}{2q_t}, 
 \end{align}
 starting with $m_0 = 0$, $c_0 = 1$, and known $a_0$ and $b_0$. These equations can also be used to calculate the marginal filtered distribution of the state, $p(x_t|y_{1:t})$, and one-step ahead predictive density, $p(y_t|y_{1:t-1})$, given by
 \begin{align}
-x_t|y_{1:t} &\sim \mbox{T}(m_t,C_t \frac{b_t}{a_t},2a_t) \label{eqn:ll:marg} \\
-y_t|y_{1:t-1} &\sim \mbox{T}(f_t,q_t \frac{b_{t-1}}{a_{t-1}},2a_{t-1}). \label{eqn:ll:onestep}
+x_t|y_{1:t} &\sim \mbox{T}\left(m_t,C_t \frac{b_t}{a_t},2a_t\right) \label{eqn:ll:marg} \\
+y_t|y_{1:t-1} &\sim \mbox{T}\left(f_t,q_t \frac{b_{t-1}}{a_{t-1}},2a_{t-1}\right). \label{eqn:ll:onestep}
 \end{align}
 In Chapter \ref{ch:comp}, we evaluate the abilities of several particle filters to approximate the marginal likelihood of data generated from this model through comparison with the true marginal likelihood that can be calculated analytically according to
 \begin{equation}

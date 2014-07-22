@@ -48,34 +48,37 @@ The full Gibbs sampler applied to the epidemic model proceeds as follows:
     \begin{enumerate}
     \item Draw $x^*_t \sim N(x^{(j-1)}_t,\tau^2_{x_t})$.
     \item Calculate the Metropolis ratio, $R$, by
-    \[R = \left\{
-    \begin{array}{cc}
-    \frac{p(x^{(j-1)}_1|x^*_0,\theta^{(j-1)})p(x^*_0)}{p(x^{(j-1)}_1|x^{(j-1)}_0,\theta^{(j-1)})p(x^{(j-1)}_0)} & \mbox{, if } t = 0 \\
-    \frac{p(y_t|x^*_t)p(x^{(j-1)}_{t+1}|x^*_t,\theta^{(j-1)})p(x^*_t|x^{(j)}_{t-1},\theta^{(j-1)})}{p(y_t|x^{(j-1)}_t)p(x^{(j-1)}_{t+1}|x^{(j-1)}_t,\theta^{(j-1)})p(x^{(j-1)}_t|x^{(j)}_{t-1},\theta^{(j-1)})} & \mbox{, if } 1 \le t \le T-1 \\
-        \frac{p(y_T|x^*_T)p(x^*_T|x^{(j)}_{T-1},\theta^{(j-1)})}{p(y_T|x^{(j-1)}_T)p(x^{(j-1)}_T|x^{(j)}_{T-1},\theta^{(j-1)})}  & \mbox{, if } t = T
-    \end{array}
-    \right\}.\]
+      \[R = \left\{
+      \begin{array}{cl}
+      \frac{p\left(x^{(j-1)}_1\left|x^*_0,\theta^{(j-1)}\right. \right)\ \ p\left(x^*_0\right)}{p\left(x^{(j-1)}_1\left|x^{(j-1)}_0,\theta^{(j-1)}\right.\right)\ \ p\left(x^{(j-1)}_0\right)} & \mbox{, if } t = 0 \\
+      & \\
+      \frac{p\left(y_t|x^*_t\right)\ p\left( \left. x^{(j-1)}_{t+1} \right| x^*_t,\theta^{(j-1)}  \right)\ p\left(x^*_t \left| x^{(j)}_{t-1},\theta^{(j-1)} \right. \right)}{p\left(y_t \left|x^{(j-1)}_t \right. \right) p\left(x^{(j-1)}_{t+1}\left|x^{(j-1)}_t,\theta^{(j-1)}\right.\right) p\left(x^{(j-1)}_t\left|x^{(j)}_{t-1},\theta^{(j-1)}\right.\right)}
+      & \mbox{, if } 1 \le t \le T-1 \\
+      & \\
+      \frac{p\left(y_T \left|x^*_T \right. \right)\  p\left(x^*_T \left|x^{(j)}_{T-1},\theta^{(j-1)} \right. \right)}{p\left(y_T \left|x^{(j-1)}_T \right. \right)p\left(x^{(j-1)}_T\left|x^{(j)}_{T-1},\theta^{(j-1)} \right. \right)} & \mbox{, if } t = T
+      \end{array}
+      \right.\]
     \item Draw $u \sim \mbox{Unif}[0,1]$. If $u < \min\{1, R\}$, set $x^{(j)}_t = x^*_t$. Otherwise, set $x^{(j)}_t = x^{(j-1)}_t$.
     \end{enumerate}
 \item \label{step:beta} Sample $\beta^{(j)}$ from its full conditional conditional distribution.
     \begin{enumerate}
     \item Draw $\beta^* \sim N(\beta^{(j-1)},\tau^2_{\beta})$.
     \item Calculate Metropolis ratio, $R$, by
-    \[R = \frac{\prod_{t=1}^T \{p(x^{(j)}_t|x^{(j)}_{t-1},\beta^*,\gamma^{(j-1)},\nu^{(j-1)})\}p(\beta^*,\gamma)}{\prod_{t=1}^T \{p(x^{(j)}_t|x^{(j)}_{t-1},\theta^{(j-1)})\}p(\beta^{(j-1)},\gamma)}.\]
+    \[R = \frac{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^*,\gamma^{(j-1)},\nu^{(j-1)}\right.\right)\right\}p(\beta^*,\gamma)}{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\theta^{(j-1)}\right.\right)\right\}p\left(\beta^{(j-1)},\gamma\right)}.\]
     \item Draw $u \sim \mbox{Unif}[0,1]$. If $u < \min\{1, R\}$, set $\beta^{(j)} = \beta^*$. Otherwise, set $\beta^{(j)} = \beta^{(j-1)}$.
     \end{enumerate}
 \item \label{step:gamma} Sample $\gamma^{(j)}$ from its full conditional conditional distribution.
     \begin{enumerate}
     \item Draw $\gamma^* \sim N(\gamma^{(j-1)},\tau^2_{\gamma})$.
     \item Calculate Metropolis ratio, $R$, by
-    \[R = \frac{\prod_{t=1}^T \{p(x^{(j)}_t|x^{(j)}_{t-1},\beta^{(j)},\gamma^*,\nu^{(j-1)})\}p(\beta, \gamma^*)}{\prod_{t=1}^T \{p(x^{(j)}_t|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j-1)},\nu^{(j-1)})\}p(\beta, \gamma^{(j-1)})}.\]
+    \[R = \frac{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^*,\nu^{(j-1)}\right.\right)\right\}p(\beta, \gamma^*)}{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j-1)},\nu^{(j-1)}\right.\right)\right\}p\left(\beta, \gamma^{(j-1)}\right)}.\]
     \item Draw $u \sim \mbox{Unif}[0,1]$. If $u < \min\{1, R\}$, set $\gamma^{(j)} = \gamma^*$. Otherwise, set $\gamma^{(j)} = \gamma^{(j-1)}$.
     \end{enumerate}
 \item \label{step:nu} Sample $\nu^{(j)}$ from its full conditional conditional distribution.
     \begin{enumerate}
     \item Draw $\nu^* \sim N(\nu^{(j-1)},\tau^2_{\nu})$.
     \item Calculate Metropolis ratio, $R$, by
-    \[R = \frac{\prod_{t=1}^T \{p(x^{(j)}_t|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j)},\nu^*)\}p(\nu^*)}{\prod_{t=1}^T \{p(x^{(j)}_t|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j)},\nu^{(j-1)})\}p(\nu^{(j-1)})}.\]
+    \[R = \frac{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j)},\nu^*\right.\right)\right\}p(\nu^*)}{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j)},\nu^{(j-1)}\right.\right)\right\}p\left(\nu^{(j-1)}\right)}.\]
     \item Draw $u \sim \mbox{Unif}[0,1]$. If $u < \min\{1, R\}$, set $\nu^{(j)} = \nu^*$. Otherwise, set $\nu^{(j)} = \nu^{(j-1)}$.
     \end{enumerate}
 \item Set $j = j + 1$ and go back to step \ref{step:gibbs}

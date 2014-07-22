@@ -1092,12 +1092,17 @@
      & the set $\Omega$ with untruncated mean $\mu$ \\
      & and covariance $\Sigma$ \\
     \hline
+    $\mbox{T}\left(\mu,\Sigma,v\right)$ & the multivariate, nonstandard Student-t \\
+     & distribution with mean $\mu$, scale matrix $\Sigma$, \\
+     & and $v$ degrees of freedom \\
+    \hline
     $\mbox{LN}(\mu,\Sigma)$ & the log-normal distribution with mean $\mu$ \\
-     & and covariance matrix $\Sigma$ on the log scale \\
+     & and covariance matrix $\Sigma$ on the log scale, \\
+     & i.e. $X \sim \mbox{LN}(\mu,\Sigma) \Leftrightarrow \log X \sim \mbox{N}(\mu,\Sigma)$ \\
     \hline
     $\mbox{IG}(a,b)$ & the inverse gamma distribution with \\
      & shape $a$ and rate $b$, i.e. with pdf given by \\
-     & $p(x|a,b) = \frac{b^a}{\Gamma(a)}x^{1-a}\exp(-b/x)$ \\
+     & $p(x|a,b) = \frac{b^a}{\Gamma(a)}x^{1-a}\exp(-b/x)$, $x > 0$ \\
     \hline
     $\mbox{Unif}(a,b)$ & the continuous uniform distribution on $[a,b]$ \\
     \hline
@@ -1128,51 +1133,56 @@
     $y_{s:t}$ & collection of variables $(y_s,y_{s+1},\ldots,y_{t-1},y_t)$ \\
     \hline
     $p(y_t|x_t,\theta)$ & observation equation, i.e. conditional \\
-     & likelihood \\
+     & likelihood at time $t$ \\
     \hline
     $p(x_t|x_{t-1},\theta)$ & state equation, i.e. state transition \\
-     & density \\
+     & density from time $t-1$ to $t$ \\
     \hline
     $p(x_t,\theta|y_{1:t})$ & filtered distribution of current state \\
-     & and fixed parameters (at time $t$) \\
+     & and fixed parameters at time $t$ \\
     \hline
-    $p(x_{0:t},\theta|y_{1:t})$ & filtered distribution of state history \\
-     & and fixed parameters \\
+    $p(x_{0:t},\theta|y_{1:t})$ & filtered distribution at time $t$ of \\
+     & state history and fixed parameters  \\
     \hline
     $p(x_s,\theta|y_{1:t})$, $s < t$ & smoothed distribution of state at time $s$ \\
-     & and fixed parameters \\
+     & and fixed parameters, conditional on data \\
+     & observed through time $t$ \\
     \hline
-    $p(x_t|y_{1:t},\theta)$ & filtered distribution of current state \\
-     & conditional on fixed parameters \\
+    $p(x_t|y_{1:t},\theta)$ & filtered distribution of current state at \\
+     & time $t$ conditional on fixed parameters \\
     \hline
     $p(x_t|y_{1:t})$ & marginal filtered distribution of current \\
-     & state \\
+     & state at time $t$ \\
     \hline
-    $p(x_{0:t}|y_{1:t},\theta)$ & filtered distribution of state history \\
-     & conditional on fixed parameters \\
+    $p(x_{0:t}|y_{1:t},\theta)$ & filtered distribution at time $t$ of \\
+     & state history conditional on fixed parameters \\
     \hline
     $p(x_{0:t}|y_{1:t})$ & marginal filtered distribution of state \\
-     & history \\
+     & history at time $t$ \\
     \hline
     $p(\theta|y_{1:t},x_{0:t})$ & filtered distribution of fixed parameters \\
-     & conditional on states \\
+     & conditional on state history throught time $t$ \\
     \hline
-    $p(\theta|y_{1:t})$ & marginal filtered distribution of fixed \\
-     & parameters \\
+    $p(\theta|y_{1:t})$ & marginal filtered distribution at time $t$ \\
+     & of fixed parameters \\
     \hline
-    $p(y_{1:t})$ & marginal likelihood of the data \\
+    $p(y_{1:t})$ & marginal likelihood of the data observed \\
+     & through time $t$ \\
     \hline
-    $p(y_t|y_{1:t-1})$ & one-step ahead predictive density \\
+    $p(y_t|y_{1:t-1})$ & one-step ahead predictive density of data \\
+     & at time $t$ given data through time $t-1$ \\
     \hline
     $p(x_0,\theta)$ & prior distribution of the initial \\
      & state and fixed parameters \\
-     \hline
-     $p(y_{t+1}|x_t,\theta)$ & conditional predictive distribution \\
-      & given current state and fixed parameters \\
     \hline
-    $p(x_{t+1}|y_{t+1},x_t,\theta)$ & filtered distribution of $x_{t+1}$ \\
-     & conditional on $x_t$ and $\theta$ \\
-     \hline
+     $p(y_{t+1}|x_t,\theta)$ & conditional predictive distribution of data at \\
+      & time $t+1$ given current state at time $t$ \\
+      & and fixed parameters \\
+    \hline
+    $p(x_{t+1}|y_{t+1},x_t,\theta)$ & filtered distribution of state at time $t+1$ \\
+     & conditional on current state at time $t$ \\
+     & and fixed parameters \\
+    \hline
     $p(x|\hdots)$ & full conditional distribution for $x$ \\
     \hline
     \end{longtable}
