@@ -131,6 +131,169 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Proportion of whitened residuals determined by Ljung-Box test at varying significance levels $\alpha$ (rows) from fitting data simulated from $M_{100}$ with $\beta = 3$, $\sigma^2_s = 15$, and increasing $\phi$ (embedded tables) to regression models with independent (OLS), AR(1), and AR(2) error structures.}
 \end{table}
 
+\section{Fitting dynamic regression models \label{sec:fmri:dr}}
+
+\subsection{Model identifiability \label{sec:fmri:id}}
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{Identifying dynamic slope model by increasing signal-to-noise ratio} \label{fig:fmri:id:M011SNR}
+\includegraphics[width=0.75\textwidth]{1000-250-M011-conv-750-15-1-5-SNR-10-10}
+\caption*{Histograms in 1D (for $\phi$, second column) and 2D (for $\beta$ and $(\sigma^2_s,\sigma^2_m)$, 1st and 3rd columns) of MLEs of fits of $M_{011}$ to data simulated from $M_{011}$ with $\beta = (750,15)'$, $\phi = 0.1$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows).}
+\end{figure}
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{Identifying dynamic slope model by increasing autocorrelation} \label{fig:fmri:id:M011PRR}
+\includegraphics[width=1.0\textwidth]{1000-250-M011-conv-750-15-PRR-5-1-10-10}
+\caption*{Histograms in 1D (for $\phi$, second column) and 2D (for $\beta$ and $(\sigma^2_s,\sigma^2_m)$, 1st and 3rd columns) of MLEs of fits of $M_{011}$ to data simulated from $M_{011}$ with $\beta = (750,15)'$, $\sigma^2_s = 1$, $\sigma^2_m = 10$, and increasing $\phi$ (rows).}
+\end{figure}
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{Identifying dynamic intercept model by increasing signal-to-noise ratio} \label{fig:fmri:id:M101SNR}
+\includegraphics[width=0.75\textwidth]{1000-250-M101-conv-750-15-1-5-SNR-10-10}
+\caption*{Histograms in 1D (for $\phi$, second column) and 2D (for $\beta$ and $(\sigma^2_s,\sigma^2_m)$, 1st and 3rd columns) of MLEs of fits of $M_{101}$ to data simulated from $M_{101}$ with $\beta = (750,15)'$, $\phi = 0.1$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows).}
+\end{figure}
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{Identifying dynamic intercept model by increasing autocorrelation} \label{fig:fmri:id:M101PRR}
+\includegraphics[width=1.0\textwidth]{1000-250-M101-conv-750-15-PRR-5-1-10-10}
+\caption*{Histograms in 1D (for $\phi$, second column) and 2D (for $\beta$ and $(\sigma^2_s,\sigma^2_m)$, 1st and 3rd columns) of MLEs of fits of $M_{101}$ to data simulated from $M_{101}$ with $\beta = (750,15)'$, $\sigma^2_s = 1$, $\sigma^2_m = 10$, and increasing $\phi$ (rows).}
+\end{figure}
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{Identifying model with both dynamic slope and intercept with small intercept variance} \label{fig:fmri:id:M111lowb}
+\includegraphics[width=1.0\textwidth]{1000-250-M111-conv-750-15-9-6-SNR-1-10}
+\caption*{Histograms in 1D (for $\sigma^2_m$, last column) and 2D (for $\beta$, $(\phi,\rho)$ and $(\sigma^2_s,\sigma^2_m)$, first 3 columns) of MLEs of fits of $M_{111}$ to data simulated from $M_{111}$ with $\beta = (750,15)'$, $\phi = 0.9$, $\rho = 0.6$, $\sigma^2_b = 1$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows).}
+\end{figure}
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{Identifying model with both dynamic slope and intercept with large intercept variance} \label{fig:fmri:id:M111highb}
+\includegraphics[width=1.0\textwidth]{1000-250-M111-conv-750-15-9-6-SNR-20-10}
+\caption*{Histograms in 1D (for $\sigma^2_m$, last column) and 2D (for $\beta$, $(\phi,\rho)$ and $(\sigma^2_s,\sigma^2_m)$, first 3 columns) of MLEs of fits of $M_{111}$ to data simulated from $M_{111}$ with $\beta = (750,15)'$, $\phi = 0.9$, $\rho = 0.6$, $\sigma^2_b = 20$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows).}
+\end{figure}
+
+\subsection{Fitting real fMRI data \label{sec:fmri:mle}}
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{Histograms of MLEs for regression coefficients} \label{fig:fmri:mle:beta}
+\includegraphics[width=0.6\textwidth]{craig_mle-beta}
+\caption*{Two-dimensional histograms of MLEs of $\beta$ for real fMRI data from six brain regions (rows) fitted to dynamic regression models (columns). Blue X's denote the marginal averages of the MLEs from each brain region, and for each of two clusters in SV-left and SV-right.}
+\end{figure}
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{Histograms of MLEs for autocorrelation coefficient} \label{fig:fmri:mle:phi}
+\includegraphics[width=0.4\textwidth]{craig_mle-phi}
+\caption*{Histograms if MLEs of $\phi$ for real fMRI data from six brain regions (rows) fitted to dynamic regression models (columns). Blue vertical lines denote the average MLE of $\phi$ from each brain region, and for each of two clusters in SV-left and SV-right.}
+\end{figure}
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{Histograms of MLEs for state and observation variances} \label{fig:fmri:mle:sigma}
+\includegraphics[width=0.6\textwidth]{craig_mle-sigma}
+\caption*{Two-dimensional histograms of MLEs of $(\sigma^2_s,\sigma^2_m)$ for real fMRI data from six brain regions (rows) fitted to dynamic regression models (columns). Blue X's denote the marginal averages of the MLEs from each brain region, and for each of two clusters in SV-left and SV-right.}
+\end{figure}
+
+\begin{table}[ht]
+\ssp
+\centering
+\caption{Average MLEs in single cluster brain regions} \label{tab:fmri:mle:means}
+\begin{tabular}{|l|rrrr|}
+\hline
+Parameter & FP & IPS-left & IPS-right & PV \\
+\hline
+ & \multicolumn{4}{|c|}{$M_{011}$} \\
+\hline
+$\beta_0$ & 759.155 & 951.101 & 831.359 & 808.257 \\
+$\beta_1$ & 1.395 & 15.009 & 24.894 & 16.492 \\
+$\phi$ & 0.736 & 0.853 & 0.871 & 0.832 \\
+$\sigma^2_s$ & 8.746 & 27.268 & 53.171 & 70.646 \\
+$\sigma^2_m$ & 10.031 & 22.522 & 41.340 & 21.826 \\
+\hline
+ & \multicolumn{4}{|c|}{$M_{101}$} \\
+\hline
+$\beta_0$ & 759.875 & 950.038 & 830.901 & 807.434 \\
+$\beta_1$ & -1.032 & 18.879 & 26.838 & 21.247 \\
+$\phi$ & 0.746 & 0.637 & 0.654 & 0.596 \\
+$\sigma^2_s$ & 3.323 & 16.970 & 29.565 & 23.498 \\
+$\sigma^2_m$ & 6.105 & 0.534 & 1.382 & 1.727 \\
+\hline
+ & \multicolumn{4}{|c|}{$M_{001}$} \\
+\hline
+$\beta_0$ & 759.204 & 950.773 & 831.191 & 807.846 \\
+$\beta_1$ & -1.448 & 16.087 & 24.688 & 19.039 \\
+$\sigma^2_m$ & 12.480 & 29.579 & 54.511 & 37.629 \\
+\hline
+\end{tabular}
+\caption*{Average MLEs calculated marginally for each fixed parameter (rows) for real fMRI data from four different brain regions (columns) fit to dynamic regression models (embedded tables).}
+\end{table}
+
+\begin{table}[ht]
+\ssp
+\centering
+\caption{Average MLEs in bi-cluster brain regions} \label{tab:fmri:mle:clusters}
+\begin{tabular}{|l|rr|rr|}
+\hline
+Parameter & \multicolumn{2}{|c|}{SV-left} & \multicolumn{2}{|c|}{SV-right} \\
+\hline
+ & Cluster H & Cluster L & Cluster H & Cluster L \\
+\hline
+ & \multicolumn{4}{|c|}{$M_{011}$} \\
+\hline
+$\beta_0$ & 874.999 & 363.601 & 697.816 & 308.080 \\
+$\beta_1$ & 23.133 & 12.203 & 21.767 & 9.415 \\
+$\phi$ & 0.566 & 0.520 & 0.489 & 0.630 \\
+$\sigma^2_s$ & 11.475 & 4.378 & 13.162 & 4.889 \\
+$\sigma^2_m$ & 0.502 & 0.393 & 2.423 & 3.906 \\
+\hline
+ & \multicolumn{4}{|c|}{$M_{101}$} \\
+\hline
+$\beta_0$ & 875.319 & 362.054 & 698.025 & 307.655 \\
+$\beta_1$ & 20.009 & 11.708 & 13.883 & 9.361 \\
+$\phi$ & 0.821 & 0.761 & 0.979 & 0.864 \\
+$\sigma^2_s$ & 11.941 & 7.986 & 1.727 & 7.427 \\
+$\sigma^2_m$ & 14.116 & 4.953 & 16.345 & 8.719 \\
+\hline
+ & \multicolumn{4}{|c|}{$M_{001}$} \\
+\hline
+$\beta_0$ & 875.084 & 361.957 & 697.769 & 307.538 \\
+$\beta_1$ & 22.414 & 12.135 & 21.723 & 10.168 \\
+$\sigma^2_m$ & 17.409 & 6.332 & 19.450 & 11.108 \\
+\hline
+\end{tabular}
+\caption*{Average MLEs calculated marginally for each fixed parameter (rows) for real fMRI data from each cluster of secondary visual left and secondary visual right (columns) fit to dynamic regression models (embedded tables).}
+\end{table}
+
+\begin{table}
+\ssp
+\centering
+\caption{Proportion of voxels with high activation} \label{tab:fmri:prop}
+\begin{tabular}{|c|cc|}
+\hline
+Model & SV-left & SV-right \\
+\hline
+$M_{011}$ & 0.672 & 0.648 \\
+$M_{101}$ & 0.677 & 0.648 \\
+$M_{001}$ & 0.672 & 0.648 \\
+\end{tabular}
+\caption*{Proportion of voxels in each of secondary visual left and right (columns) classified into high activation cluster for each model fit (rows).}
+\end{table}
+
 %Priors:
 %
 %\begin{align*}

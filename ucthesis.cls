@@ -1102,7 +1102,7 @@
     \hline
     $\mbox{IG}(a,b)$ & the inverse gamma distribution with \\
      & shape $a$ and rate $b$, i.e. with pdf given by \\
-     & $p(x|a,b) = \frac{b^a}{\Gamma(a)}x^{1-a}\exp(-b/x)$, $x > 0$ \\
+     & $p(x|a,b) = \frac{b^a}{\Gamma(a)}x^{-a-1}\exp(-b/x)$, $x > 0$ \\
     \hline
     $\mbox{Unif}(a,b)$ & the continuous uniform distribution on $[a,b]$ \\
     \hline
