@@ -1,5 +1,136 @@
 \chapter{Statistical analysis of fMRI data \label{ch:fmri}}
 
+\section{Data \label{sec:fmri:data}}
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{Single voxel time series from fMRI experiment} \label{fig:fmri:data}
+\includegraphics[width=1.0\textwidth]{fmri-craig-data}
+\caption*{Time series data (top), expected BOLD response (middle), and haemodynamic response function (bottom) versus TR for voxel 27 in the left intraparietal sulcus.}
+\end{figure}
+
+\section{Temporal autocorrelation \label{sec:fmri:cor}}
+
+\subsection{Exploration of ARMA models \label{sec:fmri:arma}}
+
+\begin{table}[ht]
+\ssp
+\centering
+\caption{Mean AR and MA orders for experimental fMRI data} \label{fig:fmri:arma}
+\begin{tabular}{|l|cc|cc|cc|}
+\hline
+Region & \multicolumn{6}{|c|}{Criterion} \\
+\hline
+ & \multicolumn{2}{|c|}{AIC} & \multicolumn{2}{|c|}{AICC} & \multicolumn{2}{|c|}{BIC} \\
+\hline
+ & $P$ & $Q$ & $P$ & $Q$ & $P$ & $Q$ \\
+\hline
+Left frontal pole          & 2.80 & 3.20 & 2.80 & 2.90 & 1.70 & 0.90 \\
+Left intraparietal sulcus  & 3.75 & 3.50 & 3.50 & 3.25 & 1.81 & 0.06 \\
+Right intraparietal sulcus & 3.20 & 2.80 & 3.20 & 2.80 & 0.80 & 0.80 \\
+Primary visual             & 3.10 & 3.00 & 3.10 & 2.70 & 0.90 & 1.70 \\
+Secondary visual left      & 3.20 & 2.90 & 2.10 & 2.40 & 1.40 & 0.00 \\
+Secondary visual right     & 3.20 & 3.00 & 3.10 & 2.50 & 0.70 & 0.70 \\
+\hline
+Mean across regions     & 3.21 & 3.07 & 2.97 & 2.76 & 1.22 & 0.69 \\
+\hline
+\end{tabular}
+\caption*{Mean AR and MA orders ($P$ and $Q$, respectively) chosen according to AIC, AICC, and BIC for fits of regression models with ARMA errors to voxel-wise time series from 5 by 5 by 5 voxel cubes taken from 6 different brain regions.}
+\end{table}
+
+\subsection{False positive rates \label{sec:fmri:fpr}}
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{False positive rates for simulated fMRI data} \label{fig:fmri:fpr}
+\includegraphics[width=1.0\textwidth]{simstudy-FPR}
+\caption*{False positive rates (solid lines) and 95\% confidence intervals (dashed lines) for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ versus the nominal threshold level $\alpha$ (gray line) using OLS (black lines), PW (red lines), REML (green lines), and REMLc (blue lines) on simulated data from $M_{100}$ with $\beta = (750, 0)$, $\sigma^2_s = 15$, and increasing $\phi$ (plot panels).}
+\end{figure}
+
+\begin{table}[ht]
+\ssp
+\centering
+\caption{False positive rates for simulated fMRI data} \label{tab:fmri:fpr}
+\begin{tabular}{|c|cccc|}
+\hline
+$\alpha$ & OLS & PW & REML & REMLc \\
+\hline
+ & \multicolumn{4}{|c|}{$\phi = 0.25$} \\
+\hline
+0.001 & 0.006 & 0.001 & 0.001 & 0.001 \\
+0.010 & 0.028 & 0.011 & 0.010 & 0.010 \\
+0.050 & 0.106 & 0.050 & 0.049 & 0.048 \\
+\hline
+ & \multicolumn{4}{|c|}{$\phi = 0.50$} \\
+\hline
+0.001 & 0.022 & 0.002 & 0.002 & 0.002 \\
+0.010 & 0.070 & 0.010 & 0.009 & 0.007 \\
+0.050 & 0.161 & 0.054 & 0.052 & 0.052 \\
+\hline
+ & \multicolumn{4}{|c|}{$\phi = 0.75$} \\
+\hline
+0.001 & 0.061 & 0.001 & 0.001 & 0.000 \\
+0.010 & 0.130 & 0.017 & 0.016 & 0.015 \\
+0.050 & 0.213 & 0.064 & 0.062 & 0.055 \\
+\hline
+ & \multicolumn{4}{|c|}{$\phi = 0.95$} \\
+\hline
+0.001 & 0.072 & 0.000 & 0.000 & 0.000 \\
+0.010 & 0.144 & 0.011 & 0.011 & 0.000 \\
+0.050 & 0.230 & 0.046 & 0.049 & 0.023 \\
+\hline
+\end{tabular}
+\caption*{False positive rates at significance levels $\alpha = 0.001, 0.01, \mbox{ and } 0.05$ (rows) for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ using OLS, PW, REML, and REMLc (columns) on simulated data from $M_{100}$ with $\beta = (750, 3)$, $\sigma^2_s = 15$, and increasing $\phi$ (embedded tables).}
+\end{table}
+
+\begin{figure}[ht]
+\ssp
+\centering
+\caption{ROC curves for simulated fMRI data} \label{fig:fmri:roc}
+\includegraphics[width=1.0\textwidth]{simstudy-ROC-3}
+\caption*{ROC curves for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ using OLS (black lines), PW (red lines), REML (green lines), and REMLc (blue lines) on simulated data from $M_{100}$ with $\beta = (750, 3)$, $\sigma^2_s = 15$, and increasing $\phi$ (plot panels).}
+\end{figure}
+
+\subsection{Testing independence of residuals \label{sec:fmri:res}}
+
+\begin{table}[ht]
+\ssp
+\centering
+\caption{Proportion of whitened residuals for simulated fMRI data} \label{tab:fmri:res}
+\begin{tabular}{|c|ccc|}
+\hline
+$\alpha$ & OLS & AR(1) & AR(2) \\
+\hline
+ & \multicolumn{3}{|c|}{$\phi = 0.25$} \\
+\hline
+0.001 & 0.332 & 1.000 & 1.000 \\
+0.010 & 0.134 & 1.000 & 1.000 \\
+0.050 & 0.028 & 1.000 & 1.000 \\
+\hline
+ & \multicolumn{3}{|c|}{$\phi = 0.50$} \\
+\hline
+0.001 & 0.000 & 1.000 & 1.000 \\
+0.010 & 0.000 & 1.000 & 1.000 \\
+0.050 & 0.000 & 0.999 & 1.000 \\
+\hline
+ & \multicolumn{3}{|c|}{$\phi = 0.75$} \\
+\hline
+0.001 & 0.000 & 1.000 & 1.000 \\
+0.010 & 0.000 & 1.000 & 1.000 \\
+0.050 & 0.000 & 0.994 & 1.000 \\
+\hline
+ & \multicolumn{3}{|c|}{$\phi = 0.95$} \\
+\hline
+0.001 & 0.000 & 1.000 & 1.000 \\
+0.010 & 0.000 & 0.991 & 1.000 \\
+0.050 & 0.000 & 0.958 & 1.000 \\
+\hline
+\end{tabular}
+\caption*{Proportion of whitened residuals determined by Ljung-Box test at varying significance levels $\alpha$ (rows) from fitting data simulated from $M_{100}$ with $\beta = 3$, $\sigma^2_s = 15$, and increasing $\phi$ (embedded tables) to regression models with independent (OLS), AR(1), and AR(2) error structures.}
+\end{table}
+
 %Priors:
 %
 %\begin{align*}
