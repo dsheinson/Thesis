@@ -2,7 +2,7 @@
 
 \section{Data \label{sec:fmri:data}}
 
-\begin{figure}[ht]
+\begin{figure}
 \ssp
 \centering
 \caption{Single voxel time series from fMRI experiment} \label{fig:fmri:data}
@@ -14,7 +14,7 @@
 
 \subsection{Exploration of ARMA models \label{sec:fmri:arma}}
 
-\begin{table}[ht]
+\begin{table}
 \ssp
 \centering
 \caption{Mean AR and MA orders for experimental fMRI data} \label{fig:fmri:arma}
@@ -41,7 +41,7 @@ Mean across regions     & 3.21 & 3.07 & 2.97 & 2.76 & 1.22 & 0.69 \\
 
 \subsection{False positive rates \label{sec:fmri:fpr}}
 
-\begin{figure}[ht]
+\begin{figure}
 \ssp
 \centering
 \caption{False positive rates for simulated fMRI data} \label{fig:fmri:fpr}
@@ -49,7 +49,7 @@ Mean across regions     & 3.21 & 3.07 & 2.97 & 2.76 & 1.22 & 0.69 \\
 \caption*{False positive rates (solid lines) and 95\% confidence intervals (dashed lines) for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ versus the nominal threshold level $\alpha$ (gray line) using OLS (black lines), PW (red lines), REML (green lines), and REMLc (blue lines) on simulated data from $M_{100}$ with $\beta = (750, 0)$, $\sigma^2_s = 15$, and increasing $\phi$ (plot panels).}
 \end{figure}
 
-\begin{table}[ht]
+\begin{table}
 \ssp
 \centering
 \caption{False positive rates for simulated fMRI data} \label{tab:fmri:fpr}
@@ -85,7 +85,7 @@ $\alpha$ & OLS & PW & REML & REMLc \\
 \caption*{False positive rates at significance levels $\alpha = 0.001, 0.01, \mbox{ and } 0.05$ (rows) for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ using OLS, PW, REML, and REMLc (columns) on simulated data from $M_{100}$ with $\beta = (750, 3)$, $\sigma^2_s = 15$, and increasing $\phi$ (embedded tables).}
 \end{table}
 
-\begin{figure}[ht]
+\begin{figure}
 \ssp
 \centering
 \caption{ROC curves for simulated fMRI data} \label{fig:fmri:roc}
@@ -95,7 +95,7 @@ $\alpha$ & OLS & PW & REML & REMLc \\
 
 \subsection{Testing independence of residuals \label{sec:fmri:res}}
 
-\begin{table}[ht]
+\begin{table}
 \ssp
 \centering
 \caption{Proportion of whitened residuals for simulated fMRI data} \label{tab:fmri:res}
@@ -131,11 +131,13 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Proportion of whitened residuals determined by Ljung-Box test at varying significance levels $\alpha$ (rows) from fitting data simulated from $M_{100}$ with $\beta = 3$, $\sigma^2_s = 15$, and increasing $\phi$ (embedded tables) to regression models with independent (OLS), AR(1), and AR(2) error structures.}
 \end{table}
 
+\clearpage
+
 \section{Fitting dynamic regression models \label{sec:fmri:dr}}
 
 \subsection{Model identifiability \label{sec:fmri:id}}
 
-\begin{figure}[ht]
+\begin{figure}
 \ssp
 \centering
 \caption{Identifying dynamic slope model by increasing signal-to-noise ratio} \label{fig:fmri:id:M011SNR}
@@ -143,7 +145,7 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Histograms in 1D (for $\phi$, second column) and 2D (for $\beta$ and $(\sigma^2_s,\sigma^2_m)$, 1st and 3rd columns) of MLEs of fits of $M_{011}$ to data simulated from $M_{011}$ with $\beta = (750,15)'$, $\phi = 0.1$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows).}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}
 \ssp
 \centering
 \caption{Identifying dynamic slope model by increasing autocorrelation} \label{fig:fmri:id:M011PRR}
@@ -151,7 +153,7 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Histograms in 1D (for $\phi$, second column) and 2D (for $\beta$ and $(\sigma^2_s,\sigma^2_m)$, 1st and 3rd columns) of MLEs of fits of $M_{011}$ to data simulated from $M_{011}$ with $\beta = (750,15)'$, $\sigma^2_s = 1$, $\sigma^2_m = 10$, and increasing $\phi$ (rows).}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}
 \ssp
 \centering
 \caption{Identifying dynamic intercept model by increasing signal-to-noise ratio} \label{fig:fmri:id:M101SNR}
@@ -159,7 +161,7 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Histograms in 1D (for $\phi$, second column) and 2D (for $\beta$ and $(\sigma^2_s,\sigma^2_m)$, 1st and 3rd columns) of MLEs of fits of $M_{101}$ to data simulated from $M_{101}$ with $\beta = (750,15)'$, $\phi = 0.1$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows).}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}
 \ssp
 \centering
 \caption{Identifying dynamic intercept model by increasing autocorrelation} \label{fig:fmri:id:M101PRR}
@@ -167,7 +169,7 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Histograms in 1D (for $\phi$, second column) and 2D (for $\beta$ and $(\sigma^2_s,\sigma^2_m)$, 1st and 3rd columns) of MLEs of fits of $M_{101}$ to data simulated from $M_{101}$ with $\beta = (750,15)'$, $\sigma^2_s = 1$, $\sigma^2_m = 10$, and increasing $\phi$ (rows).}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}
 \ssp
 \centering
 \caption{Identifying model with both dynamic slope and intercept with small intercept variance} \label{fig:fmri:id:M111lowb}
@@ -175,7 +177,7 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Histograms in 1D (for $\sigma^2_m$, last column) and 2D (for $\beta$, $(\phi,\rho)$ and $(\sigma^2_s,\sigma^2_m)$, first 3 columns) of MLEs of fits of $M_{111}$ to data simulated from $M_{111}$ with $\beta = (750,15)'$, $\phi = 0.9$, $\rho = 0.6$, $\sigma^2_b = 1$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows).}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}
 \ssp
 \centering
 \caption{Identifying model with both dynamic slope and intercept with large intercept variance} \label{fig:fmri:id:M111highb}
@@ -185,7 +187,7 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 
 \subsection{Fitting real fMRI data \label{sec:fmri:mle}}
 
-\begin{figure}[ht]
+\begin{figure}
 \ssp
 \centering
 \caption{Histograms of MLEs for regression coefficients} \label{fig:fmri:mle:beta}
@@ -193,7 +195,7 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Two-dimensional histograms of MLEs of $\beta$ for real fMRI data from six brain regions (rows) fitted to dynamic regression models (columns). Blue X's denote the marginal averages of the MLEs from each brain region, and for each of two clusters in SV-left and SV-right.}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}
 \ssp
 \centering
 \caption{Histograms of MLEs for autocorrelation coefficient} \label{fig:fmri:mle:phi}
@@ -201,7 +203,7 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Histograms if MLEs of $\phi$ for real fMRI data from six brain regions (rows) fitted to dynamic regression models (columns). Blue vertical lines denote the average MLE of $\phi$ from each brain region, and for each of two clusters in SV-left and SV-right.}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}
 \ssp
 \centering
 \caption{Histograms of MLEs for state and observation variances} \label{fig:fmri:mle:sigma}
@@ -209,7 +211,7 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Two-dimensional histograms of MLEs of $(\sigma^2_s,\sigma^2_m)$ for real fMRI data from six brain regions (rows) fitted to dynamic regression models (columns). Blue X's denote the marginal averages of the MLEs from each brain region, and for each of two clusters in SV-left and SV-right.}
 \end{figure}
 
-\begin{table}[ht]
+\begin{table}
 \ssp
 \centering
 \caption{Average MLEs in single cluster brain regions} \label{tab:fmri:mle:means}
@@ -243,7 +245,7 @@ $\sigma^2_m$ & 12.480 & 29.579 & 54.511 & 37.629 \\
 \caption*{Average MLEs calculated marginally for each fixed parameter (rows) for real fMRI data from four different brain regions (columns) fit to dynamic regression models (embedded tables).}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}
 \ssp
 \centering
 \caption{Average MLEs in bi-cluster brain regions} \label{tab:fmri:mle:clusters}
@@ -290,9 +292,149 @@ Model & SV-left & SV-right \\
 $M_{011}$ & 0.672 & 0.648 \\
 $M_{101}$ & 0.677 & 0.648 \\
 $M_{001}$ & 0.672 & 0.648 \\
+\hline
 \end{tabular}
 \caption*{Proportion of voxels in each of secondary visual left and right (columns) classified into high activation cluster for each model fit (rows).}
 \end{table}
+
+\section{Comparing dynamic regression models using PL \label{sec:fmri:pl}}
+
+\subsection{PL on simulated fMRI data \label{sec:fmri:sim}}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Simulated rapid-event related design of fMRI experiment} \label{fig:fmri:design}
+\includegraphics[width=1.0\textwidth]{fmri-design-3-500-1}
+\caption*{Simulated boxcar function (top), hrf (middle), and convolution of the boxcar with the hrf (bottom) for a rapid-event related design of an fMRI experiment.}
+\end{figure}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Simulated fMRI data from dynamic slope model} \label{fig:fmri:sim}
+\includegraphics[width=1.0\textwidth]{fmri-ar-sim-750-15-99-2-5-M101}
+\caption*{Simulated fMRI time series $y_t$ (top) from $M_{011}$ with $\beta = (750,15)'$, $\phi = 0.99$, $\sigma^2_s = 2$, and $\sigma^2_m = 5$. Convolution of the hrf and neural activation pattern $\mbox{conv}_t$ and simulated change in dynamic slope $x_t$ are displayed in the middle and bottom panels, respectively.}
+\end{figure}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Credible intervals from PL compared with MCMC for simulated fMRI data} \label{fig:fmri:quant}
+\includegraphics[width=1.0\textwidth]{fmri_pl_quant-M101-M101-560-1-1-FALSE-FALSE-FALSE}
+\caption*{Sequential 95\% credible intervals for the filtered distributions of the dynamic slope (top left) and fixed parameters (other panels) of $M_{011}$ using PL with increasing number of particles (colors) compared with MCMC (black X's) run on simulated data from $M_{011}$ with $\beta = (750,15)'$, $\phi = 0.95$, $\sigma^2_s = 10$, and $\sigma^2_m = 10$ (displayed above top middle panel). True values of fixed parameters used for simulation and true simulated dynamic slopes are indicated by gray lines. MCMC estimates are displayed only for the filtered distributions of $\beta_1 + x_T$ and the fixed parameters conditional on all the data ($T = 250$). The same prior distributions on the initial state and fixed parameters were used for running both PL and MCMC, with $p(x_0) = \delta_{0}(x_0)$, $b_0$ and $\phi_0$ set to the true $\beta$ and $\phi$, respectively, and remaining hyperparameters displayed above the top left and right panels.}
+\end{figure}
+
+\subsection{Distinguishing dynamic regression models \label{sec:fmri:dist}}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Distinguishing the dynamic slope model from the dynamic intercept and simple linear regression models} \label{fig:fmri:phi:M011}
+\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-M101-1-500-phi-496-594-1}
+\caption*{Log marginal likelihoods of data coming from different dynamic regression models (colored lines) when simulated from $M_{011}$ with $\sigma^2_m = 10$ and increasing $\phi$ (x-axis) and $\sigma^2_s$. Log marginal likelihoods from three independent PL runs with each model, for each simulation, are displayed by colored points.}
+\end{figure}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Distinguishing the dynamic intercept model from the dynamic slope and simple linear regression models} \label{fig:fmri:phi:M101}
+\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-M011-1-500-phi-496-594-1}
+\caption*{Log marginal likelihoods of data coming from different dynamic regression models (colored lines) when simulated from $M_{101}$ with $\sigma^2_m = 10$ and increasing $\phi$ (x-axis) and $\sigma^2_s$. Log marginal likelihoods from three independent PL runs with each model, for each simulation, are displayed by colored points.}
+\end{figure}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Distinguishing the dynamic slope model from the dynamic intercept and simple linear regression models with increasing prior variance} \label{fig:fmri:kappa:M011}
+\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-phiSNR-M101-3-500-496-594-1-5-10-15}
+\caption*{Points $(\phi,\sigma^2_s / \sigma^2_m)$ at which $M_{011}$ is distinguished from $M_{101}$ and $M_{001}$ as being most likely to generate data simulated from $M_{011}$ with $\beta = (750,15)'$ and increasing prior variance $\kappa$ (plot panels). $M_{011}$ is determined to be distinguished from the other models if log marginal likelihood estimates from each of three PL runs for $M_{011}$ are greater than estimates from all three PL runs with each of the other models. Points are displayed for each of three separate simulations at each set of fixed parameter values. If log likelihood estimates for $M_{011}$ never exceed those for the other models for all three runs, no point is plotted.}
+\end{figure}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Distinguishing the dynamic intercept model from the dynamic slope and simple linear regression models with increasing prior variance} \label{fig:fmri:kappa:M101}
+\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-phiSNR-M011-3-500-496-594-1-5-10-15}
+\caption*{Points $(\phi,\sigma^2_s / \sigma^2_m)$ at which $M_{101}$ is distinguished from $M_{011}$ and $M_{001}$ as being most likely to generate data simulated from $M_{101}$ with $\beta = (750,15)'$ and increasing prior variance $\kappa$ (plot panels). $M_{101}$ is determined to be distinguished from the other models if log marginal likelihood estimates from each of three PL runs for $M_{101}$ are greater than estimates from all three PL runs with each of the other models. Points are displayed for each of three separate simulations at each set of fixed parameter values. If log likelihood estimates for $M_{011}$ never exceed those for the other models for all three runs, no point is plotted.}
+\end{figure}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Log marginal likelihoods of data simulated from dynamic slope model with increasing particles in PL} \label{fig:fmri:loglik:M011}
+\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-M101-498-1}
+\caption*{Kernel density approximation to the distribution of 20 log marginal likelihood estimates for $M_{011}$ (black lines) and $M_{101}$ (red lines) along with true log marginal likelihood of $M_{001}$ (blue vertical lines) using PL with increasing number of particles (plot panels) on simulated data from $M_{011}$ with $\beta = (750,15)'$, $\phi = 0.3$, $\sigma^2_s = 1$, and $\sigma^2_m = 10$.}
+\end{figure}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Log marginal likelihoods of data simulated from dynamic intercept model with increasing particles in PL} \label{fig:fmri:loglik:M101}
+\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-M011-500-1}
+\caption*{Kernel density approximation to the distribution of 20 log marginal likelihood estimates for $M_{011}$ (black lines) and $M_{101}$ (red lines) along with true log marginal likelihood of $M_{001}$ (blue vertical lines) using PL with increasing number of particles (plot panels) on simulated data from $M_{101}$ with $\beta = (750,15)'$, $\phi = 0.5$, $\sigma^2_s = 1$, and $\sigma^2_m = 10$.}
+\end{figure}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Ternary diagrams of posterior model probabilities for simulated fMRI data from dynamic slope model} \label{fig:fmri:comp:M011}
+\includegraphics[width=1.0\textwidth]{fmri_pl_comp-M101-498-1}
+\caption*{Posterior model probabilities among dynamic regression models (corners of triangles) for twenty runs of the PL (black dots) for increasing number of particles (plot panels) on data simulated from $M_{011}$ with $\beta = (750,15)'$, $\phi = 0.3$, $\sigma^2_s = 1$, and $\sigma^2_m = 10$. Each point represents a set of posterior probabilities (one for each model), and the proximity of the point to a particular corner of the triangle represents the posterior probability of the model in that corner relative to the other models.}
+\end{figure}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Ternary diagrams of posterior model probabilities for simulated fMRI data from dynamic intercept model} \label{fig:fmri:comp:M101}
+\includegraphics[width=1.0\textwidth]{fmri_pl_comp-M011-500-1}
+\caption*{Posterior model probabilities among dynamic regression models (corners of triangles) for twenty runs of the PL (black dots) for increasing number of particles (plot panels) on data simulated from $M_{101}$ with $\beta = (750,15)'$, $\phi = 0.5$, $\sigma^2_s = 1$, and $\sigma^2_m = 10$. Each point represents a set of posterior probabilities (one for each model), and the proximity of the point to a particular corner of the triangle represents the posterior probability of the model in that corner relative to the other models.}
+\end{figure}
+
+\subsection{Real fMRI data \label{sec:fmri:real}}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Log marginal likelihoods of real fMRI data} \label{fig:fmri:loglik:real}
+\includegraphics[width=1.0\textwidth]{craig_pl-loglik-1-5000-1-FALSE-FALSE-FALSE}
+\caption*{Kernel density approximation to the distribution of log marginal likelihood estimates of data from 125 voxels from each of 6 different brain regions (plot panels) for $M_{011}$ (black lines) and $M_{101}$ (red lines) along with true log marginal likelihood of $M_{001}$ (blue vertical lines) using PL with 5000 particles.}
+\end{figure}
+
+\begin{table}
+\ssp
+\centering
+\caption{Proportion of voxels favoring different regression models} \label{}
+\begin{tabular}{|c|ccc|}
+\hline
+Region & $M_{101}$ & $M_{011}$ & $M_{001}$ \\
+\hline
+FP & 0.976 & 0.000 & 0.024 \\
+IPS-left & 0.992 & 0.008 & 0.000 \\
+IPS-right & 0.880 & 0.096 & 0.024 \\
+PV & 1.000 & 0.000 & 0.000 \\
+SV-left & 0.800 & 0.144 & 0.056 \\
+SV-right & 0.952 & 0.032 & 0.016 \\
+\hline
+\end{tabular}
+\caption*{Proportion of voxels in each brain region (rows) with highest posterior model probability coming from each of $M_{101}$, $M_{011}$, and $M_{001}$ (columns). For $M_{101}$ and $M_{011}$, posterior model probabilities were calculated using the PL with 5000 particles. For $M_{001}$, the true posterior model probability was calculated analytically.}
+\end{table}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Posterior probabilities of dynamic regression models for real fMRI data} \label{fig:fmri:comp:real}
+\includegraphics[width=1.0\textwidth]{craig_pl-comp-1-5000-1-FALSE-FALSE-FALSE}
+\caption*{Posterior model probabilities among dynamic regression models (corners of triangles) for 125 voxels (black dots) in each of 6 brain regions (plot panels) using the PL with 5000 particles. Each point represents a set of posterior probabilities (one for each model), and the proximity of the point to a particular corner of the triangle represents the posterior probability of the model in that corner relative to the other models.}
+\end{figure}
+
+\begin{figure}
+\ssp
+\centering
+\caption{Filtered dynamic slopes and posterior model probabilities for data from SV-left} \label{fig:fmri:slopes:real}
+\includegraphics[width=1.0\textwidth]{craig_state-pl-SV-left-M101-3-FALSE-5000}
+\caption*{Sequential 95\% credible intervals for dynamic slopes (lines) and 95\% credible intervals for $\phi|y_{1:T}$ (displayed above plot panels) along with cluster classification (color of lines) and posterior model probabilities (colored bar along top of plots) using the PL with 5000 particles on a 5 by 5 slice of voxels in the y-z plane of secondary visual left. The proportion of the solid bar colored for a particular model represents the posterior probability of that model relative to the others.}
+\end{figure}
 
 %Priors:
 %
