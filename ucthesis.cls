@@ -1085,6 +1085,8 @@
     \hline
     $I_n$ & the $n \times n$ identity matrix \\
     \hline
+    $A_{(i,j)}$ & the $i,j$th element of the matrix $A$ \\
+    \hline
     $\mbox{N}(\mu,\Sigma)$ & the normal distribution with mean $\mu$ \\
      & and covariance matrix $\Sigma$ \\
     \hline
