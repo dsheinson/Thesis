@@ -146,11 +146,11 @@ G = \left(
  \end{array}
 \right),
 \]
-and $W = \sigma^2_see'$ with $e = (1, \gamma_1, \ldots, \gamma_m)'$. We let $\theta = (\beta', \phi', \gamma', \sigma^2)'$ represent the unknown parameters of the model, where $\phi = (\phi_1,\phi_2,\ldots,\phi_P)'$ and $\gamma = (\gamma_1,\gamma_2,\ldots,\gamma_Q)'$ are the coefficients of the AR and MA components, respectively, and $\sigma^2_s$ is the unknown variance of the white noise shocks in the ARMA process. We adopt the convention that $\phi_s = 0$ for $s > P$ and $\gamma_r = 0$ for $r > Q$. Multiplying out the state equation and successively back-substituting the components of $x_t$ \cite[see Sec 3.2.5,][]{petris:camp:2009:dynamic} yields the more familiar form of a regression model with ARMA errors, given by
+and $W = \sigma^2ee'$ with $e = (1, \gamma_1, \ldots, \gamma_m)'$. We let $\theta = (\beta', \phi', \gamma', \sigma^2)'$ represent the unknown parameters of the model, where $\phi = (\phi_1,\phi_2,\ldots,\phi_P)'$ and $\gamma = (\gamma_1,\gamma_2,\ldots,\gamma_Q)'$ are the coefficients of the AR and MA components, respectively, and $\sigma^2$ is the unknown variance of the white noise shocks in the ARMA process. We adopt the convention that $\phi_s = 0$ for $s > P$ and $\gamma_r = 0$ for $r > Q$. Multiplying out the state equation and successively back-substituting the components of $x_t$ \cite[see Sec 3.2.5,][]{petris:camp:2009:dynamic} yields the more familiar form of a regression model with ARMA errors, given by
 \begin{equation}
 y_t = U_t\beta + \phi_1x_{t-1,1} + \phi_2x_{t-2,1} + \cdots + \phi_Px_{t-P,1} + \gamma_1\epsilon_{t-1} + \gamma_2\epsilon_{t-2} + \cdots + \gamma_Q\epsilon_{t-Q}, \label{eqn:arma}
 \end{equation}
-where $\epsilon_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_s)$. Note that only the first element of the state vector plays a role in equation \eqref{eqn:arma}.
+where $\epsilon_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2)$. Note that only the first element of the state vector plays a role in equation \eqref{eqn:arma}.
 
 It is often desired that constraints be imposed on $\phi$ and $\gamma$ such that the ARMA process is stationary and invertible. Stationarity ensures that the long term behavior of $x_t$ is predictable and invertibility ensures that current and future states do not depend on the distant past \citep{shum:stof:2006:timeseries}. We require that roots of the AR polynomial
 \begin{equation}
@@ -164,7 +164,7 @@ In Chapter \ref{ch:fmri}, we impose these constraints when fitting regression mo
 
 In a Bayesian context, these models are completely specified by defining the prior distribution $p(x_0, \theta)$, where the initial state, $x_0$, consists of the presample errors. It is often desired that $x_0$ come from the stationary distribution of the ARMA process, given by
 \begin{equation}
-x_0|\theta \sim \mbox{N}(0, \sigma^2_s\Omega), \label{eqn:arma:prior}
+x_0|\theta \sim \mbox{N}(0, \sigma^2\Omega), \label{eqn:arma:prior}
 \end{equation}
 where $\mbox{vec}(\Omega) = (I_m - G\otimes G)^{-1} \mbox{vec}(ee')$ and $\phi$ is restricted to the region of stationarity. For a Bayesian treatment of unknown parameters in regression models with stationary and invertible ARMA errors, we refer the reader to \citet{chib:greenberg:1994:arma}.
 

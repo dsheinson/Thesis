@@ -36,7 +36,7 @@ The standard correlation-based GLM analysis of fMRI data models the observed BOL
 \begin{equation}
 y_t = \beta_0 + \beta_1\mbox{conv}_t + v_t, \label{eqn:fmri:glm}
 \end{equation}
-where $y_t$ is the observed BOLD response at TR $t$, $\mbox{conv}_t$ is the expected BOLD response at TR $t$ in an active voxel, $\beta = (\beta_0,\beta_1)'$ are unknown fixed regression coefficients, and $v_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_m)$ are independent measurement errors. The expected BOLD response, $\mbox{conv}_t$, is calculated by convolving the hrf with an ``on-off'' boxcar function that is equal to 1 at TRs when the experimental stimulus is on and 0 when it is off. Specifically,
+where $y_t$ is the observed BOLD response at TR $t$, $\mbox{conv}_t$ is the expected BOLD response at TR $t$ in an active voxel, $\beta = (\beta_0,\beta_1)'$ are unknown fixed regression coefficients, and $v_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2)$ are independent random errors. The expected BOLD response, $\mbox{conv}_t$, is calculated by convolving the hrf with an ``on-off'' boxcar function that is equal to 1 at TRs when the experimental stimulus is on and 0 when it is off. Specifically,
 \begin{equation}
 \mbox{conv}_t = \int_0^t N(\omega)h(t-\omega)d\omega, \label{eqn:fmri:conv}
 \end{equation}
@@ -46,13 +46,13 @@ Under the model given in equation \eqref{eqn:fmri:glm}, the hypothesis test
 \begin{equation}
 H_0: \beta_1 = 0 \quad H_A: \beta_1 > 0 \label{eqn:fmri:hyp}
 \end{equation}
-is usually of interest, where rejection of $H_0$ in favor of $H_A$ is interpreted as evidence of neural activation in that particular voxel. To test this hypothesis, ordinary least squares estimates of the unknown fixed parameters $\beta$ and $\sigma^2_m$ are computed, i.e.
+is usually of interest, where rejection of $H_0$ in favor of $H_A$ is interpreted as evidence of neural activation in that particular voxel. To test this hypothesis, ordinary least squares estimates of the unknown fixed parameters $\beta$ and $\sigma^2$ are computed, i.e.
 \begin{equation}
-\hat{\beta}  = (\hat{\beta}_0,\hat{\beta}_1)' = (X'X)^{-1}X'y \qquad \hat{\sigma}^2_m = \frac{1}{T-2}\lVert y-X\hat{\beta} \rVert, \label{eqn:fmri:ols}
+\hat{\beta}  = (\hat{\beta}_0,\hat{\beta}_1)' = (X'X)^{-1}X'y \qquad \hat{\sigma}^2 = \frac{1}{T-2}\lVert y-X\hat{\beta} \rVert, \label{eqn:fmri:ols}
 \end{equation}
 where $T$ is the total number of TRs in the functional run, $X$ is the $T$ by $2$ design matrix with first column all 1's and second column equal to $\mbox{conv}_t$, $y = (y_1,\ldots,y_T)'$, and $\lVert\cdot\rVert$ is the Euclidean norm. The test statistic, $t^*$, and p-value, $p^*$, are then calculated by
 \begin{equation}
-t^* = \frac{\hat{\beta}_1}{\hat{\sigma}^2_m(X'X)_{(2,2)}^{-1}} \qquad p^* = \mbox{P}(t^* > 0|H_0), \label{eqn:fmri:ttest}
+t^* = \frac{\hat{\beta}_1}{\hat{\sigma}^2(X'X)_{(2,2)}^{-1}} \qquad p^* = \mbox{P}(t^* > 0|H_0), \label{eqn:fmri:ttest}
 \end{equation}
 where $(X'X)_{(2,2)}^{-1}$ is the element in the second row and second column of $(X'X)^{-1}$ and $P(A|H_0)$ is the probability of event $A$ assuming $H_0$ is true. Thus, $p^*$ is calculated under the assumption that $t^* \sim \mbox{T}(0,1,T-2)$ and $H_0$ is rejected if $p^*$ is less than some significance threshold $\alpha$.
 
@@ -90,13 +90,13 @@ An early approach to handling temporally autocorrelated fMRI time series was to 
 
 The prewhitening approach to handling autocorrelated errors is the standard technique used in the FSL software package (http://fsl.fmrib.ox.ac.uk/fsl/fslwiki/). Other approaches attempt to account for temporal autocorrelations explicitly through modeling. For example, \citet{lund:mad:nvr:2006} measured effects thought to contribute to autocorrelated noise such as heartbeat, respiration, and magnetic field strength and included them as additional covariates in the GLM. SPM uses an approach developed by \citet{kiebel:holmes:spm:2007} that models the correlation in the errors by
 \begin{equation}
-v \sim \mbox{N}(0,\sigma^2_m I_T + \lambda Q) \quad Q_{i,j} = \left\{\begin{array}{ll} 0, & \mbox{if } i=j \\ e^{-|i-j|}, & \mbox{if } i\ne j, \end{array} \right.
+v \sim \mbox{N}(0,\sigma^2 I_T + \lambda Q) \quad Q_{i,j} = \left\{\begin{array}{ll} 0, & \mbox{if } i=j \\ e^{-|i-j|}, & \mbox{if } i\ne j, \end{array} \right.
 \end{equation}
 where $T$ is the total number of TRs in the experiment, $v = (v_1,\ldots,v_T)'$, and $\lambda$ is another unknown fixed parameter. Restricted maximum likelihood estimation (REML) is carried out to estimate the unknown fixed parameters, and the hypothesis test in equation \eqref{eqn:fmri:hyp} is performed using the test statistic
 \begin{equation}
-t^* = \frac{\hat{\beta_1}}{\left((X'X)^{-1}X'(\hat{\sigma}^2_m I_T + \hat{\lambda} Q)X(X'X)^{-1}\right)_{(2,2)}}, \label{eqn:fmri:hyp-reml}
+t^* = \frac{\hat{\beta_1}}{\left((X'X)^{-1}X'(\hat{\sigma}^2 I_T + \hat{\lambda} Q)X(X'X)^{-1}\right)_{(2,2)}}, \label{eqn:fmri:hyp-reml}
 \end{equation}
-where $\hat{\beta_1}$, $\hat{\sigma}^2_m$, and $\hat{\lambda}$ are the REML estimates. Under the null hypothesis, $t^* \sim \mbox{T}(0,1,df)$, where the degrees of freedom $df$ is computed by the Satterthwaite approximation \citep{wors:frist:color:1995}. In Section \ref{sec:fmri:fpr}, we compare ordinary least squares (OLS) estimation, prewhitening, REML in terms of false positive and true positive rates of significant brain activation using simulated data.
+where $\hat{\beta_1}$, $\hat{\sigma}^2$, and $\hat{\lambda}$ are the REML estimates. Under the null hypothesis, $t^* \sim \mbox{T}(0,1,df)$, where the degrees of freedom $df$ is computed by the Satterthwaite approximation \citep{wors:frist:color:1995}. In Section \ref{sec:fmri:fpr}, we compare ordinary least squares (OLS) estimation, prewhitening, REML in terms of false positive and true positive rates of significant brain activation using simulated data.
 
 \subsection{Exploration of ARMA models \label{sec:fmri:arma}}
 
@@ -115,7 +115,7 @@ G = \left(
  \end{array}
 \right),
 \]
-and $W = \sigma^2ee'$ with $e = (1, \gamma_1, \ldots, \gamma_m)'$. The unknown fixed parameters are given by $\theta = (\beta', \phi', \gamma', \sigma^2_s)'$, where $\beta = (\beta_0,\beta_1)'$, $\phi = (\phi_1,\phi_2,\ldots,\phi_P)'$ and $\gamma = (\gamma_1,\gamma_2,\ldots,\gamma_Q)'$. We let $U_t = (1,\mbox{conv}_t)$ and adopt the convention that $\phi_s = 0$ for $s > P$ and $\gamma_r = 0$ for $r > Q$.
+and $W = \sigma^2ee'$ with $e = (1, \gamma_1, \ldots, \gamma_m)'$. The unknown fixed parameters are given by $\theta = (\beta', \phi', \gamma', \sigma^2)'$, where $\beta = (\beta_0,\beta_1)'$, $\phi = (\phi_1,\phi_2,\ldots,\phi_P)'$ and $\gamma = (\gamma_1,\gamma_2,\ldots,\gamma_Q)'$. We let $U_t = (1,\mbox{conv}_t)$ and adopt the convention that $\phi_s = 0$ for $s > P$ and $\gamma_r = 0$ for $r > Q$.
 
 Maximization of the likelihood is performed using the R function {\tt arima}, which calls on {\tt optim} to minimize the negative log likelihood, given by
 \begin{equation}
