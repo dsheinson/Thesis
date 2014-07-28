@@ -263,7 +263,7 @@ In the previous section, we used false positive rates to compare several methods
 
 An alternate strategy that has been used for evaluating different models of autocorrelation in fMRI data is to examine the residuals from a model fit and test whether or not they are uncorrelated \citep{luo:nich:diag:2003,leonski:bax:res:2008}. In particular \citet{leonski:bax:res:2008} compares a number of autocorrelation estimation algorithms used in different software packages such as SPM and FSL. They suggest that an AR(2) process be used for modeling the errors in fMRI time series. This is based in part on the fact that residuals from AR(2) fits were determined to be uncorrelated more often than for other models according statistical tests such as the Durbin-Watson and cumulative periodogram tests.
 
-While an AR(2) error structure may be appropriate for modeling some data sets, we contend that an analysis of residuals should not be the basis for this decision. This is because of the potential for overfitting. To illustrate this, we fit the simulated data described in Section \ref{sec:fmri:fpr} with $\beta = (750,3)'$, $\sigma^2 = 15$, and $\phi \in \{0.25,0.50,0.75,0.95\}$ to regression models with independent, AR(1), and AR(2) errors. The regression models with independent errors were fit using OLS, and those with AR(1) and AR(2) error were fit using the {\tt arima} function in R. For each model fit, we tested the independence of the residuals using the Ljung-Box test for lag-1 autocorrelations \citep{box:test:1978}. The results in Table \ref{tab:fmri:res} show that even though the true data-generating model has AR(1) errors, residuals from the AR(2) fit were determined to be uncorrelated as much if not more than those from the AR(1) fit. For this reason, we do not recommend evaluating models for fMRI data with autocorrelated errors based on assessment of independence of residuals. Instead, in Section \ref{sec:fmri:pl}, we explore a model comparison strategy based on PL.
+While an AR(2) error structure may be appropriate for modeling some data sets, we contend that an analysis of residuals should not be the basis for this decision. This is because of the potential for overfitting. To illustrate, we fit the simulated data described in Section \ref{sec:fmri:fpr} with $\beta = (750,3)'$, $\sigma^2 = 15$, and $\phi \in \{0.25,0.50,0.75,0.95\}$ to regression models with independent, AR(1), and AR(2) errors. The regression models with independent errors were fit using OLS, and those with AR(1) and AR(2) errors were fit using the {\tt arima} function in R. For each model fit, we tested the independence of the residuals using the Ljung-Box test for lag-1 autocorrelations \citep{box:test:1978}. The results in Table \ref{tab:fmri:res} show that even though the true data-generating model has AR(1) errors, residuals from the AR(2) fit were determined to be uncorrelated as much if not more than those from the AR(1) fit. For this reason, we do not recommend evaluating models with autocorrelated errors based on an assessment of independence of residuals. Instead, in Section \ref{sec:fmri:pl}, we explore a model comparison strategy based on PL.
 
 \begin{table}
 \ssp
@@ -301,11 +301,21 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Proportion of whitened residuals determined by Ljung-Box test at varying significance levels $\alpha$ (rows) from fitting data simulated from $M_{100}$ with $\beta = 3$, $\sigma^2 = 15$, and increasing $\phi$ (embedded tables) to regression models with independent (OLS), AR(1), and AR(2) error structures.}
 \end{table}
 
-\clearpage
-
 \section{Fitting dynamic regression models \label{sec:fmri:dr}}
 
-\subsection{Model identifiability \label{sec:fmri:id}}
+We now turn our attention to the dynamic regression models described in Section \ref{sec:dlm:arwn}. Specifically, we examine the dynamic intercept model ($M_{101}$), dynamic slope model ($M_{011}$), and a model with both a dynamic intercept and a dynamic slope ($M_{111}$). $M_{101}$ can be thought of as a regression model with AR(1)+WN errors, which is commonly used to analyze fMRI time series. Of particular interest to us is the possibility of modeling fMRI time series using $M_{011}$ or $M_{111}$ . While models similar to $M_{101}$ are thought to adequately capture autocorrelation in fMRI data, we explore the possibility that a model such as $M_{011}$ can improve on existing methods by incorporating a dynamic slope that can adapt to learning or changes in focus on the part of the subject.
+
+\subsection{Identifiability of dynamic regression models \label{sec:fmri:id}}
+
+Before applying the dynamic regression models to actual fMRI data, we examine whether the models themselves are identifiable. To do this, we simulated 1000 time series of length $T = 250$ from each of $M_{101}$, $M_{011}$, and $M_{111}$ using the expected BOLD response pictured in the middle panel of Figure \ref{fig:fmri:design} as the covariate $\mbox{conv}_t$. We let the true $\beta = (750, 15)'$ for all models and repeated the simulations for various values of $\phi$, $\sigma^2_s$, $\sigma^2_m$, $\rho$, and $\sigma^2_b$ (these last two parameters are only relevant for $M_{111}$). Specifically, for $M_{101}$ and $M_{011}$, we simulate for all combinations of $\phi \in \{0.1, 0.5, 0.9\}$, $\sigma^2_s \in \{1, 5, 10, 15, 20\}$, and $\sigma^2_m = 10$. For $M_{111}$, we simulate for all combinations of $\phi \in \{0.3, 0.6, 0.9\}$, $\sigma^2_s \in \{1, 5, 10, 15, 20\}$, $\sigma^2_b \in \{1, 5, 10, 15, 20\}$, $\rho \in \{0.3, 0.6, 0.9\}$, and $\sigma^2_m = 10$.
+
+For each simulated time series, we calculate MLEs for the unknown fixed parameters using the {\tt dlmMLE} function the R package {\tt dlm} \citep{petris:camp:2009:dynamic}. This function uses a call to {\tt optim} to minimize the negative log likelihood, expressed as
+\begin{equation}
+-\log p(y_{1:T}|\theta) \propto \frac{1}{2}\sum_{t=1}^T \log |Q_t| + \frac{1}{2}\sum_{t=1}^T (y_t-f_t)'Q_t^{-1}(y_t-f_t), \label{sec:fmri:dlmll}
+\end{equation}
+where $f_t$ and $Q_t$ depend implicitly on $\theta$ and are calculated according to the Kalman filter given by equation \eqref{eqn:dlm:kal} with initial values $m_0 = C_0 = 0$. These initial values constrain the initial state, $x_0$, to be 0. As such, the state is interpreted to be the change in the slope or intercept over time.
+
+Figure \ref{fig:fmri:id:M011SNR} displays histograms of the MLEs for fits of $M_{011}$ to the data simulated from $M_{011}$ with $\phi = 0.1$ and increasing signal-to-noise ratio $\sigma^2_s / \sigma^2_m$. $\beta$ appears to be identified for all values of the signal-to-noise ratio, as evidenced by two-dimensional histograms that show an ellipse with a clear mode near the true value. $\phi$, $\sigma^2_s$, and $\sigma^2_m$, however, don't appear to be identified as well for lower values of the signal-to-noise ratio and particularly for $\sigma^2_s / \sigma^2_m = 0.1$. Figure \ref{fig:fmri:id:M011PRR} shows similar plots with $\sigma^2_s / \sigma^2_m = 0.1$ and increasing $\phi$. While identification of $\phi$, $\sigma^2_s$, and $\sigma^2_m$ is poor for $\phi = 0.1$, a drastic improvement is shown by increasing $\phi$ to 0.5 and 0.9. $\beta$, again, is identified well for all fixed parameter values shown in the figure.
 
 \begin{figure}
 \ssp
@@ -323,6 +333,8 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Histograms in 1D (for $\phi$, second column) and 2D (for $\beta$ and $(\sigma^2_s,\sigma^2_m)$, 1st and 3rd columns) of MLEs of fits of $M_{011}$ to data simulated from $M_{011}$ with $\beta = (750,15)'$, $\sigma^2_s = 1$, $\sigma^2_m = 10$, and increasing $\phi$ (rows).}
 \end{figure}
 
+Figures \ref{fig:fmri:id:M011SNR} and \ref{fig:fmri:id:M011PRR} provide evidence that $M_{011}$ is identifiable provided the signal-to-noise ratio and autocorrelation coefficient is not too low. Similar plots shown in Figures \ref{fig:fmri:id:M101SNR} and \ref{fig:fmri:id:M101PRR} reveal that identifiability of $M_{101}$ is more challenging. We see in Figure \ref{fig:fmri:id:M101SNR} that no signal-to-noise ratio between 0.1 and 2 is adequate for identifying $M_{101}$ with $\phi = 0.1$. However, in Figure \ref{fig:fmri:id:M101PRR}, we see that for $\sigma^2_s / \sigma^2_m = 0.1$, increasing $\phi$ to 0.9 is enough to identify the dynamic intercept model. In all cases, however, $\beta$ appears adequately identified.
+
 \begin{figure}
 \ssp
 \centering
@@ -339,6 +351,8 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \caption*{Histograms in 1D (for $\phi$, second column) and 2D (for $\beta$ and $(\sigma^2_s,\sigma^2_m)$, 1st and 3rd columns) of MLEs of fits of $M_{101}$ to data simulated from $M_{101}$ with $\beta = (750,15)'$, $\sigma^2_s = 1$, $\sigma^2_m = 10$, and increasing $\phi$ (rows).}
 \end{figure}
 
+Lastly, identification of $M_{111}$ appears to be the most challenging. Figure \ref{fig:fmri:id:M111lowb} shows that by increasing the ratio of the white noise variance of the dynamic slope to the white noise variance of the dynamic intercept -- $\sigma^2_s / \sigma^2_b$ -- to 15, $\sigma^2_m$ can be identified but $\phi$ and $\sigma^2_b$ are clearly not. On the other hand, if $\sigma^2_b$ is increased to 20 as in Figure \ref{fig:fmri:id:M111highb}, identification of $\phi$ and $\sigma^2_b$ is improved, but a larger ratio $\sigma^2_s / \sigma^2_b$ is needed to identify $\sigma^2_m$. In all cases, identification of $\beta$ appears to be worse relative to $M_{011}$ and $M_{101}$.
+
 \begin{figure}
 \ssp
 \centering
@@ -354,6 +368,8 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 \includegraphics[width=1.0\textwidth]{1000-250-M111-conv-750-15-9-6-SNR-20-10}
 \caption*{Histograms in 1D (for $\sigma^2_m$, last column) and 2D (for $\beta$, $(\phi,\rho)$ and $(\sigma^2_s,\sigma^2_m)$, first 3 columns) of MLEs of fits of $M_{111}$ to data simulated from $M_{111}$ with $\beta = (750,15)'$, $\phi = 0.9$, $\rho = 0.6$, $\sigma^2_b = 20$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows).}
 \end{figure}
+
+Figures \ref{fig:fmri:id:M011SNR} through \ref{fig:fmri:id:M111highb} suggest that out of the three models, $M_{011}$ is the easiest to identify and $M_{111}$ is the most difficult. This is further supported by the decrease in the proportion of simulations for which the {\tt optim} successively converges to the MLEs (see the convergence rates displayed under the plots for $\beta$). Models with identifiability issues are somtimes characterized by flat likelihoods that can make it difficult to find local maxima using iterative routines. For this reason, we discard $M_{111}$ at this point and examine only $M_{011}$, $M_{101}$, and $M_{001}$ in the remainder of this chapter.
 
 \subsection{Fitting real fMRI data \label{sec:fmri:mle}}
 
