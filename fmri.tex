@@ -96,7 +96,7 @@ where $T$ is the total number of TRs in the experiment, $v = (v_1,\ldots,v_T)'$,
 \begin{equation}
 t^* = \frac{\hat{\beta_1}}{\left((X'X)^{-1}X'(\hat{\sigma}^2 I_T + \hat{\lambda} Q)X(X'X)^{-1}\right)_{(2,2)}}, \label{eqn:fmri:hyp-reml}
 \end{equation}
-where $\hat{\beta_1}$, $\hat{\sigma}^2$, and $\hat{\lambda}$ are the REML estimates. Under the null hypothesis, $t^* \sim \mbox{T}(0,1,df)$, where the degrees of freedom $df$ is computed by the Satterthwaite approximation \citep{wors:frist:color:1995}. In Section \ref{sec:fmri:fpr}, we compare ordinary least squares (OLS) estimation, prewhitening, REML in terms of false positive and true positive rates of significant brain activation using simulated data.
+where $\hat{\beta_1}$, $\hat{\sigma}^2$, and $\hat{\lambda}$ are the REML estimates. Under the null hypothesis, $t^* \sim \mbox{T}(0,1,df)$, where the degrees of freedom $df$ is computed by the Satterthwaite approximation \citep{wors:frist:color:1995}. In Section \ref{sec:fmri:fpr}, we compare ordinary least squares (OLS) estimation, prewhitening, and REML in terms of false positive and true positive rates of significant brain activation using simulated data.
 
 \subsection{Exploration of ARMA models \label{sec:fmri:arma}}
 
@@ -129,7 +129,7 @@ AIC &= -2\log p(y_{1:T}|\epsilon_{1:T},\hat{\theta}) + 2(P+Q+3) \label{eqn:aic} 
 AICC &= -2\log p(y_{1:T}|\epsilon_{1:T},\hat{\theta}) + 2T\frac{P+Q+2}{T-P-Q-3} \label{eqn:aicc} \\
 BIC &= -2\log p(y_{1:T}|\epsilon_{1:T},\hat{\theta}) + (\log T)(P+Q+3), \label{eqn:bic}
 \end{align}
-where $\hat{\theta}$ is the MLE of the unknown fixed parameters and $\log p(y_{1:T}|\epsilon_{1:T},\hat{\theta})$ is the value of the log-likelihood at convergence of the optimization procedure. 
+where $\hat{\theta}$ is the MLE of the unknown fixed parameters and $\log p(y_{1:T}|\epsilon_{1:T},\hat{\theta})$ is the value of the log-likelihood at convergence of the optimization procedure.
 
 We prefer to use models that minimize these criteria. The first term is the same for all criteria and should be smaller for better model fits. The second term is a penalty for the number of parameters in the model. BIC imposes the strongest penalty for having more parameters and is most likely out of the three to prefer simpler models. The values of $P$ and $Q$ that minimized each of these criteria for each randomly selected voxel were recorded, and the average $P$ and $Q$ for each brain region are shown in Table \ref{tab:fmri:arma}. From these averages, it appears that AIC and AICC prefer $P$ and $Q$ near 3 while BIC prefers $P = 1$ and an $Q = 0$ or 1. We prefer to use the simpler models chosen by BIC and will mainly focus on models that incorporate first-order autoregressive errors in the remainder of this chapter.
 
@@ -164,7 +164,7 @@ In this section, we consider the impact of using different approaches to testing
 
 In order to be able to analyze false positive and true positive rates, we simulated fMRI data using the regression model described in Section \ref{sec:fmri:arma} with AR(1) error structure (i.e. $P = 1$ and $Q = 0$). An experiment with a rapid event-related design with a single trial type was created by simulating random times between onsets according to a truncated geometric distribution with a maximum time-to-event of 10 TRs. We used a TR of 2 seconds and let the experiment run for 250 total TRs. Onset of the stimuli were assumed to last the length of the TR, and an on-off boxcar function of 1's and 0's was constructed to match the stimulus pattern. The independent variable in the regression, ($\mbox{conv}_t$), was constructed by convolving the boxcar function with the gamma hrf from equation \eqref{eqn:hrf} with $\tau = 2$ and $n = 4$. Figure \ref{fig:fmri:design} displays the simulated experimental design and expected BOLD response for active voxels.
 
-Time series of length $T = 250$ were then simulated according to a regression model with AR(1) errors. For these simulations, we let $\beta_0 = 750$ and $\sigma^2_s = 15$, and one thousand time series were generated for each of $\beta_1 \in \{0,1,2,3\}$ and $\phi \in \{0.25,0.50,0.75,0.95\}$. Different values of $\beta_1$ were used so that we could analyze false positive rates (for $\beta_1 = 0$) and power (for $\beta_1 > 0$). Similarly, different values of $\phi$ were used for simulation so that we could analyze false positive rates and true positive rates for increasing amounts of autocorrelation in the data.
+Time series of length $T = 250$ were then simulated according to a regression model with AR(1) errors. For these simulations, we let $\beta_0 = 750$ and $\sigma^2 = 15$, and one thousand time series were generated for each of $\beta_1 \in \{0,1,2,3\}$ and $\phi \in \{0.25,0.50,0.75,0.95\}$. Different values of $\beta_1$ were used so that we could analyze false positive rates (for $\beta_1 = 0$) and power (for $\beta_1 > 0$). Similarly, different values of $\phi$ were used for simulation so that we could analyze false positive rates and true positive rates for increasing amounts of autocorrelation in the data.
 
 \begin{figure}
 \ssp
@@ -193,7 +193,7 @@ Note that $y^*$ and $X^*$ are both functions of $\phi$. Estimates of $\beta$ and
 \begin{equation}
 \hat{\beta} = \left[\left(X^*(\hat{\phi})\right)'X^*(\hat{\phi})\right]^{-1}\left(X^*(\hat{\phi})\right)'y^*(\hat{\phi}) \qquad \hat{\sigma}^2 = \frac{1}{T-2}\left|\left| y^*(\hat{\phi})-X^*(\hat{\phi})\hat{\beta} \right|\right|, \label{eqn:fmri:reml}
 \end{equation}
-where $\hat{\phi}$ maximizes $\log p(y|\phi)$. $X^*(\hat{\phi})$ and $y^*(\hat{\phi})$ are calculated using equations \eqref{eqn:pw:cor} and \eqref{eqn:pw:trans}. The t-test in equation \eqref{eqn:fmri:ttest} is then carried out using these estimates.
+where $\hat{\phi}$ maximizes $\log p(y|\phi)$. $X^*(\hat{\phi})$ and $y^*(\hat{\phi})$ are calculated using equations \eqref{eqn:pw:cor} and \eqref{eqn:pw:trans}. The t-test in equation \eqref{eqn:fmri:ttest} is then carried out using these estimates and $X^*(\hat{\phi})$ in place of $X$.
 
 We used the {\tt gls} function in R package {\tt nlme} to find $\hat{\phi}$ that maximizes the profiled log-restricted likelihood \citep{pin:bates:mixed:2000}. It is standard to then perform the t-test conditional on REML estimate of $\phi$. However, because the correlation structure is estimated and not known, the null distribution of the t-statistic does not exactly follow $\mbox{T}(0,1,T-2)$. Alternatively, we can adjust the degrees of freedom of the t-distribution to account for the estimated autocorrelation in the data. We consider a strategy that corrects the degrees of freedom using an effective sample size adjustment for time series with first-order autocorrelation \citep{dawdy:matalas:ess:1964}. Specifically, we adjust the degrees of freedom in the t-test to $T' - 2$, where
 \begin{equation}
@@ -238,7 +238,7 @@ $\alpha$ & OLS & PW & REML & REMLc \\
 0.050 & 0.230 & 0.046 & 0.049 & 0.023 \\
 \hline
 \end{tabular}
-\caption*{False positive rates at significance levels $\alpha = 0.001, 0.01, \mbox{ and } 0.05$ (rows) for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ using OLS, PW, REML, and REMLc (columns) on simulated data from $M_{100}$ with $\beta = (750, 3)$, $\sigma^2_s = 15$, and increasing $\phi$ (embedded tables).}
+\caption*{False positive rates at significance levels $\alpha = 0.001, 0.01, \mbox{ and } 0.05$ (rows) for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ using OLS, PW, REML, and REMLc (columns) on simulated data from $M_{100}$ with $\beta = (750, 3)$, $\sigma^2 = 15$, and increasing $\phi$ (embedded tables).}
 \end{table}
 
 \begin{figure}
@@ -246,7 +246,7 @@ $\alpha$ & OLS & PW & REML & REMLc \\
 \centering
 \caption{False positive rates for simulated fMRI data} \label{fig:fmri:fpr}
 \includegraphics[width=1.0\textwidth]{simstudy-FPR}
-\caption*{False positive rates (solid lines) and 95\% confidence intervals (dashed lines) for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ versus the nominal threshold level $\alpha$ (gray line) using OLS (black lines), PW (red lines), REML (green lines), and REMLc (blue lines) on simulated data from $M_{100}$ with $\beta = (750, 0)$, $\sigma^2_s = 15$, and increasing $\phi$ (plot panels).}
+\caption*{False positive rates (solid lines) and 95\% confidence intervals (dashed lines) for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ versus the nominal threshold level $\alpha$ (gray line) using OLS (black lines), PW (red lines), REML (green lines), and REMLc (blue lines) on simulated data from $M_{100}$ with $\beta = (750, 0)$, $\sigma^2 = 15$, and increasing $\phi$ (plot panels).}
 \end{figure}
 
 \begin{figure}
@@ -254,12 +254,16 @@ $\alpha$ & OLS & PW & REML & REMLc \\
 \centering
 \caption{ROC curves for simulated fMRI data} \label{fig:fmri:roc}
 \includegraphics[width=1.0\textwidth]{simstudy-ROC-3}
-\caption*{ROC curves for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ using OLS (black lines), PW (red lines), REML (green lines), and REMLc (blue lines) on simulated data from $M_{100}$ with $\beta = (750, 3)$, $\sigma^2_s = 15$, and increasing $\phi$ (plot panels).}
+\caption*{ROC curves for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ using OLS (black lines), PW (red lines), REML (green lines), and REMLc (blue lines) on simulated data from $M_{100}$ with $\beta = (750, 3)$, $\sigma^2 = 15$, and increasing $\phi$ (plot panels).}
 \end{figure}
 
 \subsection{Testing independence of residuals \label{sec:fmri:res}}
 
-In this section, we show via a simulated example why examining the independence of residuals from model fits can be misleading in terms of evaluating the ability of different models to sufficiently capture the autocorrelation present in fMRI data.
+In the previous section, we used false positive rates to compare several methods that attempt to sufficiently capture the autocorrelation in fMRI time series. To do this, we simulated non-active voxels by letting the true $\beta_1 = 0$. In practice, however, we don't know beforehand which voxels are inactive, making false positive rates difficult to obtain. Many studies have attempted to analyze false positive rates using \emph{resting state} data, or fMRI data generated from a subject at rest \citep{purdon:weiss:fpr:1998,burock:dale:fpr:2000,wool:rip:auto:2001}. These studies have effectively provided insight into the impact of certain autocorrelation estimation algorithms, sampling rates, and experimental designs on false positive rates. However, it is difficult to assess whether voxels from a subject who is resting are really inactive. For example, the subject's mind could wander during the experiment and generate a BOLD signal. Furthermore, research suggests that some brain areas exhibit some intrinsic activation during resting state, such as those associated with the default mode network \citep{grei:kras:dfmnet:2003,grei:sup:dfmnet:2009}.
+
+An alternate strategy that has been used for evaluating different models of autocorrelation in fMRI data is to examine the residuals from a model fit and test whether or not they are uncorrelated \citep{luo:nich:diag:2003,leonski:bax:res:2008}. In particular \citet{leonski:bax:res:2008} compares a number of autocorrelation estimation algorithms used in different software packages such as SPM and FSL. They suggest that an AR(2) process be used for modeling the errors in fMRI time series. This is based in part on the fact that residuals from AR(2) fits were determined to be uncorrelated more often than for other models according statistical tests such as the Durbin-Watson and cumulative periodogram tests.
+
+While an AR(2) error structure may be appropriate for modeling some data sets, we contend that an analysis of residuals should not be the basis for this decision. This is because of the potential for overfitting. To illustrate this, we fit the simulated data described in Section \ref{sec:fmri:fpr} with $\beta = (750,3)'$, $\sigma^2 = 15$, and $\phi \in \{0.25,0.50,0.75,0.95\}$ to regression models with independent, AR(1), and AR(2) errors. The regression models with independent errors were fit using OLS, and those with AR(1) and AR(2) error were fit using the {\tt arima} function in R. For each model fit, we tested the independence of the residuals using the Ljung-Box test for lag-1 autocorrelations \citep{box:test:1978}. The results in Table \ref{tab:fmri:res} show that even though the true data-generating model has AR(1) errors, residuals from the AR(2) fit were determined to be uncorrelated as much if not more than those from the AR(1) fit. For this reason, we do not recommend evaluating models for fMRI data with autocorrelated errors based on assessment of independence of residuals. Instead, in Section \ref{sec:fmri:pl}, we explore a model comparison strategy based on PL.
 
 \begin{table}
 \ssp
@@ -294,7 +298,7 @@ $\alpha$ & OLS & AR(1) & AR(2) \\
 0.050 & 0.000 & 0.958 & 1.000 \\
 \hline
 \end{tabular}
-\caption*{Proportion of whitened residuals determined by Ljung-Box test at varying significance levels $\alpha$ (rows) from fitting data simulated from $M_{100}$ with $\beta = 3$, $\sigma^2_s = 15$, and increasing $\phi$ (embedded tables) to regression models with independent (OLS), AR(1), and AR(2) error structures.}
+\caption*{Proportion of whitened residuals determined by Ljung-Box test at varying significance levels $\alpha$ (rows) from fitting data simulated from $M_{100}$ with $\beta = 3$, $\sigma^2 = 15$, and increasing $\phi$ (embedded tables) to regression models with independent (OLS), AR(1), and AR(2) error structures.}
 \end{table}
 
 \clearpage
