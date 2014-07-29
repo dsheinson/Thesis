@@ -495,6 +495,31 @@ $M_{001}$ & 0.672 & 0.648 \\
 
 \section{Comparing dynamic regression models using PL \label{sec:fmri:pl}}
 
+Having explored fits of $M_{011}$, $M_{101}$, and $M_{001}$ to the word recognition data using maximum likelihood estimation, we now investigate the relative appropriateness of these models for the data through an SMC model comparison strategy using PL. In Sections \ref{sec:pl} and \ref{sec:pl:dr}, we describe a PL scheme to estimate the filtered distributions of states and unknown fixed parameters in $M_{011}$ (letting $F_t = \mbox{conv}_t$) and $M_{101}$ (letting $F_t = 1$). Using this algorithm, we also have a way of estimating the marginal likelihood of the data through equation \eqref{eqn:onestep:pf}. For $M_{001}$, an explicit form of the marginal likelihood is available \citep{ohagan:bayes:1994}, given by
+\begin{equation}
+p(y_{1:T}) = \frac{1}{(2\pi)^{T/2}}\sqrt{\frac{|B_0^{-1}|}{|B_T^{-1}|}}\left(\frac{b_{m_0}^{a_{m_0}}}{b_{m_T}^{a_{m_T}}}\right)\left(\frac{\Gamma(a_{m_T})}{\Gamma(a_{m_0})}\right), \label{eqn:ols:marglik}
+\end{equation}
+where
+\begin{align}
+B_T &= (X'X + B_0^{-1})^{-1} &\quad \vartheta_T &= B_T(X'y + B_0^{-1}\vartheta_0) \label{eqn:bayesreg} \\
+a_{m_T} &= a_{m_0} + T/2 &\quad b_{m_T} &= b_{m_0} + \frac{1}{2}(y'y + \vartheta_0'B_0^{-1}\vartheta_0 - \vartheta_T'B_T^{-1}\vartheta_T), \nonumber
+\end{align}
+and $\vartheta_0$, $B_0$, $a_{m_0}$, and $b_{m_0}$ are prior hyperparameters (see equation \ref{eqn:dynreg:prior1}).
+
+Given the exact marginal likelihood of the data under $M_{001}$, approximations to the marginal likelihood under $M_{101}$ and $M_{011}$ using PL, and prior probability of each model, relative posterior model probabilities among the three models can be computed according to equation \eqref{eqn:modelcomp}. In order to run the PL algorithm and compare the three models in this way, we need to specify 1) the prior distribution of the initial state and fixed parameters, 2) the prior probability of each model, and 3) the number of particles to use in the PL algorithm.
+
+For all three models, we use a prior of the form given by equations \eqref{eqn:dynreg:prior1} and \eqref{eqn:dynreg:prior2}, i.e. $p(x_0, \theta) = p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s)\delta_0(x_0)$ with
+\begin{align}
+&\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_mB_0) \qquad \sigma^2_m \sim \mbox{IG}(a_{m_0}, b_{m_0}) \label{eqn:fmri:pl:prior1} \\
+&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0}). \label{eqn:fmri:pl:prior2}
+\end{align}
+
+The hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are known, and we let $B_0$ and $\Phi$ have the form
+\begin{equation}
+B_0 = \kappa^2 \left(\begin{array}{cc} 1000 & 0 \\ 0 & 225 \end{array}\right) \quad \Phi_0 = \kappa^2\times0.25. \label{eqn:fmri:kappa}
+\end{equation}
+In Sections \ref{sec:fmri:sim} and \ref{sec:fmri:dist}, we analyze simulated data and let $b_0$ and $\phi_0$ be equal to the true values of $\beta$ and $\phi$ used for simulation, respectively, and $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are set such that mean of each inverse-gamma prior is equal to the true value of the corresponding parameter and the variance of both inverse-gamma priors are equal to $\kappa^2\times500$.
+
 \subsection{PL on simulated fMRI data \label{sec:fmri:sim}}
 
 \begin{figure}
@@ -623,12 +648,3 @@ SV-right & 0.952 & 0.032 & 0.016 \\
 \includegraphics[width=1.0\textwidth]{craig_state-pl-SV-left-M101-3-FALSE-5000}
 \caption*{Sequential 95\% credible intervals for dynamic slopes (lines) and 95\% credible intervals for $\phi|y_{1:T}$ (displayed above plot panels) along with cluster classification (color of lines) and posterior model probabilities (colored bar along top of plots) using the PL with 5000 particles on a 5 by 5 slice of voxels in the y-z plane of secondary visual left. The proportion of the solid bar colored for a particular model represents the posterior probability of that model relative to the others.}
 \end{figure}
-
-%Priors:
-%
-%\begin{align*}
-%\beta \sim \mbox{N}(b_0,B_0) &\quad \sigma^2_m \sim \mbox{IG}(a_{m_0},b_{m_0}) \\
-%\phi \sim \mbox{N}(\phi_0,\Phi_0) &\quad \sigma^2_s \sim \mbox{IG}(a_{s_0},b_{s_0})
-%\end{align*}
-%
-%Let \[B_0 = \kappa^2 \left(\begin{array}{cc} 1000 & 0 \\ 0 & 225 \end{array}\right) \quad \Phi_0 = \kappa^2\times0.25.\] $b_0$ and $\phi_0$ are set to true values used for simulating data, or MLEs if true values are unknown, i.e. for real data. $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are set such that mean of each inverse-gamma prior is equal to the true values or MLEs for estimating $\sigma^2_m$ and $\sigma^2_s$, and such that the variance of the inverse-gamma priors are equal to $\kappa^2\times500$.

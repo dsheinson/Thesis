@@ -1083,10 +1083,6 @@
     \hline
     lowercase symbols, e.g. $a$, $b$, $\beta$, $\gamma$ & vectors or scalars \\
     \hline
-    $I_n$ & the $n \times n$ identity matrix \\
-    \hline
-    $A_{(i,j)}$ & the $i,j$th element of the matrix $A$ \\
-    \hline
     $\mbox{N}(\mu,\Sigma)$ & the normal distribution with mean $\mu$ \\
      & and covariance matrix $\Sigma$ \\
     \hline
@@ -1124,7 +1120,13 @@
     \hline
     $a'$ & the transpose of the vector $a$ \\
     \hline
+    $A_{(i,j)}$ & the $i,j$th element of the matrix $A$ \\
+    \hline
     $\mbox{vec}(A)$ & column-wise vectorization of the matrix $A$ \\
+    \hline
+    $|A|$ & determinant of the matrix $A$ \\
+    \hline
+    $I_n$ & the $n \times n$ identity matrix \\
     \hline
     $y_t$ & vector of observed data at time $t$ \\
     \hline
