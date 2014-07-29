@@ -70,7 +70,7 @@ While in the scanner, the words were presented according to a rapid-event relate
 
 An important step that is performed prior to analyzing fMRI data is preprocessing of the raw data that comes directly out of the scanner. For example, images need to be spatially realigned to reduce the effect of the subject's head movements while inside the scanner. In addition, a high-resolution structural image taken prior to the functional run can be used to discern the exact location of voxels that are difficult to locate in lower resolution functional images. This process is called \emph{coregistration} of the functional and structural data. The coregistered data then needs to be normalized to a standard brain atlas so that active voxels can be assigned to a neuroanatomic brain structure. For this data set, the functional time series were spatially realigned to the first image using a least squares approach with a 6-parameter rigid body affine transformation \citep{friston:ash:spreg:1995}. Realigned images were then ``unwarped'' to reduce the influence of residual movement-related variance on BOLD signal intensity \citep{andersson:deform:2001}. The functional data were coregistered to a high-resolution T1 anatomical image using mutual information maximization with a 6-parameter rigid body affine transform \citep{ashburner:neelin:reg:1997}. Then, the images were normalized to the standard 3D brain atlas defined by the International Consortium for Brain Mapping using a combination of a 12-parameter linear affine transformation and 3 by 2 by 3 nonlinear three-dimensional discrete cosine transform. A 7th degree B-spline was used as the interpolation method for creating normalized images \citep{ashburner:friston:spnorm:1999,mazz:toga:atlas:1995}.
 
-Other common preprocessing steps include spatial smoothing and slice-timing correction. Spatial smoothing is intended to get rid of some of the noise in the data and allow for the use of Gaussian random field theory when applying a correction for multiple hypothesis tests. Slice-timing correction adjusts for the fact that brain slices taken during a particular TR don't occur at the same time. For the word recognition experiment, the data were spatially smoothed with an 8 mm full-width at half maximum isotropic Gaussian kernel. Slice-timing correction was not applied to the data and is not typically used when the TR is less than 2 seconds \citep{penny:spm:2011}. 
+Other common preprocessing steps include spatial smoothing and slice-timing correction. Spatial smoothing is intended to get rid of some of the noise in the data and allow for the use of Gaussian random field theory when applying a correction for multiple hypothesis tests. Slice-timing correction adjusts for the fact that brain slices taken during a particular TR don't occur at the same time. For the word recognition experiment, the data were spatially smoothed with an 8 mm full-width at half maximum isotropic Gaussian kernel. Slice-timing correction was not applied to the data and is not typically used when the TR is less than 2 seconds \citep{penny:spm:2011}.
 
 Preprocessing of fMRI data is intended to improve statistical analysis by removing \emph{artifacts}, or abnormalities in the data due to non-task related events. However, it is possible that preprocessing can also add artifacts to the data. For instance, the compound effect of applying both slice-timing correction and spatial realignment can effect the signal in the data. While researchers hope to find signals in the data that provide insight into task-related neural activity, it is possible that the way data are preprocessed can affect results. For more information on preprocessing of fMRI data, see \cite[Chapter 4][]{ashby:fmri:2011}.
 
@@ -375,7 +375,7 @@ Figures \ref{fig:fmri:id:M011SNR} through \ref{fig:fmri:id:M111highb} suggest th
 
 \subsection{Fitting word recognition data \label{sec:fmri:mle}}
 
-We now provide results from fitting the word recognition data set to $M_{101}$ and $M_{011}$ using maximum likelihood estimation. As in Section \ref{sec:fmri:id}, the {\tt dlmMLE} function was used to obtain MLEs for fixed parameters in $M_{101}$ and $M_{011}$. In addition, we offer a comparison with standard GLM fits of $M_{001}$ using OLS. Figure \ref{fig:fmri:mle:beta} displays two-dimensional histograms of $\hat{\beta}$ over the 125 voxels from each brain region according to each model. The histograms suggest that significant brain activation is present in all regions except for FP. Also, estimates are relatively consistent across models for all brain regions with the exception of FP, where histograms for $M_{011}$ include a cloud of more active voxels while the other two models don't. 
+We now provide results from fitting the word recognition data set to $M_{101}$ and $M_{011}$ using maximum likelihood estimation. As in Section \ref{sec:fmri:id}, the {\tt dlmMLE} function was used to obtain MLEs for fixed parameters in $M_{101}$ and $M_{011}$. In addition, we offer a comparison with standard GLM fits of $M_{001}$ using OLS. Figure \ref{fig:fmri:mle:beta} displays two-dimensional histograms of $\hat{\beta}$ over the 125 voxels from each brain region according to each model. The histograms suggest that significant brain activation is present in all regions except for FP. Also, estimates are relatively consistent across models for all brain regions with the exception of FP, where histograms for $M_{011}$ include a cloud of more active voxels while the other two models don't.
 
 Also apparent from this figure is the bimodal nature of brain activation in SV-left and SV-right. Voxels were divided into high and low clusters, denoted by ``Cluster H'' and ``Cluster L'', respectively, in these two regions for each model using the K-means clustering method \citep{hartigan:wong:kmeans:1979} applied to $\hat{\theta}$. Table \ref{tab:fmri:prop} shows that about 65\% of voxels from these two regions fall in a cluster of higher activation and higher baseline BOLD response, evidenced by the higher regional average values of $\hat{\beta_1}$ and $\hat{\beta_0}$ in Table \ref{tab:fmri:mle:clusters}. The clustering of voxels in these brain regions could provide support for the $M_{011}$ model, since an apparent change in the regression slope over such close space might suggest that a change in the regression slope over time is also reasonable.
 
@@ -493,11 +493,11 @@ $M_{001}$ & 0.672 & 0.648 \\
 \caption*{Proportion of voxels in each of secondary visual left and right (columns) classified into high activation cluster for each model fit (rows).}
 \end{table}
 
-\section{Comparing dynamic regression models using PL \label{sec:fmri:pl}}
+\section{Comparing dynamic regression models using particle learning \label{sec:fmri:pl}}
 
 Having explored fits of $M_{011}$, $M_{101}$, and $M_{001}$ to the word recognition data using maximum likelihood estimation, we now investigate the relative appropriateness of these models for the data through an SMC model comparison strategy using PL. In Sections \ref{sec:pl} and \ref{sec:pl:dr}, we describe a PL scheme to estimate the filtered distributions of states and unknown fixed parameters in $M_{011}$ (letting $F_t = \mbox{conv}_t$) and $M_{101}$ (letting $F_t = 1$). Using this algorithm, we also have a way of estimating the marginal likelihood of the data through equation \eqref{eqn:onestep:pf}. For $M_{001}$, an explicit form of the marginal likelihood is available \citep{ohagan:bayes:1994}, given by
 \begin{equation}
-p(y_{1:T}) = \frac{1}{(2\pi)^{T/2}}\sqrt{\frac{|B_0^{-1}|}{|B_T^{-1}|}}\left(\frac{b_{m_0}^{a_{m_0}}}{b_{m_T}^{a_{m_T}}}\right)\left(\frac{\Gamma(a_{m_T})}{\Gamma(a_{m_0})}\right), \label{eqn:ols:marglik}
+p(y_{1:T}) = \frac{1}{(2\pi)^{T/2}}\sqrt{\frac{|B_0^{-1}|}{|B_T^{-1}|}}\left(\frac{(b_{m_0})^{a_{m_0}}}{(b_{m_T})^{a_{m_T}}}\right)\left(\frac{\Gamma(a_{m_T})}{\Gamma(a_{m_0})}\right), \label{eqn:ols:marglik}
 \end{equation}
 where
 \begin{align}
@@ -506,29 +506,37 @@ a_{m_T} &= a_{m_0} + T/2 &\quad b_{m_T} &= b_{m_0} + \frac{1}{2}(y'y + \vartheta
 \end{align}
 and $\vartheta_0$, $B_0$, $a_{m_0}$, and $b_{m_0}$ are prior hyperparameters (see equation \ref{eqn:dynreg:prior1}).
 
-Given the exact marginal likelihood of the data under $M_{001}$, approximations to the marginal likelihood under $M_{101}$ and $M_{011}$ using PL, and prior probability of each model, relative posterior model probabilities among the three models can be computed according to equation \eqref{eqn:modelcomp}. In order to run the PL algorithm and compare the three models in this way, we need to specify 1) the prior distribution of the initial state and fixed parameters, 2) the prior probability of each model, and 3) the number of particles to use in the PL algorithm.
+Given the exact marginal likelihood of the data under $M_{001}$, approximations to the marginal likelihood under $M_{101}$ and $M_{011}$ using PL, and the prior probability of each model, relative posterior model probabilities among the three models can be computed according to equation \eqref{eqn:modelcomp}. In order to run the PL algorithm and compare the three models in this way, we need to specify 1) the prior distribution of the initial state and fixed parameters, 2) the prior probability of each model, and 3) the number of particles to use in the PL algorithm.
 
 For all three models, we use a prior of the form given by equations \eqref{eqn:dynreg:prior1} and \eqref{eqn:dynreg:prior2}, i.e. $p(x_0, \theta) = p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s)\delta_0(x_0)$ with
 \begin{align}
 &\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_mB_0) \qquad \sigma^2_m \sim \mbox{IG}(a_{m_0}, b_{m_0}) \label{eqn:fmri:pl:prior1} \\
 &\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0}). \label{eqn:fmri:pl:prior2}
 \end{align}
-
-The hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are known, and we let $B_0$ and $\Phi$ have the form
+The hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are known, and we let $B_0$ and $\Phi_0$ take the form
 \begin{equation}
 B_0 = \kappa^2 \left(\begin{array}{cc} 1000 & 0 \\ 0 & 225 \end{array}\right) \quad \Phi_0 = \kappa^2\times0.25. \label{eqn:fmri:kappa}
 \end{equation}
-In Sections \ref{sec:fmri:sim} and \ref{sec:fmri:dist}, we analyze simulated data and let $b_0$ and $\phi_0$ be equal to the true values of $\beta$ and $\phi$ used for simulation, respectively, and $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are set such that mean of each inverse-gamma prior is equal to the true value of the corresponding parameter and the variance of both inverse-gamma priors are equal to $\kappa^2\times500$.
+
+In Section \ref{sec:fmri:sim}, we use PL to estimate unknown states and fixed parameters in dynamic regression models using simulated data. In this case, we let the hyperparameters $b_0$ and $\varphi_0$ be equal to the true values of $\beta$ and $\phi$ used for simulation, respectively. The inverse-gamma hyperparameters $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are set such that the means of the priors on $\sigma^2_s$ and $\sigma^2_m$ are equal to their respective true values used for simulation and the variances are both equal to $\kappa^2\times500$. We let $\kappa = 1$ in this section, but then compare the sensitivity of marginal likelihood estimates to more diffuse priors by increasing $\kappa$ in Section \ref{sec:fmri:dist}.
+
+In Section \ref{sec:fmri:dist}, we let $b_0$ and $\varphi_0$ be equal to the MLEs of $\beta$ and $\phi$, respectively, for the specific voxel that is being analyzed. Similarly, the inverse-gamma hyperparameters $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are set such that the means of the priors on $\sigma^2_s$ and $\sigma^2_m$ are equal to their respective MLEs for the specific voxel being analyzed and the variances are both equal to $\kappa^2\times500$. While this can be seen as using the data twice, we specify priors in this way in this section only in order to produce a fair model comparison among $M_{011}$, $M_{101}$, and $M_{001}$.
+
+In Section \ref{sec:fmri:real}, we analyze voxel-wise time series from the word recognition data set. When analyzing data from a specific voxel, we let $b_0$ and $\varphi_0$ be equal to the average MLE for $\beta$ and $\phi$, respectively, among voxels in the same brain region (as given in Table \ref{tab:fmri:mle:means}). For voxels in SV-left or SV-right, $b_0$ and $\varphi_0$ are set to the average values of $\hat{\beta}$ and $\hat{\phi}$ among voxels in the same cluster (as given in Table \ref{tab:fmri:mle:clusters}). The inverse-gamma hyperparameters $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are set such that the mean of the priors on $\sigma^2_s$ and $\sigma^2_m$ are equal to their respective the average MLEs in Tables \ref{tab:fmri:mle:means} and \ref{tab:fmri:mle:clusters} and the variances are both equal to $\kappa^2\times500$.
 
 \subsection{PL on simulated fMRI data \label{sec:fmri:sim}}
+
+In this section, we simulate data from $M_{011}$ and $M_{101}$ and test the PL algorithm by running it under the data generating model and comparing estimates from PL with those from MCMC. We simulated data from both models with true fixed parameter values set to $\beta = (750,15)'$, $\phi = 0.95$, $\sigma^2_s = 10$, and $\sigma^2_m = 10$. The same $\mbox{conv}_t$ generated from the simulated rapid event-design pictured in Figure \ref{fig:fmri:design} was used as the regression covariate. The simulated time series from $M_{011}$ and change in slope are pictured in Figure \ref{fig:fmri:sim}. Notice from this figure that $y_t$ mirrors the convolution function better at TRs where $x_t$ is high.
 
 \begin{figure}
 \ssp
 \centering
 \caption{Simulated fMRI data from dynamic slope model} \label{fig:fmri:sim}
-\includegraphics[width=1.0\textwidth]{fmri-ar-sim-750-15-99-2-5-M101}
-\caption*{Simulated fMRI time series $y_t$ (top) from $M_{011}$ with $\beta = (750,15)'$, $\phi = 0.99$, $\sigma^2_s = 2$, and $\sigma^2_m = 5$. Convolution of the hrf and neural activation pattern $\mbox{conv}_t$ and simulated change in dynamic slope $x_t$ are displayed in the middle and bottom panels, respectively.}
+\includegraphics[width=1.0\textwidth]{fmri-ar-sim-750-15-95-10-10-M101}
+\caption*{Simulated fMRI time series $y_t$ (top) from $M_{011}$ with $\beta = (750,15)'$, $\phi = 0.95$, $\sigma^2_s = 10$, and $\sigma^2_m = 10$. Convolution of the hrf and neural activation pattern $\mbox{conv}_t$ and simulated change in dynamic slope $x_t$ are displayed in the middle and bottom panels, respectively.}
 \end{figure}
+
+We ran PL under the true model for both simulated time series using 500, 1000, 5000, 10000, and 20000 particles and prior distributions given by equations \eqref{eqn:fmri:pl:prior1} and \eqref{eqn:fmri:pl:prior2} with $\kappa = 1$. In addition, we ran three MCMC chains for each simulation under the true model using the same priors. For each chain, 25000 iterations were run with a burn-in of 5000 and every 20th iteration saved. The results for $M_{011}$ shown in Figure \ref{fig:fmri:quant} indicate that the filtered distributions of the fixed parameters and dynamic slope, $\beta_1 + x_t$ estimated by PL have converged near the true posterior if at least 10000 particles are used. In addition, the filtered distributions at time $T = 250$ appear to agree with the MCMC estimate for the dynamic slope and all fixed parameters. The same plots for the data simulated from $M_{101}$ (not shown) give similar results.
 
 \begin{figure}
 \ssp
@@ -539,6 +547,10 @@ In Sections \ref{sec:fmri:sim} and \ref{sec:fmri:dist}, we analyze simulated dat
 \end{figure}
 
 \subsection{Distinguishing dynamic regression models \label{sec:fmri:dist}}
+
+Convinced by the results from the previous section that stable estimates of dynamic regression coefficients and fixed parameters can be obtained by PL if enough particles are used, we now examine estimation of the marginal likelihood. In particular, we are interested in understanding parameter settings under which $M_{011}$, $M_{101}$, and $M_{001}$ can be distinguished from one another. To study this, we simulated time series from both $M_{011}$ and $M_{101}$ with the same convolution function used in the previous section, $\beta = (750,15)'$, and various values of $\phi$, $\sigma^2_s$, and $\sigma^2_m$. Specifically, we simulated time series for all combinations of $\phi \in \{0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95,0.99\}$, $\sigma^2_s \in \{1,2,3,4,5,10,15,20\}$, and $\sigma^2_m = 10$. We than ran PL three times on each simulated time series using 500 particles and $\kappa = 1$ under both $M_{011}$ and $M_{101}$. Some PL runs did not complete due to values of the likelihood, $p(y_t|x_t,\theta)$, being too low. For each PL run that successfully completed, we computed estimates of the log marginal likelihood. In addition, we computed the exact log marginal likelihood under $M_{001}$ for each simulated time series using equation \eqref{eqn:ols:marglik}.
+
+Figures \ref{fig:fmri:phi:M011} and \ref{fig:fmri:phi:M101} show the results for data simulated from $M_{011}$ and $M_{101}$, respectively. Both figures show that the log marginal likelihoods for the true data-generating model are the largest provided the true $\phi$ and signal-to-noise ratio $\sigma^2_s/\sigma^2_m$ are large enough. However, it appears more difficult to identify $M_{101}$ as the true model than it is for $M_{011}$. For example, when the true signal-to-noise ratio is 1.5, 2, or 2.5, the black lines in Figure \ref{fig:fmri:phi:M011} are completely above the red and blue lines for all $\phi \ge 0.1$. In contrast, $\phi \ge 0.6$ is required for the red lines in Figure \ref{fig:fmri:phi:M101} to be completely above the black and blue lines for all of $\sigma^2_s / \sigma^2_m = 1.5, 2, \mbox { and } 2.5$.
 
 \begin{figure}
 \ssp
@@ -556,6 +568,18 @@ In Sections \ref{sec:fmri:sim} and \ref{sec:fmri:dist}, we analyze simulated dat
 \caption*{Log marginal likelihoods of data coming from different dynamic regression models (colored lines) when simulated from $M_{101}$ with $\sigma^2_m = 10$ and increasing $\phi$ (x-axis) and $\sigma^2_s$. Log marginal likelihoods from three independent PL runs with each model, for each simulation, are displayed by colored points.}
 \end{figure}
 
+It is important to understand that comparing these three models in terms of the log marginal likelihood is highly sensitive to the prior distribution on the initial state and fixed parameters. This is because the marginal likelihood is computed by integrating out the states and fixed parameters from the joint likelihood, i.e.
+\begin{equation}
+p(y_{1:T}) = \int_{\theta} \int_{x_0} \int_{x_1} \cdots \int_{x_T} \prod_{t=1}^T\left(p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)\right)p(x_0,\theta)\mbox{d}x_{0:T}\mbox{d}\theta \label{eqn:int:marg}
+\end{equation}
+Thus, if $p(x_0,\theta)$ is diffuse, $p(y_{1:T})$ will be much smaller than it would be for $p(x_0,\theta)$ that is more concentrated around the posterior $p(x_{0:T},\theta|y_{1:T})$.
+
+To examine the sensitivity of comparing $M_{011}$, $M_{101}$, and $M_{001}$ as in Figures \ref{fig:fmri:phi:M011} and \ref{fig:fmri:phi:M101} to our prior defined in equations \eqref{eqn:fmri:pl:prior1} and \eqref{eqn:fmri:pl:prior2}, we simulated two more time series under both $M_{011}$ and $M_{101}$ for each set of parameter values. Then, we ran the PL algorithm under the true data-generating model three times for each of the three simulations for each set of true fixed parameter values using $\kappa = 5$. This process was then repeated for $\kappa = 10$ and $\kappa = 15$. The goal here is that we want examine the effect of increasing $\kappa$ on the values of $\phi$ and $\sigma^2_s / \sigma^2_m$ at which the log marginal likelihood of the true data-generating model is higher for all three PL runs than the log marginal likelihood of the other models with $\kappa = 1$. Theoretically, we should be able to increase $\kappa$ to the point that the true model is always less likely than the other models.
+
+Figures \ref{fig:fmri:kappa:M011} and \ref{fig:fmri:kappa:M101} illustrate this point. In Figure \ref{fig:fmri:kappa:M011}, we see that as $\kappa$ is increased, the true values of $\phi$ and $\sigma^2_s / \sigma^2_m$ required identify $M_{011}$ as the true model get larger. This phenomenon is even more pronounced when considering $M_{101}$ as the true model, as in Figure \ref{fig:fmri:kappa:M101}. For example, when $\kappa = 15$, the true autocorrelation in the data must be at least 0.8 to identify $M_{101}$ as the true model, regardless of how large the signal-to-noise ratio is.
+
+Setting $\kappa = 1$ assumes a prior standard deviation of 100 for the regression intercept and 15 for the regression slope. From Figure \ref{fig:fmri:mle:beta}, we see that most values of $\hat{\beta}_0$ and $\hat{\beta}_1$ are within 2 standard deviations of the average MLE of their respective regions or clusters. Similarly, most MLEs for $\phi$, $\sigma^2_s$, and $\sigma^2_m$ (not shown) fall within two standard deviations of the region or cluster average for $\kappa = 1$. For this reason along with the fact that most of the MLEs for $\phi$ and $\sigma^2_s / \sigma^2_m$ calculated in Section \ref{sec:fmri:mle} are above the lines in the top left plots of Figures \ref{fig:fmri:kappa:M011} and \ref{fig:fmri:kappa:M101}, we think $\kappa = 1$ gives reasonable prior variances on the fixed parameters.
+
 \begin{figure}
 \ssp
 \centering
@@ -572,21 +596,27 @@ In Sections \ref{sec:fmri:sim} and \ref{sec:fmri:dist}, we analyze simulated dat
 \caption*{Points $(\phi,\sigma^2_s / \sigma^2_m)$ at which $M_{101}$ is distinguished from $M_{011}$ and $M_{001}$ as being most likely to generate data simulated from $M_{101}$ with $\beta = (750,15)'$ and increasing prior variance $\kappa$ (plot panels). $M_{101}$ is determined to be distinguished from the other models if log marginal likelihood estimates from each of three PL runs for $M_{101}$ are greater than estimates from all three PL runs with each of the other models. Points are displayed for each of three separate simulations at each set of fixed parameter values. If log likelihood estimates for $M_{011}$ never exceed those for the other models for all three runs, no point is plotted.}
 \end{figure}
 
-\begin{figure}
-\ssp
-\centering
-\caption{Log marginal likelihoods of data simulated from dynamic slope model with increasing particles in PL} \label{fig:fmri:loglik:M011}
-\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-M101-498-1}
-\caption*{Kernel density approximation to the distribution of 20 log marginal likelihood estimates for $M_{011}$ (black lines) and $M_{101}$ (red lines) along with true log marginal likelihood of $M_{001}$ (blue vertical lines) using PL with increasing number of particles (plot panels) on simulated data from $M_{011}$ with $\beta = (750,15)'$, $\phi = 0.3$, $\sigma^2_s = 1$, and $\sigma^2_m = 10$.}
-\end{figure}
+Our last analysis using simulated data is aimed at determining how many particles are needed in the PL algorithm to accurately estimate relative posterior model probabilities among $M_{011}$, $M_{101}$, $M_{001}$. This will depend on how different the marginal likelihoods are for each model. For instance, if one the marginal likelihood for one of the model is large relative to the others, the posterior probability is likely to be 1 for that model and 0 for the others, regardless of how variable the estimate of the marginal likelihood is.
 
-\begin{figure}
-\ssp
-\centering
-\caption{Log marginal likelihoods of data simulated from dynamic intercept model with increasing particles in PL} \label{fig:fmri:loglik:M101}
-\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-M011-500-1}
-\caption*{Kernel density approximation to the distribution of 20 log marginal likelihood estimates for $M_{011}$ (black lines) and $M_{101}$ (red lines) along with true log marginal likelihood of $M_{001}$ (blue vertical lines) using PL with increasing number of particles (plot panels) on simulated data from $M_{101}$ with $\beta = (750,15)'$, $\phi = 0.5$, $\sigma^2_s = 1$, and $\sigma^2_m = 10$.}
-\end{figure}
+Consider one simulated time series from $M_{011}$ with $\beta = (750,15)'$, $\phi = 0.3$, $\sigma^2_s = 1$, and $\sigma^2_m = 10$. These particular values were chosen because Figures \ref{fig:fmri:phi:M011} shows that under these parameter settings, it is difficult to tell which of the three models is preferred. The PL algorithm was run twenty times on the simulated time series under both $M_{011}$ and $M_{101}$ using 500, 1000, 5000, and 10000 particles. Given one marginal likelihood estimate for each of $M_{011}$ and $M_{101}$ for a fixed number of particles and an exact marginal likelihood computed for $M_{001}$ according to equation \eqref{eqn:ols:marglik}, a set of three posterior model probabilities can be computed according to equation \eqref{eqn:modelcomp}. Twenty such sets of posterior model probabilities were computed, and results are displayed via compositional plots in Figure \ref{fig:fmri:comp:M011}. From this figure, we can see that 5000 particles are needed in the PL in order for the estimates to converge near the true relative posterior model probabilities. A similar simulation study was performed on a time series simulated from $M_{101}$ with $\beta = (750,15)'$, $\phi = 0.5$, $\sigma^2_s = 1$, and $\sigma^2_m = 10$, and results displayed in Figure \ref{fig:fmri:comp:M011} reveal the same conclusion.
+
+%\begin{figure}
+%\ssp
+%\centering
+%\caption{Log marginal likelihoods of data simulated from dynamic slope model with increasing particles in PL} \label{fig:fmri:loglik:M011}
+%\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-M101-498-1}
+%\caption*{Kernel density approximation to the distribution of 20 log marginal likelihood estimates for $M_{011}$ (black lines) and $M_{101}$ (red lines) along with true log marginal likelihood of $M_{001}$ (blue vertical lines) using PL with increasing number of particles (plot panels) on simulated data from $M_{011}$ with $\beta = (750,15)'$, $\phi = 0.3$, $\sigma^2_s = 1$, and $\sigma^2_m = 10$.}
+%\end{figure}
+%
+%, and another simulated time series from $M_{101}$ with $\beta = (750,15)'$, $\phi = 0.5$, $\sigma^2_s = 1$, and $\sigma^2_m = 10$.
+%
+%\begin{figure}
+%\ssp
+%\centering
+%\caption{Log marginal likelihoods of data simulated from dynamic intercept model with increasing particles in PL} \label{fig:fmri:loglik:M101}
+%\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-M011-500-1}
+%\caption*{Kernel density approximation to the distribution of 20 log marginal likelihood estimates for $M_{011}$ (black lines) and $M_{101}$ (red lines) along with true log marginal likelihood of $M_{001}$ (blue vertical lines) using PL with increasing number of particles (plot panels) on simulated data from $M_{101}$ with $\beta = (750,15)'$, $\phi = 0.5$, $\sigma^2_s = 1$, and $\sigma^2_m = 10$.}
+%\end{figure}
 
 \begin{figure}
 \ssp
@@ -604,7 +634,7 @@ In Sections \ref{sec:fmri:sim} and \ref{sec:fmri:dist}, we analyze simulated dat
 \caption*{Posterior model probabilities among dynamic regression models (corners of triangles) for twenty runs of the PL (black dots) for increasing number of particles (plot panels) on data simulated from $M_{101}$ with $\beta = (750,15)'$, $\phi = 0.5$, $\sigma^2_s = 1$, and $\sigma^2_m = 10$. Each point represents a set of posterior probabilities (one for each model), and the proximity of the point to a particular corner of the triangle represents the posterior probability of the model in that corner relative to the other models.}
 \end{figure}
 
-\subsection{Real fMRI data \label{sec:fmri:real}}
+\subsection{Analyzing word recognition data using PL \label{sec:fmri:real}}
 
 \begin{figure}
 \ssp
@@ -617,7 +647,7 @@ In Sections \ref{sec:fmri:sim} and \ref{sec:fmri:dist}, we analyze simulated dat
 \begin{table}
 \ssp
 \centering
-\caption{Proportion of voxels favoring different regression models} \label{}
+\caption{Proportion of voxels favoring different regression models} \label{tab:fmri:favor}
 \begin{tabular}{|c|ccc|}
 \hline
 Region & $M_{101}$ & $M_{011}$ & $M_{001}$ \\
