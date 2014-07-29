@@ -636,13 +636,19 @@ Consider one simulated time series from $M_{011}$ with $\beta = (750,15)'$, $\ph
 
 \subsection{Analyzing word recognition data using PL \label{sec:fmri:real}}
 
-\begin{figure}
-\ssp
-\centering
-\caption{Log marginal likelihoods of real fMRI data} \label{fig:fmri:loglik:real}
-\includegraphics[width=1.0\textwidth]{craig_pl-loglik-1-5000-1-FALSE-FALSE-FALSE}
-\caption*{Kernel density approximation to the distribution of log marginal likelihood estimates of data from 125 voxels from each of 6 different brain regions (plot panels) for $M_{011}$ (black lines) and $M_{101}$ (red lines) along with true log marginal likelihood of $M_{001}$ (blue vertical lines) using PL with 5000 particles.}
-\end{figure}
+In this section, we examine results from running the PL on fMRI data generated from the word recognition experiment. We ran the PL algorithm under both $M_{011}$ and $M_{101}$ on time series from every voxel (750 total) using 5000 particles. Then, we estimated the marginal likelihood of the data from every voxel under both $M_{011}$ and $M_{101}$ and computed the exact marginal likelihood for every voxel under $M_{001}$. Next, we computed relative posterior probabilities among the three models for each voxel based on the estimated marginal likelihoods for $M_{011}$ and $M_{101}$ and the exact marginal likelihood for $M_{001}$. The model with the highest posterior probability for a given voxel is determined to be the ``favored model'' for that voxel, and the proportion of voxels that favor each model across the six different brain regions are displayed in Table \ref{tab:fmri:favor}.
+
+From Table \ref{tab:fmri:favor}, we see that a vast majority of the voxels favor $M_{101}$. The compositional plots in Figure \ref{fig:fmri:comp:real} affirm this as well, with a majority of points from each brain region concentrated near corner of the ternary diagram represented by $M_{101}$. The dynamic intercept model has been the standard way to model autocorrelation in most fMRI studies, and these results provide further support for that standard.
+
+There are a few brain regions, most notably SV-left and IPS-right, for which a non-trivial percentage of voxels prefer $M_{011}$. To examine this further, we have plotted the 95\% credible intervals for the filtered distributions of the dynamic slope at each time $t$ based on samples generated from PL runs under $M_{011}$ for a 5 by 5 slice of voxels in SV-left. In addition, we have color coded the intervals for each voxel according to whether it falls in the low or high activation cluster, and we've included colored bars along the top of the plots that provide a visual display of the relative posterior model probabilities for each voxel. We notice from this slice of voxels that there is a spatial nature to the low and high activation clusters as well as to which model the voxels prefer. Furthermore, we see that the cluster of voxels that prefer the dynamic slope model seem to lie along the gradient between the low and high activation clusters. This suggests the possibility of a temporal shift in activation over the course of the experiment as well as a spatial one, perhaps in response to a shift in focus or adaptation in the processing of words on the part of the subject in the scanner.
+
+%\begin{figure}
+%\ssp
+%\centering
+%\caption{Log marginal likelihoods of real fMRI data} \label{fig:fmri:loglik:real}
+%\includegraphics[width=1.0\textwidth]{craig_pl-loglik-1-5000-1-FALSE-FALSE-FALSE}
+%\caption*{Kernel density approximation to the distribution of log marginal likelihood estimates of data from 125 voxels from each of 6 different brain regions (plot panels) for $M_{011}$ (black lines) and $M_{101}$ (red lines) along with true log marginal likelihood of $M_{001}$ (blue vertical lines) using PL with 5000 particles.}
+%\end{figure}
 
 \begin{table}
 \ssp
@@ -678,3 +684,9 @@ SV-right & 0.952 & 0.032 & 0.016 \\
 \includegraphics[width=1.0\textwidth]{craig_state-pl-SV-left-M101-3-FALSE-5000}
 \caption*{Sequential 95\% credible intervals for dynamic slopes (lines) and 95\% credible intervals for $\phi|y_{1:T}$ (displayed above plot panels) along with cluster classification (color of lines) and posterior model probabilities (colored bar along top of plots) using the PL with 5000 particles on a 5 by 5 slice of voxels in the y-z plane of secondary visual left. The proportion of the solid bar colored for a particular model represents the posterior probability of that model relative to the others.}
 \end{figure}
+
+It is conceivable that the most appropriate model for this data might be $M_{111}$, i.e. a dynamic regression model where both the intercept and the slope are dynamic. For instance, even the voxels that prefer $M_{101}$ over $M_{011}$ in Figure \ref{fig:fmri:slopes:real} exhibit an upward trajectory in the dynamic slope over time. If we assume that a model similar to $M_{111}$ generated the fMRI data from the word recognition experiment, it could be the case that the variation in the data due to the dynamic intercept part of the model swamps the dynamic slope component. The small cluster of voxels in SV-right that prefer $M_{011}$ could then be one of the few areas where the dynamic slope component accounts for more of the variation in the data.
+
+Model identification results from previous sections suggest that our model comparison analysis using the PL should be used with caution. For instance, the models themselves are only identifiable if the true lag-1 autocorrelation and signal-to-noise ratio is high enough. In addition, $\phi$ and $\sigma^2_s / \sigma^2_m$ need to be sufficiently large in order for the true model to be identified using an estimate of the marginal likelihood. Lastly, the marginal likelihood can be highly sensitive to specific prior distributions on the unknown states and fixed parameters. Thus, a diffuse prior can lower the marginal likelihood of the data under the true model relative to other models.
+
+We feel the results from this section provide evidence in support of the use of a model for statistical analysis of fMRI data that incorporates a dynamic slope component, albeit in conjunction with other components to account for remaining sources of autocorrelation in the data. The maximum likelihood estimates of $\phi$, $\sigma^2_s$, and $\sigma^2_m$ given in Section \ref{sec:fmri:mle} appear to be high enough in SV-left to believe that the results shown in Figure \ref{fig:fmri:slopes:real} are not a fluke due to misidentification. The use of the PL algorithm provides a method of comparing alternative models for fMRI time series and gaining insight into neural activity in specific brain regions of interest.
