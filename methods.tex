@@ -142,15 +142,15 @@ Particle filtering is an SMC inferential technique based on repeated use of impo
 \begin{equation}
 p(x_t,\theta| y_{1:t}) \approx \sum_{j=1}^J w_t^{(j)} \delta_{\left(x_t^{(j)},\theta^{(j)}\right)}(x_t,\theta), \label{eqn:approx}
 \end{equation}
-where $\left(x_t^{(j)},\theta^{(j)}\right)$ is the location of the $j^{\mbox{th}}$ particle at time $t$ and $w_t^{(j)}$ is the weight of that particle with $\sum_{j=1}^J w_t^{(j)}=1$. A variety of SMC techniques have been developed to provide more efficient approximations to $p(x_t,\theta|y_{1:t})$ in the sense that with the same computation time a better approximation is achieved. In this section, we describe five particle filtering techniques: the bootstrap filter (BF), auxiliary particle filter (APF), kernel density particle filter (KDPF), resample-move particle filter (RM), and particle learning algorithm (PL).
+where $\left(x_t^{(j)},\theta^{(j)}\right)$ is the location of the $j^{\mbox{th}}$ particle at time $t$ and $w_t^{(j)}$ is the weight of that particle with $\sum_{j=1}^J w_t^{(j)}=1$. A variety of SMC techniques have been developed to provide more efficient approximations to $p(x_t,\theta|y_{1:t})$ in the sense that with the same computation time a better approximation is achieved. In this section, we describe five particle filtering techniques: the bootstrap filter (BF), the auxiliary particle filter (APF), the kernel density particle filter (KDPF), the resample-move particle filter (RM), and particle learning (PL).
 
-Each of the five algorithms comes with its own advantages and disadvantages. The BF and APF are the simplest and most straightforward to implement, but are unequipped to efficiently deal with state-space models that contain unknown fixed parameters. The PL performs the most efficiently, but can only be applied to special cases of state-space models such as DLMs. The RM, while capable of handling state-space models of any form, requires an MCMC step in addition to the SMC, and thus is not a truly sequential algorithm. The KDPF, while being the only truly sequential particle filtering algorithm that can be applied to any state-space model, is outperformed by the RM and PL in many model settings.
+Each of these five strategies has its own advantages and disadvantages. The BF and APF are the simplest and most straightforward to implement, but are unequipped to efficiently deal with state-space models that contain unknown fixed parameters. PL performs the most efficiently, but can only be applied to special cases of state-space models such as DLMs. The RM, while capable of handling state-space models of any form, requires an MCMC step in addition to the SMC, and thus is not a truly sequential algorithm. The KDPF, while being the only truly sequential particle filtering algorithm that can be applied to any state-space model, is outperformed by the RM and PL in many model settings.
 
-In Chapter \ref{ch:epid}, we compare the efficiency of the BF, APF, and KDPF in the syndromic surveillance context. In Chapter \ref{ch:comp}, we compare the KDPF, RM, and PL in terms of their efficiency in estimating the marginal likelihood for the local level DLM. Finally, in Chapter \ref{ch:fmri}, we employ the PL for estimating states and unknown fixed parameters in DLMs using real and simulated fMRI data.
+In Chapter \ref{ch:epid}, we compare the efficiency of the BF, APF, and KDPF in the syndromic surveillance context. In Chapter \ref{ch:comp}, we compare the KDPF, RM, and PL in terms of their efficiency for estimating the marginal likelihood of data generated from the local level DLM described in Section \ref{sec:dlm:ll}. Finally, in Chapter \ref{ch:fmri}, we employ PL for estimating states and unknown fixed parameters in DLMs using real and simulated fMRI data.
 
 \subsection{Bootstrap filter \label{sec:bf}}
 
-The BF is first successful version of the particle filter \citep{Gord:Salm:Smit:nove:1993,Kita:mont:1996}. Since this method and the APF were developed for the situation when $\theta$ is known, we will (for the moment) drop $\theta$ from the notation. Given an approximation to the filtered distribution at time $t$ as in equation \eqref{eqn:approx}, to obtain an approximation to the filtered distribution at time $t+1$, perform the following steps for each particle $j=1,\ldots,J$:
+The BF is first successful version of the particle filter \citep{Gord:Salm:Smit:nove:1993,Kita:mont:1996}. Since this method and the APF were developed for when $\theta$ is known, we will (for the moment) drop $\theta$ from the notation. Given an approximation to $p(x_t|y_{1:t})$ as in equation \eqref{eqn:approx} (with $\theta$ omitted), we obtain an approximation to $p(x_{t+1}|y_{1:t+1})$ by performing the following steps for each particle $j=1,\ldots,J$:
 \begin{enumerate}
 \item Resample: sample an index $k\in\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\left\{w_t^{(1)},\ldots,w_t^{(j)},\ldots,w_t^{(J)}\right\}$,
 \item Propagate: sample $x_{t+1}^{(j)} \sim p\left( x_{t+1}\left|x_t^{(k)}\right.\right)$, and
@@ -161,7 +161,7 @@ This procedure can be applied recursively beginning with an initial set of weigh
 
 \subsection{Auxiliary particle filter \label{sec:apf}}
 
-One problem that arises in implementing the BF is that $w_t^{(j)}$ will be small for particles where $p\left(y_{t}\left|x_{t}^{(j)}\right.\right)$ is small, and these particles will contribute little to the approximation to $p(x_{t}|y_{1:t})$. The APF aims to mitigate this by anticipating which particles will have small weight using a look ahead strategy \citep{Pitt:Shep:filt:1999}. Given an approximation to the filtered distribution at time $t$ as in equation \eqref{eqn:approx}, the APF approximates $p(x_{t+1}|y_{1:t+1})$ by the following:
+One problem that arises in implementing the BF is that $w_t^{(j)}$ will be small for particles for which $p\left(y_{t}\left|x_{t}^{(j)}\right.\right)$ is small, and these particles will contribute little to the approximation to $p(x_{t}|y_{1:t})$. The APF aims to mitigate this by anticipating which particles will have small weight using a look ahead strategy \citep{Pitt:Shep:filt:1999}. Given an approximation to $p(x_t|y_{1:t})$, the APF approximates $p(x_{t+1}|y_{1:t+1})$ by the following:
 \begin{enumerate}
 \item For each particle $j$, calculate a point estimate of $x_{t+1}^{(j)}$ called $\mu_{t+1}^{(j)}$, e.g.
 \[ \mu_{t+1}^{(j)} = E\left(x_{t+1}\left|x_t^{(j)} \right.\right). \]
@@ -201,57 +201,62 @@ Given an approximation to the filtered distribution at time $t$ as in equation \
 	w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}. \right. \]
 	\end{enumerate}
 \end{enumerate}
-The KDPF adds the kernel density regeneration to the auxiliary particle filter. Here, we use a mixture distribution that places normal kernels around each particle, where the mean of each kernel is a weighted average between the particle value and the overall mean of all particles. This ensures that the variance of regenerated fixed parameter values at a specific time point does not change \citep{Liu:West:comb:2001}.
+The KDPF adds the kernel density regeneration to the auxiliary particle filter. Here, we use a mixture distribution that places normal kernels around each particle, where the mean of each kernel is a weighted average between the particle value and the overall mean of all particles. This ensures that the variance of regenerated fixed parameter values within a specific iteration of the particle filter is the same as the variance of the fixed parameter value prior to regeneration \citep{Liu:West:comb:2001}.
 
 To use the KDPF with normal kernels, it is necessary to parameterize the fixed parameters so that their support is on the real line. This is not a constraint, but rather a practical implementation detail. We typically use logarithms for parameters that have positive support and the logit function for parameters in the interval (0,1). A parameter $\psi$ bounded on the interval (a,b) can first be rebounded to (0,1) through $(\psi-a)/(b-a)$, and then the logit transformation can be applied. We investigate the sensitivity of the performance of the particle filters to the choice of transformation in Chapter \ref{ch:epid}.
 
 \subsection{Resample-move algorithm} \label{sec:rm}
 
-In Chapter \ref{ch:epid}, we show that the KDPF can be an effective tool for handling unknown fixed parameters in state-space models. However, the choice of a mixture normal distribution for regenerating fixed parameter values is somewhat arbitrary, and efficiency of the algorithm can be increased by using a kernel that matches $p(\theta|y_{1:t})$ more closely. The RM, introduced by \citet{Gilk:Berz:foll:2001}, does precisely this by regenerating fixed parameter values from an MCMC transition kernel with stationary distribution equal to $p(\theta|y_{1:t})$. The algorithm works by running one or a few iterations of an MCMC algorithm within each step of the particle filter for the purpose of jittering fixed parameter values. Since the weighted sample of fixed parameter values already represents an approximation to $p(\theta|y_{1:t})$, the resulting sample after running an MCMC for each particle yields a sample that can only improve the approximation.
+In Chapter \ref{ch:epid}, we show that the KDPF can be an effective tool for estimating unknown fixed parameters in state-space models. However, the choice of a mixture normal distribution for regenerating fixed parameter values is somewhat arbitrary, and efficiency of the algorithm can be increased by using a kernel that matches $p(\theta|y_{1:t})$ more closely. The RM, introduced by \citet{Gilk:Berz:foll:2001}, aims to do this by regenerating fixed parameter values from an MCMC transition kernel with stationary distribution equal to $p(\theta|y_{1:t})$. The algorithm works by running one or a few iterations of an MCMC algorithm within each step of the particle filter for the purpose of jittering fixed parameter values. Since the weighted sample of fixed parameter values already represents an approximation to $p(\theta|y_{1:t})$, the resulting sample after running an MCMC for each particle yields a sample that can only improve the approximation \cite[Section 4.4][]{douc:joh:tut:2009}.
 
-Because an MCMC kernel will often depend on all of the observed data and unobserved states, we must track the entire history of states in each particle. That is, particle $j$ is represented by $\left(x_{0:t}^{(j)},\theta_t^{(j)}\right)$ with weight $w_t^{(j)}$, where $x_{0:t}^{(j)} = (x_0^{(j)},x_1^{(j)},\ldots,x_t^{(j)})$. The entire collection of $J$ particles now represents an approximation to $p(x_{0:t},\theta|y_{1:t})$. The general RM algorithm proceeds as follows. Given a particle approximation to the posterior, $p(x_{0:t},\theta|y_{1:t})$, we move to a particle approximation to $p(x_{0:t+1},\theta|y_{1:t+1})$ by the following steps for each particle $j=1,\ldots,J$:
+Since distributions that need to evaluated in MCMC algorithms often depend on all of the observed data and unobserved states, we must track the entire history of states within each particle. Thus, we now represent particle $j$ by $\left(x_{0:t}^{(j)},\theta_t^{(j)}\right)$ with weight $w_t^{(j)}$, where $x_{0:t}^{(j)} = \left(x_0^{(j)},x_1^{(j)},\ldots,x_t^{(j)}\right)$ represents the sample path of the state from time 0 to time $t$ for particle $j$. The entire collection of $J$ particles now represents an approximation to $p(x_{0:t},\theta|y_{1:t})$.
+
+The general RM algorithm proceeds in the following way. Given a particle approximation to $p(x_{0:t},\theta|y_{1:t})$, we move to a particle approximation to $p(x_{0:t+1},\theta|y_{1:t+1})$ by the following steps for each particle $j=1,\ldots,J$:
 \begin{enumerate}
-\item Propagate: draw $\tilde{x}^{(j)}_{t+1}$ from $p\left(x_{t+1}|x^{(j)}_t,\theta^{(j)}_t\right)$. Add $\tilde{x}^{(j)}_{t+1}$ to particle $j$ and denote the new augmented particle by $\left(\tilde{x}^{(j)}_{0:t+1},\theta^{(j)}_t\right)$.
+\item Propagate: draw $\tilde{x}^{(j)}_{t+1}$ from $p\left(x_{t+1}|x^{(j)}_t,\theta^{(j)}_t\right)$. Add $\tilde{x}^{(j)}_{t+1}$ to particle $j$ and denote the new augmented particle by $\left(\tilde{x}^{(j)}_{0:t+1},\theta^{(j)}_t\right)$,
 \item Calculate weights and renormalize:
-    \[\tilde{w}^{(j)}_t = p\left(y_{t+1}|\tilde{x}^{(j)}_{t+1},\theta^{(j)}_t\right) \qquad w^{(j)}_{t+1} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}. \right.\]
-\item Resample: sample an index $k$ from $\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w^{(1)}_{t+1},\ldots,w^{(j)}_{t+1},\ldots,w^{(J)}_{t+1}\}$.
+    \[\tilde{w}^{(j)}_t = p\left(y_{t+1}|\tilde{x}^{(j)}_{t+1},\theta^{(j)}_t\right) \qquad w^{(j)}_{t+1} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}, \right.\]
+\item Resample: sample an index $k$ from $\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w^{(1)}_{t+1},\ldots,w^{(j)}_{t+1},\ldots,w^{(J)}_{t+1}\}$, and
 \item \label{step:move} Move particles: draw a new particle $\left(x^{(j)}_{0:t+1},\theta^{(j)}_{t+1}\right)$ from some transition kernel $q\left(x_{0:t+1},\theta|\tilde{x}^{(k)}_{0:t+1},\theta^{(k)}_t\right)$ with invariant distribution $p(x_{0:t+1},\theta|y_{1:t+1})$.
 \end{enumerate}
 
-In Chapter \ref{ch:comp}, we run this algorithm on data simulated from the local level DLM with unknown common variance factor, $\theta$ (described in Section \ref{sec:dlm:ll}). To do this, we define an MCMC algorithm for the ``Move particles'' step in the above algorithm. In this case, this step proceeds as follows for a given particle $j$ and sampled index $k$:
+In Chapter \ref{ch:comp}, we run this algorithm on data simulated from the local level DLM with unknown common variance factor, $\theta$, described in Section \ref{sec:dlm:ll}. To do this, we need to define an MCMC kernel, $q$, for the ``Move particles'' step in the above algorithm. In this case, we sample from $q$ as follows: For a given particle $j$ and sampled index $k$,
 \begin{enumerate}
 \item \label{step:move:ll} Sample $\theta^{(j)}_{t+1} \sim \mbox{IG}(a_t, b_t)$, where
 \begin{align*}
 a_t &= a_0 + 1/2 + t \\
-b_t &= b_0 + \frac{1}{2}\left(\sum_{i=1}^t (y_i - x_i^{(k)})^2 + \frac{1}{\lambda}\sum_{i=1}^t (x_i^{(k)} - x_{i-1}^{(k)})^2 + {x^{(k)}_0}^2\right)
+b_t &= b_0 + \frac{1}{2}\left(\sum_{i=1}^t \left(y_i - x_i^{(k)}\right)^2 + \frac{1}{\lambda}\sum_{i=1}^t \left(x_i^{(k)} - x_{i-1}^{(k)}\right)^2 + \left(x^{(k)}_0\right)^2\right),\mbox{ and}
 \end{align*}
 \item Sample $x_{0:t+1}^{(j)}$ using FFBS (see Step \ref{step:ffbs} of Gibbs sampler from Section \ref{sec:mcmc:dr}) with
-\[m_0 = 0 \quad C_0 = V = \theta^{(j)}_{t+1} \quad W = \theta_{t+1}^{(j)}\lambda \quad F_t = G = 1\]
+\[m_0 = 0 \quad C_0 = V = \theta^{(j)}_{t+1} \quad W = \theta_{t+1}^{(j)}\lambda \quad F_t = G = 1.\]
 \end{enumerate}
-Notice in this algorithm that, because of the increase in computation required with increasing $t$, the RM is not a truly sequential particle filter.
+Note that the RM is not a truly sequential particle filter because of the increase in computation required with increasing $t$.
 
 \subsection{Particle learning \label{sec:pl}}
 
-We consider a particle filtering algorithm called particle learning \citep{Carv:Joha:Lope:Pols:part} that can be used for a particular class of state-space models that includes DLMs. For models within this class, particle learning prescribes a truly sequential algorithm that samples new values for $\theta$ from $p(\theta|y_{1:t})$ using conditional sufficient statistics. Let $s_t$ denote the sufficient statistics for $\theta$ conditional on the current state $x_t$. Then, we add the sampled values of the sufficient statistics $s_t^{(j)}$ to the particles, i.e. particle $j$ and time $t$ is now represented by $\left(x_t^{(j)},s_t^{(j)},\theta_t^{(j)}\right)$. We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\theta|y_{1:t+1})$ by the following procedure for each particle $j = 1,2,\ldots,J$:
+We consider a particle filtering algorithm called particle learning \citep{Carv:Joha:Lope:Pols:part} that can be applied to a particular class of state-space models that includes DLMs. For models within this class, particle learning prescribes a truly sequential algorithm that samples new values for $\theta$ from $p(\theta|y_{1:t})$ using conditional sufficient statistics. Let $s_t$ denote the sufficient statistics for $\theta$ conditional on the current state $x_t$. Then, we add the sampled values of the sufficient statistics, $s_t^{(j)}$, to the particles, i.e. particle $j$ and time $t$ is now represented by $\left(x_t^{(j)},s_t^{(j)},\theta_t^{(j)}\right)$. We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\theta|y_{1:t+1})$ by the following procedure for each particle $j = 1,2,\ldots,J$:
 \begin{enumerate}
 \item Calculate weights an renormalize:
     \[\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}|x_t^{(j)},\theta_t^{(j)}\right) \qquad w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)} \left/ \sum_{l=1}^J \tilde{w}_{t+1}^{(l)}\right.,\]
-\item Resample: sample an index $k \in \{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w_{t+1}^{(1)},\ldots,w_{t+1}^{(j)},\ldots,w_{t+1}^{(J)}\}$
+\item Resample: sample an index $k \in \{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w_{t+1}^{(1)},\ldots,w_{t+1}^{(j)},\ldots,w_{t+1}^{(J)}\}$,
 \item Propagate: sample $x_{t+1}^{(j)} \sim p\left(x_{t+1}|y_{t+1},x_t^{(k)},\theta_t^{(k)}\right)$,
-\item Update: calculate $s_{t+1}^{(j)} = S\left(y_{t+1},x_{t+1}^{(j)},s_t^{(k)}\right)$,
+\item Update: calculate $s_{t+1}^{(j)} = S\left(y_{t+1},x_{t+1}^{(j)},s_t^{(k)}\right)$, and
 \item Regenerate: sample $\theta_{t+1}^{(j)} \sim p\left(\theta|s_{t+1}^{(j)}\right)$.
 \end{enumerate}
-Note that the algorithm requires the ability to evaluate the conditional predictive distribution $p(y_{t+1}|x_t,\theta)$ and sample from the conditional filtered distributions $p(x_{t+1}|y_{t+1},x_t,\theta)$ and $p(\theta|s_t)$. Thus, particle learning is only applicable to models for which the form of these distributions is analytically tractable. In addition, we must define the recursive map $S$ to update the sufficient statistics based on the new observation $y_{t+1}$ and the newly sampled state $x_{t+1}^{(j)}$. We now show how to implement the PL for the local level DLM described in Section \ref{sec:dlm:ll} and the dynamic regression models described Section \ref{sec:dlm:arwn}.
+Note that this algorithm moves the ``Resample'' step ahead of the ``Propagate'' step, and thus is sometimes referred to as a \emph{resample-propagate} particle filter. Also, this algorithm requires the ability to evaluate the conditional predictive distribution $p(y_{t+1}|x_t,\theta)$ and sample from the conditional filtered distributions $p(x_{t+1}|y_{t+1},x_t,\theta)$ and $p(\theta|s_t)$. Thus, particle learning is only applicable to models for which the form of these distributions is analytically tractable. In addition, we must define the recursive map $S$ to update the sufficient statistics based on the new observation $y_{t+1}$ and the newly sampled state $x_{t+1}^{(j)}$. In Chapter \ref{ch:comp} we run the PL on simulated data from the local level DLM described in Section \ref{sec:dlm:ll}, and in Chapter \ref{ch:fmri}, we apply the PL to the dynamic regression models described in Sections \ref{sec:dlm:M101} and \ref{sec:dlm:M011} using real and simulated fMRI data. We now show how to implement PL for these specific models.
 
-\subsubsection{PL for local level DLM}
+\subsubsection{\emph{PL for the local level DLM with common observation and state variance factor} \label{sec:pl:ll}}
 
-To implement a particle learning algorithm for the local level DLM given by equations \eqref{eqn:ll:obs} and \eqref{eqn:ll:state}, we derive the conditional predictive distribution and filtered distribution of the $x_{t+1}$ conditional on $x_t$ and $\theta$, given by
+To implement a particle learning algorithm for the local level DLM given by equations \eqref{eqn:ll:obs} and \eqref{eqn:ll:state}, we derive the conditional predictive distribution of $y_{t+1}$ given on $x_t$ and $\theta$ and the filtered distribution of $x_{t+1}$ given $x_t$ and $\theta$. These distributions are given by
 \begin{align}
 &y_{t+1}|x_t,\theta \sim \mbox{N}\left(x_t,\theta(1+\lambda)\right) \label{eqn:pl:ll:pred} \\
 &x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau^2) \label{eqn:pl:ll:state},
 \end{align}
-where \[\mu_t = \frac{\lambda}{1+\lambda}(y_{t+1} + x_t / \lambda) \qquad \tau^2 = \theta\frac{\lambda}{1+\lambda}.\]
-The filtered distribution of $\theta$ conditional on the states, $p(\theta|y_{1:t},x_{0:t})$, is given by
+with
+\begin{equation}
+\mu_t = \frac{\lambda}{1+\lambda}(y_{t+1} + x_t / \lambda) \qquad \tau^2 = \theta\frac{\lambda}{1+\lambda}. \label{eqn:pl:ll:statemv}
+\end{equation}
+We also derive the filtered distribution of $\theta$ conditional on the states, $p(\theta|y_{1:t},x_{0:t})$, expressed by
 \begin{equation}
 \theta|y_{1:t},x_{0:t} \sim \mbox{IG}(a_t,b_t),
 \end{equation}
@@ -260,7 +265,7 @@ where
 a_t &= t + 1/2 + a_0 \\
 b_t &= b_0 + \frac{1}{2}\left(\sum_{k=1}^t (y_k - x_k)^2 + \frac{1}{\lambda}\sum_{k=1}^t (x_k - x_{k-1})^2 + x_0^2\right).
 \end{align*}
-Thus, $s_t = (a_t,b_t)$ are the conditional sufficient statistics for $\theta$ at time $t$, updated by the recursive map $S$ defined by
+Thus, $s_t = (a_t,b_t)$ are the conditional sufficient statistics for $\theta$ at time $t$, which can be updated according to the recursive map $S$ defined by
 \begin{align}
 a_{t+1} &= a_t + 1, t \ge 1 \label{eqn:pl:ll:a} \\
 b_{t+1} &= \frac{1}{2}\left((y_{t+1}-x_{t+1})^2 + \frac{1}{\lambda}(x_{t+1}-x_t)^2\right) + b_t, t \ge 1 \label{eqn:pl:ll:b}
@@ -271,20 +276,20 @@ a_1 &= 3/2 + a_0 \\
 b_1 &= \frac{1}{2}\left((y_1-x_1)^2 + \frac{1}{\lambda}(x_1-x_0)^2 + x_0^2\right) + b_0.
 \end{align*}
 
-\subsubsection{PL for dynamic regression \label{sec:pl:dr}}
+\subsubsection{\emph{PL for dynamic regression models} \label{sec:pl:dr}}
 
-Consider the dynamic regression models $M_{101}$ and $M_{011}$ described in Section \ref{sec:dlm:arwn} and given by equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with
+Consider the dynamic regression models $M_{101}$ and $M_{011}$ described in Sections \ref{sec:dlm:M101} and \ref{sec:dlm:M011} and given by equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with
 \begin{align*}
 U_t &= (1, u_t) &\quad \beta &= (\beta_0, \beta_1)' \\
 V &= \sigma^2_m &\quad F_t &= \left\{\begin{array}{ll} 1, & \mbox{for} M_{101} \\ u_t, & \mbox{for} M_{011} \end{array}\right. \\
-G &= \phi &\quad W &= \sigma^2_s
+G &= \phi &\quad W &= \sigma^2_s.
 \end{align*}
-and prior distributions $p(\beta,\sigma^2_m)$ and $p(\phi,\sigma^2_s)$ specified by
+We specify the prior distributions $p(\beta,\sigma^2_m)$ and $p(\phi,\sigma^2_s)$ according to equations \eqref{eqn:dynreg:prior1} and \eqref{eqn:dynreg:prior2}, restated below as
 \begin{align}
 \beta|\sigma^2_m &\sim \mbox{N}(\vartheta_0, \sigma^2_m B_0) &\quad \sigma^2_m &\sim \mbox{IG}(a_{m_0},b_{m_0}) \label{eqn:pl:prior:beta} \\
 \phi|\sigma^2_s &\sim \mbox{N}(\varphi_0, \sigma^2_s \Phi_0) &\quad \sigma^2_s &\sim \mbox{IG}(a_{s_0},b_{s_0}) \label{eqn:pl:prior:phi}
 \end{align}
-with $x_0 = 0$ (i.e. $p(x_0) = \delta_0(x_0)$) and known hyperparameters $\vartheta$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$.
+with $x_0 = 0$ (i.e. $p(x_0) = \delta_0(x_0)$) and the hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ assumed known.
 
 To implement a particle learning algorithm for this model, we derive the conditional predictive and conditional filtered distributions
 \begin{align}
@@ -299,7 +304,7 @@ p(\theta|y_{1:t},x_{0:t}) \propto \left(\prod_{k=1}^t p(y_k|x_k,\beta,\sigma^2_m
 The filtered distribution for $\theta$ conditional on the states is then given by
 \begin{align}
 \beta|\sigma^2_m,y_{1:t},x_{0:t} &\sim \mbox{N}(\vartheta_t, \sigma^2_m B_t) &\quad \sigma^2_m|y_{1:t},x_{0:t} &\sim \mbox{IG}(a_{m_t},b_{m_t}) \label{eqn:pl:post:beta} \\
-\phi|\sigma^2_s,y_{1:t},x_{0:t} &\sim \mbox{N}(\varphi_t, \sigma^2_s \Phi_t) &\quad \sigma^2_s|y_{1:t},x_{0:t} &\sim \mbox{IG}(a_{s_t},b_{s_t}) \label{eqn:pl:post:phi}
+\phi|\sigma^2_s,y_{1:t},x_{0:t} &\sim \mbox{N}(\varphi_t, \sigma^2_s \Phi_t) &\quad \sigma^2_s|y_{1:t},x_{0:t} &\sim \mbox{IG}(a_{s_t},b_{s_t}), \label{eqn:pl:post:phi}
 \end{align}
 where $\vartheta_t$, $B_t$, $\varphi_t$, $\Phi_t$, $a_{m_t}$, $b_{m_t}$, $a_{s_t}$, and $b_{m_t}$ are calculated according to the equations in Steps \ref{step:gibbs:dr:beta} and \ref{step:gibbs:dr:phi} of the Gibbs sampler outlined in Section \ref{sec:mcmc:dr} (with $T = t$). Thus, $s_t = (\vartheta_t, B_t, a_{m_t}, \xi_{m_t}, \varphi_t, \Phi_t, a_{s_t}, \xi_{s_t})$ form the sufficient statistics for $\theta$ and are updated by the recursive map given by
 \begin{align}
@@ -316,7 +321,7 @@ b_{s_t} &= \frac{1}{2}\left(\xi_{s_t} + \varphi_0'\Phi_0^{-1}\varphi_0 - \varphi
 
 \section{Resampling \label{sec:resample}}
 
-In addition to choosing which particle filtering algorithm to use, successful implementation also depends on which resampling scheme to use and when to resample. Resampling is sampling (with replacement) random indices between 1 and $J$, where index $j$ has probability $w^{(j)}$ of being selected. Throughout our discussion, we have explicitly used multinomial resampling, but alternative resampling schemes exist including residual, stratified, and systematic resampling \citep{Douc:Capp:Moul:comp:2005}. Residual resampling deterministically samples $\lfloor w^{(j)} J \rfloor$ copies of particle $j$, for each $j$, and distributes the remaining $J - \sum^J_{j=1} \lfloor w^{(j)} J \rfloor$  particles according to a multinomial distribution with associated probabilities $(w^{(j)} J - \lfloor w^{(j)} J \rfloor) / (J - \sum^J_{j=1} \lfloor w^{(j)} J \rfloor)$, where $\lfloor . \rfloor$ is the largest integer less than or equal ``.''. Stratified resampling samples uniformly over the interval $[(j-1) / J, j / J]$, for $j = 1, 2, \ldots, J$, and calculates the number of copies of particle $j$ according to the empirical cumulative distribution function of the particle indices (i.e. the ``inversion method''). Finally, systematic resampling is similar to stratified resampling, except that only one uniform draw is initially sampled from $[0, 1/J]$ and the remaining $J-1$ are calculated by adding $(j-1) / J$ to the sampled value prior to applying the inversion method.
+Successful implementation of any particle filtering algorithm depends on which resampling scheme to use and when to resample. Resampling is sampling (with replacement) random indices between 1 and $J$, where index $j$ has probability $w^{(j)}$ of being selected. Throughout our discussion, we have explicitly used multinomial resampling, but alternative resampling schemes exist including residual, stratified, and systematic resampling \citep{Douc:Capp:Moul:comp:2005}. Residual resampling deterministically samples $\lfloor w^{(j)} J \rfloor$ copies of particle $j$, for each $j$, and distributes the remaining $J - \sum^J_{j=1} \lfloor w^{(j)} J \rfloor$  particles according to a multinomial distribution with associated probabilities $(w^{(j)} J - \lfloor w^{(j)} J \rfloor) / (J - \sum^J_{j=1} \lfloor w^{(j)} J \rfloor)$, where $\lfloor . \rfloor$ is the largest integer less than or equal ``.''. Stratified resampling samples uniformly over the interval $[(j-1) / J, j / J]$, for $j = 1, 2, \ldots, J$, and calculates the number of copies of particle $j$ according to the empirical cumulative distribution function of the particle indices (i.e. the ``inversion method''). Finally, systematic resampling is similar to stratified resampling, except that only one uniform draw is initially sampled from $[0, 1/J]$ and the remaining $J-1$ are calculated by adding $(j-1) / J$ to the sampled value prior to applying the inversion method.
 
 Resampling is meant to rebalance the weights of the particles in order to avoid degeneracy, but this introduces additional Monte Carlo variability to the particle sample. Despite systematic resampling only requiring a single uniform draw, \citet{Douc:Capp:Moul:comp:2005} show via example that it can introduce more Monte Carlo variability than the other three resampling schemes. In Chapter \ref{ch:epid}, we discuss some advantages and disadvantages of the different resampling methods when applied to our specific model of a disease outbreak and suggest the use of stratified or residual resampling.
 
@@ -338,26 +343,28 @@ At each step of the particle filter (i.e. at each time $t$), an approximation to
 \begin{equation}
 p(y_t|y_{1:t-1}) \approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{t-1}\tilde{w}^{(j)}_t, & \mbox{for the BF, RM, and PL} \\ \left(\frac{1}{J}\sum_{j=1}^J \tilde{w}^{(j)}_{t-1}\right)\left(\sum_{j=1}^J\tilde{g}^{(j)}_t\right) & \mbox{for the APF and KDPF} \end{array} \right.\label{eqn:onestep:pf}
 \end{equation}
-\cite[see Section 4.2][]{douc:joh:tut:2009}. Given approximations to $p(y_k|y_{1:k-1})$ for $k = 1,\ldots,t$, the marginal likelihood can be approximated via equation \eqref{eqn:marglik}.
+\cite[Section 4.2][]{douc:joh:tut:2009}. Given approximations to $p(y_k|y_{1:k-1})$ for $k = 1,\ldots,t$, the marginal likelihood can be approximated via equation \eqref{eqn:marglik}.
 
-Having prescribed a method for approximating $p(y_{1:t})$ sequentially using particle filtering, we can compare a set of possible models ${M_1,M_2,\ldots,M_N}$ according to their posterior model probabiities, given by
+Having prescribed a method for approximating $p(y_{1:t})$ sequentially using particle filtering, we can compare a set of $N$ possible models ${M_1,M_2,\ldots,M_N}$ according to their posterior model probabiities, given by
 \begin{equation}
-p(M_i|y_{1:t}) = \frac{p(y_{1:t}|M_i)p(M_i)}{\sum_{i=1}^N p(y_{1:t}|M_i)p(M_i)} \label{eqn:modelcomp}
+p(M_i|y_{1:t}) = \frac{p(y_{1:t}|M_i)p(M_i)}{\sum_{i=1}^N p(y_{1:t}|M_i)p(M_i)}. \label{eqn:modelcomp}
 \end{equation}
-In Chapter \ref{ch:comp}, we compare estimated marginal likelihoods using the KDPF, RM and PL with the true marginal likelihood under the local level DLM. In Chapter \ref{ch:fmri} we compare posterior probabilities for models $M_{101}$, $M_{011}$, and $M_{001}$ using the PL.
+In Chapter \ref{ch:comp}, we compare estimated marginal likelihoods using the KDPF, RM and PL with the true marginal likelihood under the local level DLM described in Section \ref{sec:dlm:ll} that can be calculated analytically. In Chapter \ref{ch:fmri} we compare relative posterior probabilities among the models $M_{101}$, $M_{011}$, and $M_{001}$ using PL.
 
 \section{Particle MCMC \label{sec:pmcmc}}
 
-At the beginning of this chapter, some of the advantages and disadvantages of both MCMC and SMC were mentioned. Much research has focused on combining aspects of both types of methods to create more efficient algorithms for sampling from high dimensional posterior distributions. The resample-move algorithm described in Section \ref{sec:rm} is one such example, where an MCMC algorithm is incorporated within the particle filter as a way to avoid degeneracy in fixed parameter values. Particle MCMC (PMCMC) \citep{Andr:Douc:Hol:pmcmc:2010} is another such example. This method incorporates a particle filter within an iteration of an MCMC algorithm in order to increase efficiency when ideal proposal distributions are intractable.
+At the beginning of this chapter, some of the advantages and disadvantages of both MCMC and SMC were mentioned. A significant amount of research has focused on combining aspects of both types of methods to create more efficient algorithms for sampling from high dimensional posterior distributions. One such algorithm is the RM described in Section \ref{sec:rm} is one such example, which incorporates an MCMC algorithm within the particle filter as a way to avoid degeneracy in fixed parameter values. Particle MCMC (PMCMC) \citep{Andr:Douc:Hol:pmcmc:2010} is another example. This method incorporates a particle filter within an iteration of an MCMC algorithm in order to increase efficiency when ideal proposal distributions are intractable.
 
-The MCMC algorithm proposed in Section \ref{sec:mcmc:epid} for analyzing data from the the epidemic model described in \ref{sec:epid} is one such case where efficiency can be gained by using PMCMC instead. Instead of using Gaussian random walk proposals for sampling each of $x_1,\ldots,x_T$ from their full conditional distributions, as is done in Step \ref{step:gibbs} of the Gibbs sampler in Section \ref{sec:mcmc:epid}, we could instead propose a sample path $x_{0:T}^*$ from $p(x_{0:T}|\theta,y_{1:T})$ using a particle filter. The {\tt pmcmc} function within R package {\tt pomp} \citep{pomp} implements this kind of algorithm to generate samples for the fixed parameters that are asymptotically (as $J \rightarrow \infty$) distributed according to $p(\theta|y_{1:T})$ \citep{Andr:Rob:2009:pseudomarg}. The general algorithm, called the particle marginal Metropolis-Hastings sampler (PMMH) \cite[Section 2.4.2][]{Andr:Douc:Hol:pmcmc:2010}, proceeds as follows:
+The MCMC algorithm proposed in Section \ref{sec:mcmc:epid} for analyzing data from the the epidemic model described in \ref{sec:epid} could be made more efficient by using PMCMC instead. Instead of using Gaussian random walk proposals for sampling each of $x_1,\ldots,x_T$ from their full conditional distributions, as is done in Step \ref{step:gibbs} of the Gibbs sampler in Section \ref{sec:mcmc:epid}, we could instead propose a sample path $x_{0:T}^*$ from $p(x_{0:T}|\theta,y_{1:T})$ using a particle filter. The {\tt pmcmc} function within R package {\tt pomp} \citep{pomp} implements this kind of algorithm to generate samples for the fixed parameters that are asymptotically (as $J \rightarrow \infty$) distributed according to $p(\theta|y_{1:T})$ \citep{Andr:Rob:2009:pseudomarg}. 
+
+Let $\theta^{(j)} = \left(\beta^{(j)},\gamma^{(j)},\nu^{(j)}\right)'$ represent the sampled values of the fixed parameters at iteration $j$. The general algorithm implemented by {\tt pmcmc}, called the particle marginal Metropolis-Hastings sampler (PMMH) \cite[Section 2.4.2][]{Andr:Douc:Hol:pmcmc:2010}, proceeds as follows:
 \begin{enumerate}
 \item Initialization:
 \begin{enumerate}
-\item Set initial value $\theta^{(0)}$,
+\item Set initial values of the fixed parameters $\theta^{(0)}$,
 \item Run an SMC algorithm to generate an approximation to $p(x_{0:T}|y_{1:T},\theta^{(0)})$ via
-    \[\hat{p}(x_{0:T}|y_{1:T},\theta^{(0)}) = \sum_{j=1}^J w_T^{(j)} \delta_{\left(x_{0:T}^{(j)}\right)}(x_{0:T}),\]
-\item Sample $x_{0:T}^* \sim \hat{p}(x_{0:T}|y_{1:T},\theta^{(0)})$ and calculate an estimate of the marginal likelihood (conditional on $\theta^{(0)}$), denoted $\hat{p}(y_{1:T}|\theta^{(0)})$, via equations \eqref{eqn:onestep:pf} and \eqref{eqn:marglik}, and
+    \[\hat{p}\left(x_{0:T}|y_{1:T},\theta^{(0)}\right) = \sum_{j=1}^J w_T^{(j)} \delta_{\left(x_{0:T}^{(j)}\right)}(x_{0:T}),\]
+\item Sample $x_{0:T}^* \sim \hat{p}\left(x_{0:T}|y_{1:T},\theta^{(0)}\right)$ and calculate an estimate of the marginal likelihood (conditional on $\theta^{(0)}$), denoted $\hat{p}\left(y_{1:T}|\theta^{(0)}\right)$, via equations \eqref{eqn:onestep:pf} and \eqref{eqn:marglik}, and
 \item Set $i = 1$.
 \end{enumerate}
 \item For $i \ge 1$,
@@ -367,12 +374,12 @@ The MCMC algorithm proposed in Section \ref{sec:mcmc:epid} for analyzing data fr
     \[\hat{p}(x_{0:T}|y_{1:T},\theta^*) = \sum_{j=1}^J w_T^{(j)} \delta_{\left(x_{0:T}^{(j)}\right)}(x_{0:T}),\]
 \item Sample $x_{0:T}^* \sim \hat{p}(x_{0:T}|y_{1:T},\theta^*)$ and calculate an estimate of the marginal likelihood (conditional on $\theta^*$), denoted $\hat{p}(y_{1:T}|\theta^*)$, via equations \eqref{eqn:onestep:pf} and \eqref{eqn:marglik},
 \item With probability
-    \[R = \min\left(1, \frac{\hat{p}(y_{1:T}|\theta^*)p(\theta^*)}{\hat{p}(y_{1:T}|\theta^{(i-1)})p(\theta^{(i-1)})} \frac{q(\theta^{(i-1)}|\theta^*)}{q(\theta^*|\theta^{(i-1)})} \right),\]
+    \[R = \min\left(1, \frac{\hat{p}(y_{1:T}|\theta^*)p(\theta^*)}{\hat{p}\left(y_{1:T}|\theta^{(i-1)}\right)p\left(\theta^{(i-1)}\right)} \frac{q\left(\theta^{(i-1)}|\theta^*\right)}{q\left(\theta^*|\theta^{(i-1)}\right)} \right),\]
     set
-    \[\theta^{(i)} = \theta^* \qquad \hat{p}(y_{1:T}|\theta^{(i)}) = \hat{p}(y_{1:T}|\theta^*).\]
+    \[\theta^{(i)} = \theta^* \qquad \hat{p}\left(y_{1:T}|\theta^{(i)}\right) = \hat{p}(y_{1:T}|\theta^*).\]
     Otherwise, set
-    \[\theta^{(i)} = \theta^{(i-1)} \qquad \hat{p}(y_{1:T}|\theta^{(i)}) = \hat{p}(y_{1:T}|\theta^{(i-1)}).\]
+    \[\theta^{(i)} = \theta^{(i-1)} \qquad \hat{p}\left(y_{1:T}|\theta^{(i)}\right) = \hat{p}\left(y_{1:T}|\theta^{(i-1)}\right).\]
 \end{enumerate}
 \end{enumerate}
 
-Extensions to this algorithm to provide samples for the unobserved states approximately distributed according to $p(x_{0:T}|y_{1:T})$ or joint samples for states and fixed parameters approximately distributed according to $p(x_{0:T},\theta|y_{1:T})$ have yet to be implemented in {\tt pomp} \cite[see Section 2.4.3][]{Andr:Douc:Hol:pmcmc:2010}. We implement this algorithm on data simulated from the epidemic model described in Section \ref{sec:mcmc:epid} using {\tt pmcmc}, which samples fixed parameter values using Gaussian random walk proposals with prespecified standard deviations and uses a plain bootstrap filter to sample states and estimate the marginal likelihood. In Chapter \ref{ch:epid}, we compare the performance of the PMCMC algorithm with that of the KDPF and standard MCMC described in Section \ref{sec:mcmc:epid}. 
+Extensions to this algorithm to provide samples for the unobserved states approximately distributed according to $p(x_{0:T}|y_{1:T})$ or joint samples for states and fixed parameters approximately distributed according to $p(x_{0:T},\theta|y_{1:T})$ have yet to be implemented in {\tt pomp} \cite[Section 2.4.3][]{Andr:Douc:Hol:pmcmc:2010}. We implement this algorithm on data simulated from the epidemic model described in Section \ref{sec:mcmc:epid} using {\tt pmcmc}, which samples fixed parameter values using Gaussian random walk proposals with prespecified standard deviations, and the algorithm uses a plain bootstrap filter to sample states and estimate the marginal likelihood. In Chapter \ref{ch:epid}, we compare the performance of the PMCMC algorithm with that of the KDPF and standard MCMC described in Section \ref{sec:mcmc:epid}. 
