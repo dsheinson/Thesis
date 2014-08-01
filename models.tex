@@ -133,7 +133,7 @@ x_t &= Gx_{t-1} + w_t, \label{eqn:dlm:reg:state}
 \end{align}
 where $U_t$ is a known $q \times d$ matrix and $\beta$ is an unknown $d \times 1$ vector. Alternatively, a regression model could be specified without introducing $U_t$ and $\beta$ by instead incorporating $U_t$ inside of $F_t$ and including $\beta$ as part of $x_t$. However, we write the model as in equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} to make the separation of fixed regression coefficients and the dynamic state explicit.
 
-In Chapter \ref{ch:fmri}, we consider regression models for univariate $y_t$ with autoregressive-moving average (ARMA) error structure, i.e. models of the form given in equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with $q = 1$ and $x_t$ following a zero-mean $\mbox{ARMA}(P, Q)$ stochastic process \citep{shum:stof:2006:timeseries}, where $P$ and $Q$ are the orders of the autoregressive (AR) and moving average (MA) components, respectively. In these models, $x_t = (x_{t,1} ,x_{t,2}, \ldots, x_{t,m})'$ is an $m$-dimensional vector with $m = \mbox{max}(P,Q+1)$, $F_t$ is a time-invariant $1 \times m$ vector with first element equal to 1 and the rest 0, $V = 0$ (a $1 \times 1$ matrix), $G$ is an $m \times m$ matrix that takes the form
+In Chapter \ref{ch:fmri}, we consider regression models for univariate $y_t$ with autoregressive-moving average (ARMA) error structure, i.e. models of the form given in equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with $q = 1$ and $x_t$ following a zero-mean $\mbox{ARMA}(P, Q)$ stochastic process \citep{shum:stof:2006:timeseries}, where $P$ and $Q$ are the orders of the autoregressive (AR) and moving average (MA) components, respectively. In these models, $x_t = (x_{t,1} ,x_{t,2}, \ldots, x_{t,m})'$ is an $m$-dimensional vector with $m = \mbox{max}(P,Q+1)$, $F_t$ is a time-invariant $1 \times m$ vector with first element equal to 1 and the rest 0, $v_t = 0$, $G$ is an $m \times m$ matrix that takes the form
 \[
 G = \left(
  \begin{array}{ccccc}
@@ -148,9 +148,9 @@ G = \left(
 \]
 and $W = \sigma^2ee'$ with $e = (1, \gamma_1, \ldots, \gamma_{m-1})'$. We let $\theta = (\beta', \phi', \gamma', \sigma^2)'$ represent the unknown parameters of the model, where $\phi = (\phi_1,\phi_2,\ldots,\phi_P)'$ and $\gamma = (\gamma_1,\gamma_2,\ldots,\gamma_Q)'$ are the coefficients of the AR and MA components, respectively, and $\sigma^2$ is the unknown variance of the white noise shocks in the ARMA process. We adopt the convention that $\phi_s = 0$ for $s > P$ and $\gamma_r = 0$ for $r > Q$. Multiplying out the state equation and successively back-substituting the components of $x_t$ \cite[see Sec 3.2.5,][]{petris:camp:2009:dynamic} yields the more familiar form of a regression model with ARMA errors, given by
 \begin{equation}
-y_t = U_t\beta + \phi_1x_{t-1,1} + \phi_2x_{t-2,1} + \cdots + \phi_Px_{t-P,1} + \epsilon_t + \gamma_1\epsilon_{t-1} + \gamma_2\epsilon_{t-2} + \cdots + \gamma_Q\epsilon_{t-Q}, \label{eqn:arma}
+y_t = U_t\beta + \phi_1x_{t-1,1} + \phi_2x_{t-2,1} + \cdots + \phi_Px_{t-P,1} + \epsilon_t + \gamma_1\epsilon_{t-1} + \gamma_2\epsilon_{t-2} + \cdots + \gamma_Q\epsilon_{t-Q} \label{eqn:arma}
 \end{equation}
-where $\epsilon_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2)$. Note that only the first element of the state vector plays a role in equation \eqref{eqn:arma}.
+for $t \ge m$. Here, $\epsilon_j \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2)$ for $j \ge 0$. Note that only the first element of the state vector at each of times $\{t-1,\ldots,t-p\}$ plays a role in equation \eqref{eqn:arma} for $t \ge m$.
 
 It is often desired that constraints be imposed on $\phi$ and $\gamma$ such that the ARMA process is stationary and invertible. Stationarity ensures that the long term behavior of $x_t$ is predictable and invertibility ensures that current and future states do not depend on the distant past \citep{shum:stof:2006:timeseries}. We require that roots of the AR polynomial
 \begin{equation}
@@ -162,11 +162,11 @@ lie outside of the unit circle in the complex plane to ensure stationarity. To e
 \end{equation}
 In Chapter \ref{ch:fmri}, we impose these constraints when fitting regression models with ARMA errors to fMRI data using maximum likelihood estimation.
 
-In a Bayesian context, these models are completely specified by defining the prior distribution $p(x_0, \theta)$, where the initial state, $x_0$, consists of the presample errors. It is often desired that $x_0$ come from the stationary distribution of the ARMA process, given by
+In a Bayesian context, these models are completed by specifying the prior distribution $p(x_0, \theta)$, where the initial state, $x_0$, consists of the presample errors. It is often desired that $x_0$ come from the stationary distribution of the ARMA process, given by
 \begin{equation}
 x_0|\theta \sim \mbox{N}(0, \sigma^2\Omega), \label{eqn:arma:prior}
 \end{equation}
-where $\mbox{vec}(\Omega) = (I_m - G\otimes G)^{-1} \mbox{vec}(ee')$ and $\phi$ is restricted to the region of stationarity. For a Bayesian treatment of unknown parameters in regression models with stationary and invertible ARMA errors, we refer the reader to \citet{chib:greenberg:1994:arma}.
+where $\mbox{vec}(\Omega) = (I_{m^2} - G\otimes G)^{-1} \mbox{vec}(ee')$ and $\phi$ is restricted to the region of stationarity \citep{chib:greenberg:1994:arma}. For a Bayesian treatment of unknown parameters in regression models with stationary and invertible ARMA errors, we refer the reader to \citet{chib:greenberg:1994:arma}.
 
 \subsection{Dynamic regression \label{sec:dlm:arwn}}
 
