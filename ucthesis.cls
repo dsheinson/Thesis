@@ -1167,8 +1167,8 @@
     $p(\theta|y_{1:t},x_{0:t})$ & filtered distribution of fixed parameters \\
      & conditional on state history throught time $t$ \\
     \hline
-    $p(\theta|y_{1:t})$ & marginal filtered distribution at time $t$ \\
-     & of fixed parameters \\
+    $p(\theta|y_{1:t})$ & marginal filtered distribution of fixed \\
+     & of fixed parameters at time $t$ \\
     \hline
     $p(y_{1:t})$ & marginal likelihood of the data observed \\
      & through time $t$ \\
@@ -1187,7 +1187,7 @@
      & conditional on current state at time $t$ \\
      & and fixed parameters \\
     \hline
-    $p(x|\hdots)$ & full conditional distribution for $x$ \\
+    $p(x|\hdots)$ & full conditional distribution for any vector $x$ \\
     \hline
     \end{longtable}
     \end{center}

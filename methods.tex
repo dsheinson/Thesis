@@ -1,20 +1,20 @@
 \chapter{Methods \label{ch:meth}}
 
-In Chapters \ref{ch:epid} and \ref{ch:fmri}, we consider estimation of states and unknown fixed parameters in Bayesian state-space models for which the filtered distribution cannot be calculated analytically. In this case, the most common approach to approximating this distribution is through Markov-chain Monte Carlo (MCMC) methods \citep{Gelf:Smit:samp:1990}. While an effective tool for analyzing data in complex modeling situations, MCMC can be cumbersome to implement and inefficient in high-dimensional settings \cite[Chapter 8][]{Robe:Case:mont:2004}. In sequential analysis using state-space models, MCMC is inefficient due to the increase in computational cost incurred by the need for the entire MCMC to be rerun as each new observation arrives.
+In Chapters \ref{ch:epid} and \ref{ch:fmri}, we consider estimation of states and unknown fixed parameters in Bayesian state-space models for which filtered distributions cannot be calculated analytically. In this case, the most common approach to approximating these distributions is through Markov-chain Monte Carlo (MCMC) methods \citep{Gelf:Smit:samp:1990}. While an effective tool for analyzing data in complex modeling situations, MCMC can be cumbersome to implement and inefficient in high-dimensional settings \cite[Chapter 8][]{Robe:Case:mont:2004}. In sequential analysis using state-space models, MCMC is inefficient due to the increase in computational cost incurred by the need for the entire MCMC to be rerun as each new observation arrives.
 
-Sequential Monte Carlo (SMC) - or particle filtering - techniques, on the other hand, enable on-line inference through updating the approximation to the posterior distribution as new data becomes available \citep{Douc:deFr:Gord:sequ:2001, cappe2007overview}. In addition, SMC methods can be flexible, general, easy to implement, amenable to parallel computing, and provide direct estimates of the marginal likelihood. As with MCMC methods, however, the performance of SMC methods suffers as the dimension of the parameter space increases. Furthermore, while MCMC methods directly provide smoothed estimates of states in state-space models, SMC algorithms are inefficient for smoothing and have been mostly used only for filtering \cite[Section 5][]{douc:joh:tut:2009}.
+Sequential Monte Carlo (SMC) - or particle filtering - techniques, on the other hand, enable on-line inference through updating the approximation to the posterior distribution as new data becomes available \citep{Douc:deFr:Gord:sequ:2001, cappe2007overview}. In addition, SMC methods can be flexible, general, easy to implement, amenable to parallel computing, and provide direct estimates of the marginal likelihood. However, the performance of SMC methods suffers as the dimension of the parameter space and length of the time series increase \cite[Section 2.3][]{douc:joh:tut:2009}. Furthermore, while MCMC methods directly provide smoothed estimates of states in state-space models, SMC algorithms are inefficient for smoothing and have been mostly used only for filtering \cite[Section 5][]{douc:joh:tut:2009}.
 
 In Chapters \ref{ch:epid} and \ref{ch:comp}, we compare the performance of several particle filtering algorithms in different model settings. In Chapter \ref{ch:fmri}, we use SMC methods as a tool for model comparison and compare relative posterior probabilities of proposed models for generating fMRI time series data. In each of these chapters, we compare SMC results with MCMC, which has been the standard over the past two decades for Bayesian analysis of intractable models. Thus, in this chapter, we outline several strategies for both MCMC and particle filtering.
 
-This chapter proceeds as follows. In Section \ref{sec:mcmc}, we describe MCMC algorithms used for the epidemic model described in Section \ref{sec:epid} and the dynamic regression models described in Section \ref{sec:dlm:arwn}. In Section \ref{sec:filtering}, we describe several particle filtering strategies and how to apply them to the models outlined in Chapter \ref{ch:models}. In Section \ref{sec:resample}, we discuss the resampling aspect of particle filtering algorithms. In Section \ref{sec:comp}, we show how SMC techniques can be used for model comparison. Lastly, in Section \ref{sec:pmcmc}, we discuss a particle MCMC algorithm that we used for the epidemic model and found to perform more efficiently than standard MCMC.
+This chapter proceeds as follows. In Section \ref{sec:mcmc}, we describe MCMC algorithms used for the epidemic model described in Section \ref{sec:epid} and the dynamic regression models described in Section \ref{sec:dlm:arwn}. In Section \ref{sec:filtering}, we describe several particle filtering strategies and how to apply them to the models outlined in Chapter \ref{ch:models}. In Section \ref{sec:resample}, we discuss the resampling aspect of particle filtering algorithms. In Section \ref{sec:comp}, we show how SMC techniques can be used for model comparison. Lastly, in Section \ref{sec:pmcmc}, we discuss a more efficient MCMC method called particle MCMC that we use to analyze simualted data from the epidemic model.
 
-\section{Markov-chain Monte Carlo (MCMC) \label{sec:mcmc}}
+\section{MCMC algorithms \label{sec:mcmc}}
 
-MCMC methods provide sample-based estimates of the posterior distribution through the generation of dependent samples from distributions whose densities can be evaluated. In this section, we outline the MCMC algorithms used to analyze simulated data from the state-space model of a disease epidemic described in Section \ref{sec:epid} and the dynamic regression models described in Sections \ref{sec:dlm:ll} and \ref{sec:dlm:arwn}. We also describe a particle MCMC (PMCMC) approach that we found to be more efficient for the epidemic model. For more comprehensive descriptions of MCMC and PMCMC methods, we refer the reader to \citet{Robe:Case:mont:2004} and \citet{Andr:Douc:Hol:pmcmc:2010}.
+MCMC methods provide sample-based approximations to a distribution through the generation of dependent samples from distributions whose densities can be evaluated. In this section, we outline the MCMC algorithms that we use to analyze simulated data from the state-space model of a disease epidemic described in Section \ref{sec:epid} and the dynamic regression models described in Sections \ref{sec:dlm:M011} and \ref{sec:dlm:M101}. We also describe a particle MCMC (PMCMC) approach that we found to be more efficient when applied to data from the epidemic model. For more comprehensive descriptions of MCMC and PMCMC methods, we refer the reader to \citet{Robe:Case:mont:2004} and \citet{Andr:Douc:Hol:pmcmc:2010}.
 
 \subsection{MCMC applied to epidemic model \label{sec:mcmc:epid}}
 
-Consider the state-space model of an epidemic described in Section \ref{sec:epid}, where $x_t = (s_t,i_t)'$ is the latent state, $\theta = (\beta,\gamma,\nu)$ are the unknown fixed parameters, equation \eqref{eqn:epid:state} describes the evolution of $x_t$ given $x_{t-1}$ and $\theta$, and \eqref{eqn:epid:obs} gives the likelihood of new data, $y_t$, given $x_t$ and $\theta$. The prior distribution, $p(x_0,\theta)$, is assumed to be of the form
+Consider the state-space model of an epidemic described in Section \ref{sec:epid}, where $x_t = (s_t,i_t)'$ is the latent disease state, $\theta = (\beta,\gamma,\nu)$ are the unknown fixed parameters, equation \eqref{eqn:epid:state} describes the evolution of $x_t$ given $x_{t-1}$ and $\theta$, and \eqref{eqn:epid:obs} describes the likelihood of new data, $y_t$, given $x_t$ and $\theta$. The prior distribution, $p(x_0,\theta)$, is assumed to be of the form
 \begin{equation}
 p(x_0,\theta) = p(x_0)p(\theta) = p(s_0,i_0)p(\beta,\gamma)p(\nu), \label{eqn:epid:prior}
 \end{equation}
@@ -24,29 +24,29 @@ Suppose we observe syndromic surveillance data, $y_t$, for $t = 1, 2, \ldots, T$
 \begin{equation}
 p(y_{1:T},x_{0:T},\theta) = \prod_{t = 1}^T \left\{p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)\right\}p(x_0,\theta), \label{eqn:joint}
 \end{equation}
-we derive the \emph{full conditional distribution}, or distribution conditional on all of the remaining variables, for each of $x_0, x_1, \ldots, x_T$, $\beta$, $\gamma$, and $\nu$ as
+we derive the \emph{full conditional distribution}, i.e. distribution of a random variable conditional on all of the remaining variables, for each of $x_0, x_1, \ldots, x_T$, $\beta$, $\gamma$, and $\nu$ as
 \begin{align}
 p(x_0|\hdots) &\propto p(x_1|x_0,\theta)p(x_0) \label{eqn:epid:fullcond} \\
 p(x_t|\hdots) &\propto p(y_t|x_t)p(x_{t+1}|x_t,\theta)p(x_t|x_{t-1},\theta) \mbox{, for } t = 1,\ldots,T-1 \nonumber \\
 p(x_T|\hdots) &\propto p(y_T|x_T)p(x_T|x_{T-1},\theta) \nonumber \\
-p(\beta|\hdots) &\propto \prod_{t=1}^T \{p(x_t|x_{t-1},\theta)\}p(\beta, \gamma) \nonumber \\
-p(\gamma|\hdots) &\propto \prod_{t=1}^T \{p(x_t|x_{t-1},\theta)\}p(\beta, \gamma) \nonumber \\
-p(\nu|\hdots) &\propto \prod_{t=1}^T \{p(x_t|x_{t-1},\theta)\}p(\nu), \nonumber
+p(\beta|\hdots) &\propto \prod_{t=1}^T \left\{p(x_t|x_{t-1},\theta)\right\}p(\beta, \gamma) \nonumber \\
+p(\gamma|\hdots) &\propto \prod_{t=1}^T \left\{p(x_t|x_{t-1},\theta)\right\}p(\beta, \gamma) \nonumber \\
+p(\nu|\hdots) &\propto \prod_{t=1}^T \left\{p(x_t|x_{t-1},\theta)\right\}p(\nu), \nonumber
 \end{align}
-where $p(x|\hdots)$ represents the full conditional distribution of $x$. Note that since all of the unknown fixed parameters show up only in the state equation of the model, their full conditional distributions do not depend on $y_t$.
+where $p(x|\hdots)$ represents the full conditional distribution of the random variable $x$. Note that since all of the unknown fixed parameters show up only in the state equation of the model, their full conditional distributions do not depend on $y_t$.
 
-We use these full conditional distributions to generate samples from $p(x_{0:T},\theta|y_{1:T})$ by implementing a Gibbs sampler with adaptive rejection Metropolis-Hastings (MH) steps \citep{Metr:Rose:Rose:Tell:Tell:equa:1953, Hast:mont:1970,  Gema:Gema:stoc:1984, gilks1995adaptive}. In general, the algorithm works by iteratively sampling each state and fixed parameter, conditional on the current sample, from some proposal distribution, $g$, and accepting the proposed sample with probability $R$, given by
+We use these full conditional distributions to generate samples from $p(x_{0:T},\theta|y_{1:T})$ by implementing a Gibbs sampler with adaptive rejection Metropolis-Hastings (MH) steps \citep{Metr:Rose:Rose:Tell:Tell:equa:1953, Hast:mont:1970,  Gema:Gema:stoc:1984, gilks1995adaptive}. In general, the algorithm works by iteratively sampling each state and fixed parameter, conditional on the current sample, from some proposal distribution, $g$, and accepting the proposed sample with probability $R$. $R$ is given by
 \begin{equation}
 R = \frac{f(x^*)g(x|x^*)}{f(x)g(x^*|x)}, \label{eqn:mhrat}
 \end{equation}
-where $x$ is the current sample, $x^*$ is the proposed sample from $g$, and $f(\cdot)$ is the full conditional distribution of the state or fixed parameter evaluated at `$\cdot$' \cite[Chapter 7][]{giv:hoet:2005:comp}. $R$ is termed the \emph{Metropolis ratio}. In our algorithm, we use Gaussian random-walk proposals for each state and fixed parameter, i.e. each proposed sample is drawn from a normal distribution centered at the current sampled value and standard deviation given by a tuning parameter that is adjusted according to the MH acceptance rate.
+where $x$ is the current sample, $x^*$ is the proposed sample from $g$, and $f(\cdot)$ is the full conditional distribution of the state or fixed parameter evaluated at `$\cdot$' \cite[Chapter 7][]{giv:hoet:2005:comp}. $R$ is termed the \emph{Metropolis ratio}. In our algorithm, we use Gaussian random-walk proposals for each state and fixed parameter, i.e. each proposed sample is drawn from a normal distribution centered at the current sampled value with standard deviation given by a tuning parameter that is adjusted according to the MH acceptance rate.
 
-The full Gibbs sampler applied to the epidemic model proceeds as follows:
+Let $x^{(j)}_{0:T} = \left(x^{(j)}_0, x^{(j)}_1, \ldots, x^{(j)}_T\right)'$ and $\theta^{(j)} = \left(\beta^{(j)},\gamma^{(j)},\nu^{(j)}\right)'$ represent the sampled values of the states and fixed parameters, respectively, at iteration $j$ of the Gibbs sampler. The full Gibbs sampler applied to the epidemic model proceeds as follows:
 \begin{enumerate}
-\item Start with initial draws $x^{(0)}_{0:T} = (x^{(0)}_0, x^{(0)}_1, \ldots, x^{(0)}_T)'$ and $\theta^{(0)} = (\beta^{(0)}, \gamma^{(0)}, \nu^{(0)})'$. Set $j = 1$.
+\item Start with initial draws $x^{(0)}_{0:T} = \left(x^{(0)}_0, x^{(0)}_1, \ldots, x^{(0)}_T\right)'$ and $\theta^{(0)} = \left(\beta^{(0)}, \gamma^{(0)}, \nu^{(0)}\right)'$. Set $j = 1$.
 \item \label{step:gibbs} Sample the states, $x^{(j)}_t$ for $t = 0,1,\ldots,T$, from their full conditional distributions. For $t = 1, 2, \ldots, T$,
     \begin{enumerate}
-    \item Draw $x^*_t \sim N(x^{(j-1)}_t,\tau^2_{x_t})$.
+    \item Draw $x^*_t \sim \mbox{N}\left(x^{(j-1)}_t,\tau^2_{x_t}\right)$.
     \item Calculate the Metropolis ratio, $R$, by
       \[R = \left\{
       \begin{array}{cl}
@@ -62,51 +62,51 @@ The full Gibbs sampler applied to the epidemic model proceeds as follows:
     \end{enumerate}
 \item \label{step:beta} Sample $\beta^{(j)}$ from its full conditional conditional distribution.
     \begin{enumerate}
-    \item Draw $\beta^* \sim N(\beta^{(j-1)},\tau^2_{\beta})$.
+    \item Draw $\beta^* \sim \mbox{N}\left(\beta^{(j-1)},\tau^2_{\beta}\right)$.
     \item Calculate Metropolis ratio, $R$, by
     \[R = \frac{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^*,\gamma^{(j-1)},\nu^{(j-1)}\right.\right)\right\}p(\beta^*,\gamma)}{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\theta^{(j-1)}\right.\right)\right\}p\left(\beta^{(j-1)},\gamma\right)}.\]
     \item Draw $u \sim \mbox{Unif}[0,1]$. If $u < \min\{1, R\}$, set $\beta^{(j)} = \beta^*$. Otherwise, set $\beta^{(j)} = \beta^{(j-1)}$.
     \end{enumerate}
 \item \label{step:gamma} Sample $\gamma^{(j)}$ from its full conditional conditional distribution.
     \begin{enumerate}
-    \item Draw $\gamma^* \sim N(\gamma^{(j-1)},\tau^2_{\gamma})$.
+    \item Draw $\gamma^* \sim \mbox{N}\left(\gamma^{(j-1)},\tau^2_{\gamma}\right)$.
     \item Calculate Metropolis ratio, $R$, by
     \[R = \frac{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^*,\nu^{(j-1)}\right.\right)\right\}p(\beta, \gamma^*)}{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j-1)},\nu^{(j-1)}\right.\right)\right\}p\left(\beta, \gamma^{(j-1)}\right)}.\]
     \item Draw $u \sim \mbox{Unif}[0,1]$. If $u < \min\{1, R\}$, set $\gamma^{(j)} = \gamma^*$. Otherwise, set $\gamma^{(j)} = \gamma^{(j-1)}$.
     \end{enumerate}
 \item \label{step:nu} Sample $\nu^{(j)}$ from its full conditional conditional distribution.
     \begin{enumerate}
-    \item Draw $\nu^* \sim N(\nu^{(j-1)},\tau^2_{\nu})$.
+    \item Draw $\nu^* \sim \mbox{N}\left(\nu^{(j-1)},\tau^2_{\nu}\right)$.
     \item Calculate Metropolis ratio, $R$, by
     \[R = \frac{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j)},\nu^*\right.\right)\right\}p(\nu^*)}{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j)},\nu^{(j-1)}\right.\right)\right\}p\left(\nu^{(j-1)}\right)}.\]
     \item Draw $u \sim \mbox{Unif}[0,1]$. If $u < \min\{1, R\}$, set $\nu^{(j)} = \nu^*$. Otherwise, set $\nu^{(j)} = \nu^{(j-1)}$.
     \end{enumerate}
 \item Set $j = j + 1$ and go back to step \ref{step:gibbs}
 \end{enumerate}
-The standard deviation of the random-walk proposal distributions, i.e. $\tau_{x_t}$ for $t = 0,1,\ldots,T$, $\tau_{\beta}$, $\tau_{\gamma}$, and $\tau_{\nu}$, are tuning parameters that are adjusted during the burn-in period of the MCMC. During burn-in, if the proposed value of a state or parameter at any given step of the Gibbs sampler is accepted, the corresponding tuning parameter is adjusted by multiplying by 1.1. If the proposed value is rejected, the tuning parameter is adjusted by dividing by 1.1. The idea here is that a high acceptance rate indicates that proposed samples are in areas of high posterior probability while a low acceptance rate indicates that they are in areas of low posterior probability. We seek proposal distributions that strike a balance in the acceptance rate such that the entire sample space of the posterior is explored. Acceptance rates indicative of optimal mixing of MCMC chains varies by model and has been explored by \citet{Robe:Gel:gilks:1997:optmh} and \citet{bed:2008:optmh}.
+The standard deviation of the random-walk proposal distributions, i.e. $\tau_{x_t}$ for $t = 0,1,\ldots,T$, $\tau_{\beta}$, $\tau_{\gamma}$, and $\tau_{\nu}$, are tuning parameters that are adjusted during the burn-in period of the MCMC. During burn-in, if the proposed value of a state or parameter at any given iteration of the Gibbs sampler is accepted, the corresponding tuning parameter is adjusted by multiplying by 1.1. If the proposed value is rejected, the tuning parameter is adjusted by dividing by 1.1. The idea here is that a high acceptance rate indicates that proposed samples are in areas of high posterior probability while a low acceptance rate indicates that they are in areas of low posterior probability. We seek proposal distributions that strike a balance in the acceptance rate such that the entire sample space of the posterior is explored. Acceptance rates indicative of optimal mixing of MCMC chains varies by model and has been explored by \citet{Robe:Gel:gilks:1997:optmh} and \citet{bed:2008:optmh}.
 
 \subsection{MCMC applied to dynamic regression \label{sec:mcmc:dr}}
 
-We now derive an MCMC algorithm to sample from the joint posterior distribution of states and unknown parameters from the dynamic intercept ($M_{101}$) and dynamic slope ($M_{011}$) models discussed in Sections \ref{sec:dlm:arwn}. Recall that these models are DLMs of the form given in equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with
+We now derive an MCMC algorithm to sample from the joint posterior distribution of states and unknown parameters from the dynamic intercept ($M_{101}$) and dynamic slope ($M_{011}$) models discussed in Sections \ref{sec:dlm:M101} and \ref{sec:dlm:M011}. Recall that these models are DLMs of the form given in equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with
 \begin{align*}
 U_t &= (1, u_t) &\quad \beta &= (\beta_0, \beta_1)' \\
 V &= \sigma^2_m &\quad F_t &= \left\{\begin{array}{ll} 1, & \mbox{for} M_{101} \\ u_t, & \mbox{for} M_{011} \end{array}\right. \\
 G &= \phi &\quad W &= \sigma^2_s,
 \end{align*}
-where $x_t$ is the univariate state representing the change in the intercept (or slope) at time $t$ and $\theta = (\beta',\phi,\sigma^2_s,\sigma^2_m)'$ are the unknown fixed parameters. We place a prior of the form
+where $x_t$ is the univariate state representing the change in the intercept or slope at time $t$ and $\theta = (\beta',\phi,\sigma^2_s,\sigma^2_m)'$ are the unknown fixed parameters. We place a prior of the form
 \begin{equation}
 p(x_0, \theta) = p(x_0)p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s) \label{eqn:dr:prior}
 \end{equation}
-on the initial state and fixed parameters, where, as stated in equations \eqref{eqn:dynreg:prior1} and \eqref{eqn:dynreg:prior2},
+on the initial state and fixed parameters, where $p(x_0) = \delta_0(x_0)$ and, as stated in equations \eqref{eqn:dynreg:prior1} and \eqref{eqn:dynreg:prior2},
 \begin{align*}
 &\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_mB_0) \qquad \sigma^2_m \sim \mbox{IG}(a_{m_0}, b_{m_0}) \\
-&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0})
+&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0}).
 \end{align*}
-and $x_0 = 0$ (i.e. $p(x_0) = \delta_0(x_0)$). The conjugate form of these priors, conditional on $x_t$, allows for direct sampling from the full conditional distributions of the fixed parameters. Combining this with the forward-filtering backward sampling (FFBS) algorithm for jointly sampling the states \citep{Cart:Kohn:on:1994} allows for a relatively straightforward Gibbs sampler.
+The conjugate form of these priors, conditional on $x_t$, allows for direct sampling from the full conditional distributions of the fixed parameters. Combining this with the forward-filtering backward sampling (FFBS) algorithm for jointly sampling the states \citep{Cart:Kohn:on:1994} allows for a relatively straightforward Gibbs sampler.
 
-Suppose we observe $y_t$ for $t = 1,2,\ldots,T$. We generate samples from $p(x_{0:T},\theta|y_{1:T})$ using the following Gibbs sampling algorithm:
+Suppose we observe $y_t$ for $t = 1,2,\ldots,T$, and let $x^{(j)}_{0:T} = \left(x^{(j)}_0, x^{(j)}_1, \ldots, x^{(j)}_T\right)'$ and $\theta^{(j)} = \left({\beta^{(j)}}', \phi^{(j)}, {\sigma^2_s}^{(j)}, {\sigma^2_m}^{(j)}\right)'$ represent the sampled values of the states and fixed parameters, respectively, at iteration $j$ of the Gibbs sampler. We generate samples from $p(x_{0:T},\theta|y_{1:T})$ using the following Gibbs sampling algorithm:
 \begin{enumerate}
-\item Start with initial draws $\theta^{(0)} = ({\beta^{(0)}}', \phi^{(0)}, {\sigma^2_s}^{(0)}, {\sigma^2_m}^{(0)})'$ and \\ $x^{(0)}_{0:T} = (x^{(0)}_0, x^{(0)}_1, \ldots, x^{(0)}_T)$. Set $j = 1$.
+\item Start with initial draws $\theta^{(0)} = \left({\beta^{(0)}}', \phi^{(0)}, {\sigma^2_s}^{(0)}, {\sigma^2_m}^{(0)}\right)'$ and \\ $x^{(0)}_{0:T} = \left(x^{(0)}_0, x^{(0)}_1, \ldots, x^{(0)}_T\right)$. Set $j = 1$.
 \item \label{step:gibbs:dr:beta} Jointly sample ${\sigma^2_m}^{(j)} \sim \mbox{IG}(a_{m_T}, b_{m_T})$ and $\beta^{(j)}|{\sigma^2_m}^{(j)} \sim \mbox{N}(\vartheta_T,{\sigma^2_m}^{(j)}B_T)$, where
 \begin{align}
 a_{m_T} &= T/2 + a_{m_0} \label{eqn:dr:am} \\
@@ -129,12 +129,12 @@ b_{s_T} &= \frac{1}{2}(\mbox{SS}_x + \varphi_0'\Phi_0^{-1}\varphi_0 - \varphi_T'
 \item Draw $x_T^{(j)} \sim \mbox{N}(m_T,C_T)$. Then, for $t = T-1,\ldots,0$, draw $x_t^{(j)} \sim \mbox{N}(h_t,H_t)$, where
     \begin{align*}
     h_t &= m_t + C_tG'R_{t+1}^{-1}(x_{t+1}^{(j)} - z_{t+1}) \\
-    H_t &= C_t - C_tG'R_{t+1}^{-1}GC_t
+    H_t &= C_t - C_tG'R_{t+1}^{-1}GC_t.
     \end{align*}
 \item Set $j = j + 1$ and go back to Step \ref{step:gibbs:dr:beta}
 \end{enumerate}
 \end{enumerate}
-Note that both this algorithm and the MCMC for the epidemic model described in Section \ref{sec:mcmc:epid} provide joint samples from $p(x_{0:T},\theta|y_{1:T})$, from which samples from the smoothed distributions, $p(x_s,\theta|y_{1:T})$ for $s < T$, can be directly obtained through Monte Carlo integration \cite[Chapter 3][]{Robe:Case:mont:2004}.
+Note that both this algorithm and the MCMC for the epidemic model described in Section \ref{sec:mcmc:epid} provide joint samples from $p(x_{0:T},\theta|y_{1:T})$. Samples from the smoothed distributions, $p(x_s,\theta|y_{1:T})$ for $s < T$, can be directly obtained from these joint samples through Monte Carlo integration \cite[Chapter 3][]{Robe:Case:mont:2004}.
 
 \section{Particle filtering \label{sec:filtering}}
 
