@@ -170,25 +170,35 @@ where $\mbox{vec}(\Omega) = (I_{m^2} - G\otimes G)^{-1} \mbox{vec}(ee')$ and $\p
 
 \subsection{Dynamic regression \label{sec:dlm:arwn}}
 
-The regression model with ARMA errors described in Section \ref{sec:dlm:arma} is represented as a DLM by setting the observation variance $V$ in equation \eqref{eqn:dlm:reg:obs} equal to 0 and completely specifying the error structure through the state equation. By instead letting $V > 0$, we can add an additional layer of variance to the model that represents observation or measurement noise. Furthermore, we can introduce additional structure into the errors through $F_t$. For example, consider a simple linear regression model with an intercept and a slope given by $\beta_0$ and $\beta_1$, respectively, and errors that follow an AR(1) plus white noise (AR(1)+WN) process, i.e.
+The regression model with ARMA errors described in Section \ref{sec:dlm:arma} is represented as a DLM by setting the observation error $v_t$ in equation \eqref{eqn:dlm:reg:obs} equal to 0 for all $t$ and completely specifying the error structure through the state equation. By instead letting $v_t$ be random, we can add an additional layer of variance to the model that represents observation or measurement noise. Furthermore, we can introduce additional structure into the errors through $F_t$.
+
+\subsubsection{\emph{Example 1: Dynamic intercept regression} \label{sec:dlm:M101}}
+
+For example, consider a simple linear regression model with an intercept and a slope given by $\beta_0$ and $\beta_1$, respectively, and errors that follow an AR(1) plus white noise (AR(1)+WN) process, i.e.
 \begin{align}
 y_t &= \beta_0 + \beta_1u_t + x_t + v_t \label{eqn:arwn:obs} \\
 x_t &= \phi x_{t-1} + w_t, \label{eqn:arwn:state}
 \end{align}
-where $u_t$ is a known explanatory variable, $v_t \stackrel{iid}{\sim} \mbox{N}(0, \sigma^2_m) \perp w_t \stackrel{iid}{\sim} \mbox{N}(0, \sigma^2_s)$, and $\theta = (\beta_0,\beta_1,\phi,\sigma^2_s,\sigma^2_m)'$ represents the unknown parameters in the model. Here, $\phi$ is the lag-1 coefficient of the AR process (note the subscript `1' is removed since there is only 1 AR coefficient), $\sigma^2_m$ is the observation variance, and $\sigma^2_s$ is the state variance, or more precisely the variance of the white noise shocks in the AR(1) process for the state. We will refer to this parameter as the \emph{white noise variance} for the state, since the actual variance of the state is $\sigma^2_s / (1 - \phi^2)$ and $\sigma^2_s$ represents the variance of $w_t$, or the ``white noise'' component of the AR(1) process.
+where $u_t$ is a known explanatory variable, $v_t \stackrel{iid}{\sim} \mbox{N}(0, \sigma^2_m) \perp w_t \stackrel{iid}{\sim} \mbox{N}(0, \sigma^2_s)$, and $\theta = (\beta_0,\beta_1,\phi,\sigma^2_s,\sigma^2_m)'$ represents the unknown parameters in the model. Here, $\phi$ is the lag-1 coefficient of the AR(1) process (note the subscript `1' is removed since there is only one AR coefficient), $\sigma^2_m$ is the observation variance, and $\sigma^2_s$ is the DLM state variance, or more precisely the variance of the innovations of the AR(1) process for the univariate state. We will refer to this parameter as the \emph{white noise variance} for the state, since the actual variance of the state is $\sigma^2_s / (1 - \phi^2)$ (provided $-1 < \phi < 1$ to ensure stationarity of the state process), where $\sigma^2_s$ represents the variance of $w_t$, the ``white noise'' component of the AR(1) process.
 
 Reexpressing equation \eqref{eqn:arwn:obs} as
 \begin{equation}
 y_t = (\beta_0 + x_t) + \beta_1u_t + v_t \label{eqn:arwn:dynint}
 \end{equation}
-shows that we can interpret this model as a \emph{dynamic intercept model}, i.e. a simple linear regression model with an intercept that changes over time according to an AR(1) process. We can represent a dynamic intercept model as a DLM defined by equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} where $U_t = (1, u_t)$, $\beta = (\beta_0, \beta_1)'$, $F_t = 1$ for all $t$, $V = \sigma^2_m$, $G = \phi$, and $W = \sigma^2_s$. Letting instead $F_t = u_t$ yields a \emph{dynamic slope model}, or a simple linear regression model with a slope that changes over time. This can be seen by multiplying out equation \eqref{eqn:dlm:reg:obs}:
+shows that we can interpret this model as a \emph{dynamic intercept model}, i.e. a simple linear regression model with an intercept that changes over time according to an AR(1) process. We can represent a dynamic intercept model as a DLM defined by equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} where $U_t = (1, u_t)$, $\beta = (\beta_0, \beta_1)'$, $F_t = 1$ for all $t$, $V = \sigma^2_m$, $G = \phi$, and $W = \sigma^2_s$. 
+
+\subsubsection{\emph{Example 2: Dynamic slope model} \label{sec:dlm:M011}}
+
+Letting instead $F_t = u_t$ in \eqref{eqn:dlm:reg:obs} with $U_t = (1, u_t)$, $\beta = (\beta_0, \beta_1)'$, $V = \sigma^2_m$, $G = \phi$, and $W = \sigma^2_s$ yields a \emph{dynamic slope model}, or a simple linear regression model with a slope that changes over time. This can be seen by multiplying out equation \eqref{eqn:dlm:reg:obs}:
 \begin{equation}
 y_t = \beta_0 + \beta_1u_t + x_tu_t + v_t = \beta_0 + (\beta_1 + x_t)u_t + v_t. \label{eqn:arwn:dynslo}
 \end{equation}
 
+\subsubsection{\emph{Example 3: Dynamic intercept and slope model} \label{sec:dlm:M111}}
+
 Finally, we consider a model with both a dynamic slope and a dynamic intercept by letting $x_t = (x_{t,1},x_{t,2})'$ be two-dimensional and adjusting $F_t$, $G$, and $W$ such that
 \[
-F_t = (1, u_t) \quad G = \left(\begin{array}{cc} \phi & 0 \\ 0 & \rho \end{array}\right) \quad W = \left(\begin{array}{cc} \sigma^2_s & 0 \\ 0 & \sigma^2_b \end{array}\right).
+F_t = (1, u_t), \qquad G = \left(\begin{array}{cc} \phi & 0 \\ 0 & \rho \end{array}\right), \mbox{ and} \qquad W = \left(\begin{array}{cc} \sigma^2_s & 0 \\ 0 & \sigma^2_b \end{array}\right).
 \]
 Multiplying out both equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state}, we have
 \begin{align}
@@ -196,46 +206,46 @@ y_t &= (\beta_0 + x_{t,1}) + (\beta_1 + x_{t,2})u_t + v_t. \label{eqn:arwn:dynbo
 x_{t,1} &= \phi x_{t-1,1} + w_{t,1} \label{eqn:arwn:dynboth:state1} \\
 x_{t,2} &= \rho x_{t-1,2} + w_{t,2}, \label{eqn:arwn:dynboth:state2}
 \end{align}
-where $w_{t,1} \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_s)$, $w_{t,2} \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_b)$, and $\theta = (\beta_0,\beta_1,\phi,\rho,\sigma^2_s,\sigma^2_b,\sigma^2_m)'$ are the unknown parameters. In this model, $\phi$ now represents the lag-1 autocorrelation for the change in the intercept, $\rho$ is the lag-1 autocorrelation for the change in the slope, $\sigma^2_s$ is the white noise variance for the dynamic intercept, and $\sigma^2_b$ is the white noise variance for the dynamic slope.
+where $w_{t,1} \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_s)$, $w_{t,2} \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_b)$, $v_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_m)$ and $\theta = (\beta_0,\beta_1,\phi,\rho,\sigma^2_s,\sigma^2_b,\sigma^2_m)'$ are the unknown parameters. In this model, $\phi$ now represents the lag-1 autocorrelation for the change in the intercept, $\rho$ is the lag-1 autocorrelation for the change in the slope, $\sigma^2_s$ is the white noise variance for the dynamic intercept, and $\sigma^2_b$ is the white noise variance for the dynamic slope.
 
-In Chapter \ref{ch:fmri}, we compare the dynamic slope, dynamic intercept, and standard simple linear regression models for fitting fMRI data. For ease of reference, we adopt notation to refer to models within a general class of dynamic regression models. Let $M_{ijk}$ represent a (possibly) dynamic regression model where $i$ is the order of the AR process for the dynamic intercept, $j$ is the order of the AR process for the dynamic slope, and $k$ is either 1 or 0 indicating whether or not the observation variance $\sigma^2_m$ is constrained to be 0. Letting either $i$ or $j$ be 0 removes the stochasticity in that component. Thus, $M_{101}$ corresponds to the dynamic intercept model described by equations \ref{eqn:arwn:dynint} and \ref{eqn:arwn:state}, $M_{011}$ is the dynamic slope model described by equations \ref{eqn:arwn:dynslo} and \ref{eqn:arwn:state}, $M_{111}$ is the model with both a dynamic intercept and dynamic slope described by equations \ref{eqn:arwn:dynboth:obs}, \ref{eqn:arwn:dynboth:state1}, and \ref{eqn:arwn:dynboth:state2}, and $M_{001}$ describes a simple linear regression model with fixed coefficients and independent errors, i.e. equations \eqref{eqn:arwn:obs} and \eqref{eqn:arwn:state} with $\phi = \sigma^2_s = 0$.
+In Chapter \ref{ch:fmri}, we compare the dynamic slope, dynamic intercept, and standard simple linear regression models for fitting fMRI data. For ease of reference, we adopt notation to refer to models within a general class of dynamic regression models. Let $M_{ijk}$ represent a (possibly) dynamic regression model where $i$ is the order of the AR process for the dynamic intercept, $j$ is the order of the AR process for the dynamic slope, and $k$ is either 1 or 0 indicating whether or not the model contains random error in the observation equation (i.e., $k = 0$ implies $v_t$ is restricted to be 0 and $k = 1$ implies $v_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_m)$ with $\sigma^2_m > 0$). Letting either $i$ or $j$ be 0 removes the stochasticity in the corresponding component. Thus, $M_{101}$ corresponds to the dynamic intercept model described by equations \ref{eqn:arwn:dynint} and \ref{eqn:arwn:state}, $M_{011}$ is the dynamic slope model described by equations \ref{eqn:arwn:dynslo} and \ref{eqn:arwn:state}, $M_{111}$ is the model with both a dynamic intercept and dynamic slope described by equations \ref{eqn:arwn:dynboth:obs}, \ref{eqn:arwn:dynboth:state1}, and \ref{eqn:arwn:dynboth:state2}, and $M_{001}$ describes a simple linear regression model with fixed coefficients and independent errors, i.e. equations \eqref{eqn:arwn:obs} and \eqref{eqn:arwn:state} with $\phi = \sigma^2_s = 0$.
 
-In all of these dynamic regression models, we allow for nonstationarity of the state process. This is intended to allow for modeling a wider range of behavior in fMRI data as well as estimation using the particle learning algorithm, which we describe in Chapter \ref{ch:meth}. For this reason, we constrain $x_0 = 0$ (or $x_0 = (0,0)'$ for $M_{111}$) so that the models are identifiable. This is equivalent to setting $m_0 = 0$ and $C_0 = 0$ (or $C_0$ a $2 \times 2$ zero matrix for $M_{111}$) in the prior distribution of $x_0$. In Chapter \ref{ch:fmri}, Bayesian models for $M_{101}$ and $M_{011}$ are analyzed using priors of the form $p(x_0, \theta) = p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s)\delta_0(x_0)$, where
+In all of these dynamic regression models, we allow for nonstationarity of the state process. This is intended to enable modeling of a wider range of behavior in fMRI data, as well as estimation using the particle learning algorithm, which we describe in Chapter \ref{ch:meth}. In this setting, $x_t$ may not have a stationary mean, in which case the model may not be properly identified by unique values of the fixed parameters \citep{pagan:identify:1979}. To alleviate this concern, we constrain $x_0 = 0$ (or $x_0 = (0,0)'$ for $M_{111}$) so that $x_t$ is interpreted as the change in the dynamic slope or intercept (or both) from time $t = 0$. This is equivalent to setting the marginal prior distribution of the initial state as $p(x_0) = \delta_{0}(x_0)$. In Chapter \ref{ch:fmri}, Bayesian models for $M_{101}$ and $M_{011}$ are analyzed using priors of the form $p(x_0, \theta) = p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s)\delta_0(x_0)$, where
 \begin{align}
 &\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_mB_0) \qquad \sigma^2_m \sim \mbox{IG}(a_{m_0}, b_{m_0}) \label{eqn:dynreg:prior1} \\
 &\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0}), \label{eqn:dynreg:prior2}
 \end{align}
-$\delta_a(x)$ is the Dirac delta function that places point mass at $a$, and the hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are known.
+$\delta_a(x)$ is the Dirac delta function that places point mass at $a$, and the hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are assumed known.
 
 \section{Sequential estimation \label{sec:sequential}}
 
-When data are collected sequentially, it is often of interest to determine the \emph{filtered distribution}, i.e. the distribution of the current state and parameters conditional on the data observed up to that time. This distribution describes all of the available information up to time $t$ about the current state of the system and any fixed parameters. We may also be interested in the filtered distribution of the entire state history and any fixed parameters. Both can be updated recursively using Bayes' rule:
+When data are collected sequentially, it is often of interest to determine the \emph{filtered distribution} $p(x_t,\theta|y_{1:t})$, i.e. the distribution of the current state and parameters conditional on the data observed up to that time. This distribution describes all of the available information up to time $t$ about the current state of the system and any fixed parameters. We may also be interested in the filtered distribution of the entire state history and any fixed parameters, $p(x_{0:t},\theta|y_{1:t})$. Both can be updated recursively using Bayes' rule:
 \begin{align}
 p(x_t,\theta| y_{1:t}) &\propto p(y_t|x_t,\theta)p(x_t,\theta|y_{1:t-1}) \label{eqn:filtered} \\
-p(x_{0:t},\theta|y_{1:t}) &\propto p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(x_{0:t-1}|y_{1:t-1},\theta), \label{eqn:filtered:hist}
+p(x_{0:t},\theta|y_{1:t}) &\propto p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(x_{0:t-1},\theta|y_{1:t-1}), \label{eqn:filtered:hist}
 \end{align}
 where $y_{1:t} = (y_1,\ldots,y_t)$. The \emph{smoothed distribution}, $p(x_s,\theta|y_{1:t})$ for any $s < t$, is then calculated by integrating $p(x_{0:t},\theta|y_{1:t})$ over all states $\{x_t: t \ne s\}$.
 
-Only in special cases can these filtered or smoothed distributions be evaluated analytically. The DLM described by equations \eqref{eqn:dlm:obs} and \eqref{eqn:dlm:state} is one such case, provided all fixed parameters are known. In this case, an explicit form for $p(x_t|y_{1:t})$ can be found according to $x_t|y_{1:t} \sim \mbox{N}(m_t,C_t)$, where $m_t$ and $C_t$ are calculated recursively using the Kalman filter \citep{kal:1960:ekf}. Starting with known $m_0$ and $C_0$, the filtering recursions are given by the following equations \cite[Section 2.7.2][]{petris:camp:2009:dynamic}:
+Only in special cases can these filtered or smoothed distributions be evaluated analytically. The DLM described by equations \eqref{eqn:dlm:obs} and \eqref{eqn:dlm:state} is one such case, provided all fixed parameters (i.e. $\theta$) are known. In this case, an explicit form for $p(x_t|y_{1:t})$ can be found according to $x_t|y_{1:t} \sim \mbox{N}(m_t,C_t)$, where $m_t$ and $C_t$ are calculated recursively using the Kalman filter \citep{kal:1960:ekf}. Starting with known $m_0$ and $C_0$, the filtering recursions are given by the following equations \cite[Section 2.7.2][]{petris:camp:2009:dynamic}:
 \begin{align}
 z_t &= Gm_{t-1} &\qquad R_t &= GC_{t-1}G' + W \label{eqn:dlm:kal} \\
 f_t &= F_tz_t &\qquad Q_t &= F_tR_tF_t' + V \nonumber \\
 m_t &= z_t + R_tF_t'Q_t^{-1}(y_t-f_t) &\qquad C_t &= R_t - R_tF_t'Q_t^{-1}F_tR_t. \nonumber
 \end{align}
 
-When unknown fixed parameters are present in DLMs, analytical tractibility exists in only a few cases such as the local level DLM described in Section \ref{sec:dlm:ll} with common observation and state variance factor \cite[Section 4.3][]{petris:camp:2009:dynamic}. In this case, $p(x_t,\theta|y_{1:t})$ is given by
+When unknown fixed parameters are present in DLMs, analytical tractibility exists in only a few cases, such as the local level DLM described in Section \ref{sec:dlm:ll} with common observation and state variance factor \cite[Section 4.3][]{petris:camp:2009:dynamic}. In this case, $p(x_t,\theta|y_{1:t})$ is given by
 \begin{equation}
-x_t|\theta,y_{1:t} \sim \mbox{N}(m_t,\theta C_t) \quad \theta|y_{1:t} \sim \mbox{IG}(a_t, b_t), \label{eqn:ll:post}
+x_t|\theta,y_{1:t} \sim \mbox{N}(m_t,\theta c_t) \quad \theta|y_{1:t} \sim \mbox{IG}(a_t, b_t), \label{eqn:ll:post}
 \end{equation}
-where $m_t$, $C_t$, $a_t$, and $b_t$ are calculated recursively according to
+where $m_t$, $\tilde{C}_t$, $a_t$, and $b_t$ are calculated recursively according to
 \begin{align}
-f_t &= m_{t-1} &\qquad q_t &= c_{t-1} + \lambda + 1 \label{eqn:ll:kal} \\
-m_t &= (1 - C_t)f_t + C_ty_t &\qquad C_t &= 1 - \frac{1}{q_t} \nonumber \\
+f_t &= m_{t-1} &\qquad Q_t &= c_{t-1} + \lambda + 1 \label{eqn:ll:kal} \\
+m_t &= (1 - c_t)f_t + c_ty_t &\qquad c_t &= 1 - \frac{1}{q_t} \nonumber \\
 a_t &= a_{t-1} + \frac{1}{2} &\qquad b_t &= b_{t-1} + \frac{(y_t-f_t)^2}{2q_t}, \nonumber
 \end{align}
 starting with $m_0 = 0$, $c_0 = 1$, and known $a_0$ and $b_0$. These equations can also be used to calculate the marginal filtered distribution of the state, $p(x_t|y_{1:t})$, and one-step ahead predictive density, $p(y_t|y_{1:t-1})$, given by
 \begin{align}
-x_t|y_{1:t} &\sim \mbox{T}\left(m_t,C_t \frac{b_t}{a_t},2a_t\right) \label{eqn:ll:marg} \\
+x_t|y_{1:t} &\sim \mbox{T}\left(m_t,c_t \frac{b_t}{a_t},2a_t\right) \label{eqn:ll:marg} \\
 y_t|y_{1:t-1} &\sim \mbox{T}\left(f_t,q_t \frac{b_{t-1}}{a_{t-1}},2a_{t-1}\right). \label{eqn:ll:onestep}
 \end{align}
 In Chapter \ref{ch:comp}, we evaluate the abilities of several particle filters to approximate the marginal likelihood of data generated from this model through comparison with the true marginal likelihood that can be calculated analytically according to
@@ -243,4 +253,4 @@ In Chapter \ref{ch:comp}, we evaluate the abilities of several particle filters 
 p(y_{1:t}) = \prod_{k=1}^t p(y_k|y_{1:k-1}) \label{eqn:ll:marglik}.
 \end{equation}
 
-The remaining DLMs described in sections \ref{sec:dlm:arma} and \ref{sec:dlm:arwn} do not emit analytically tractable forms of the posterior. When analytical tractability is not present, we turn to numerical methods including deterministic versions, e.g. the extended Kalman filter \cite[Section 1.6][]{hay:2001:kal} and the Gaussian sum filter \citep{Alsp:Sore:nonl:1972}, or Monte Carlo versions such as particle filters. In Chapter \ref{ch:meth}, we describe a variety of Markov chain Monte Carlo and sequential Monte Carlo algorithms that can be used to estimate states and unknown fixed parameters in state-space models for which the filtered distribution is intractable. 
+The remaining DLMs described in sections \ref{sec:dlm:arma} and \ref{sec:dlm:arwn} do not emit analytically tractable forms of the posterior. When analytical tractability is not present, we turn to numerical methods including deterministic versions, e.g. the extended Kalman filter \cite[Section 1.6][]{hay:2001:kal} and the Gaussian sum filter \citep{Alsp:Sore:nonl:1972}, or Monte Carlo versions such as particle filters. In Chapter \ref{ch:meth}, we describe a variety of Markov chain Monte Carlo and sequential Monte Carlo algorithms that we use to estimate states and unknown fixed parameters in state-space models for which filtered distributions are intractable.
