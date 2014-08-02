@@ -324,7 +324,7 @@ The filtered distribution for $\theta$ conditional on the states is then given b
 \beta|\sigma^2_m,y_{1:t},x_{0:t} &\sim \mbox{N}(\vartheta_t, \sigma^2_m B_t) &\quad \sigma^2_m|y_{1:t},x_{0:t} &\sim \mbox{IG}(a_{m_t},b_{m_t}) \label{eqn:pl:post:beta} \\
 \phi|\sigma^2_s,y_{1:t},x_{0:t} &\sim \mbox{N}(\varphi_t, \sigma^2_s \Phi_t) &\quad \sigma^2_s|y_{1:t},x_{0:t} &\sim \mbox{IG}(a_{s_t},b_{s_t}), \label{eqn:pl:post:phi}
 \end{align}
-where $\vartheta_t$, $B_t$, $\varphi_t$, $\Phi_t$, $a_{m_t}$, $b_{m_t}$, $a_{s_t}$, and $b_{m_t}$ are calculated according to the equations in Steps \ref{step:gibbs:dr:beta} and \ref{step:gibbs:dr:phi} of the Gibbs sampler outlined in Section \ref{sec:mcmc:dr} (with $T = t$). Thus, $s_t = (\vartheta_t, B_t, a_{m_t}, \xi_{m_t}, \varphi_t, \Phi_t, a_{s_t}, \xi_{s_t})$ form the sufficient statistics for $\theta$ and are updated by the recursive map given by
+where $\vartheta_t$, $B_t$, $\varphi_t$, $\Phi_t$, $a_{m_t}$, $b_{m_t}$, $a_{s_t}$, and $b_{m_t}$ are calculated according to the equations in Steps \ref{step:gibbs:dr:beta} and \ref{step:gibbs:dr:phi} of the Gibbs sampler outlined in Section \ref{sec:mcmc:dr} (with $T = t$). We let $s_t = (\vartheta_t, B_t, a_{m_t}, \xi_{m_t}, \varphi_t, \Phi_t, a_{s_t}, \xi_{s_t})$ denote the sufficient statistics for $\theta$ and update them through the recursive map given by
 \begin{align}
 B_t^{-1}\vartheta_t &= B_{t-1}^{-1}\vartheta_{t-1} + U_t'(y_t - F_tx_t) & B_t^{-1} &= B_{t-1}^{-1} + U_t'U_t \label{eqn:pl:dr:suff} \\
 a_{m_t} &= a_{m_{t-1}} + 1/2 & \xi_{m_t} &= \xi_{m_{t-1}} + (y_t - F_tx_t)^2 \nonumber \\
