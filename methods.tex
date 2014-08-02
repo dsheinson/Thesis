@@ -33,7 +33,7 @@ p(\beta|\hdots) &\propto \prod_{t=1}^T \left\{p(x_t|x_{t-1},\theta)\right\}p(\be
 p(\gamma|\hdots) &\propto \prod_{t=1}^T \left\{p(x_t|x_{t-1},\theta)\right\}p(\beta, \gamma) \nonumber \\
 p(\nu|\hdots) &\propto \prod_{t=1}^T \left\{p(x_t|x_{t-1},\theta)\right\}p(\nu), \nonumber
 \end{align}
-where $p(w|\hdots)$ represents the full conditional distribution of $w$, for any $w$. Note that since each of the unknown fixed parameters $\beta$, $\gamma$, and $\nu$ is present only in the state equation of the model, their full conditional distributions do not depend on $y_t$. By the same argument $p(y_t|x_t,\theta)$ reduces to $p(y_t|x_t)$.
+where $p(w|\hdots)$ represents the full conditional distribution of $w$, for any $w$. Note that since each of the unknown fixed parameters $\beta$, $\gamma$, and $\nu$ is present only in the state equation \eqref{eqn:epid:state} of the model, their full conditional distributions do not depend on $y_t$. By the same argument $p(y_t|x_t,\theta)$ reduces to $p(y_t|x_t)$.
 
 We use these full conditional distributions to generate samples from $p(x_{0:T},\theta|y_{1:T})$ by implementing a Gibbs sampler with adaptive rejection Metropolis-Hastings (MH) steps \citep{Metr:Rose:Rose:Tell:Tell:equa:1953, Hast:mont:1970,  Gema:Gema:stoc:1984, gilks1995adaptive}. In general, the algorithm works by iteratively sampling each state and fixed parameter, conditional on the current sample, from some proposal distribution, $g$, and accepting the proposed sample with probability $R$. $R$ is given by
 \begin{equation}
@@ -47,7 +47,7 @@ R = \frac{f(w^*)}{f(w)}. \label{eqn:mhrat:reduce}
 Let $x^{(j)}_{0:T} = \left(x^{(j)}_0, x^{(j)}_1, \ldots, x^{(j)}_T\right)'$ and $\theta^{(j)} = \left(\beta^{(j)},\gamma^{(j)},\nu^{(j)}\right)'$ represent the sampled values of the states and fixed parameters, respectively, at iteration $j$ of the Gibbs sampler. The full Gibbs sampler applied to the epidemic model proceeds as follows:
 \begin{enumerate}
 \item Start with initial draws $x^{(0)}_{0:T} = \left(x^{(0)}_0, x^{(0)}_1, \ldots, x^{(0)}_T\right)'$ and $\theta^{(0)} = \left(\beta^{(0)}, \gamma^{(0)}, \nu^{(0)}\right)'$. Set $j = 1$.
-\item \label{step:gibbs} Sample the states, $x^{(j)}_t$ for $t = 0,1,\ldots,T$, from their full conditional distributions. For $t = 1, 2, \ldots, T$,
+\item \label{step:gibbs} Sample the states, $x^{(j)}_t$ for $t = 0,1,\ldots,T$, from their full conditional distributions. For each $t = 1, 2, \ldots, T$,
     \begin{enumerate}
     \item Draw $x^*_t \sim \mbox{N}\left(x^{(j-1)}_t,\tau^2_{x_t} I_2\right)$.
     \item Calculate the Metropolis ratio, $R$, by
@@ -67,36 +67,45 @@ Let $x^{(j)}_{0:T} = \left(x^{(j)}_0, x^{(j)}_1, \ldots, x^{(j)}_T\right)'$ and 
     \begin{enumerate}
     \item Draw $\beta^* \sim \mbox{N}\left(\beta^{(j-1)},\tau^2_{\beta}\right)$.
     \item Calculate Metropolis ratio, $R$, by
-    \[R = \frac{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^*,\gamma^{(j-1)},\nu^{(j-1)}\right.\right)\right\}p(\beta^*,\gamma)}{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\theta^{(j-1)}\right.\right)\right\}p\left(\beta^{(j-1)},\gamma\right)}.\]
+    \begin{align*}
+    R &= \frac{p\left(\beta^*|x_{0:T}^{(j)},\gamma^{(j-1)},\nu^{(j-1)}\right)}{p\left(\beta^{(j-1)}|x_{0:T}^{(j)},\gamma^{(j-1)},\nu^{(j-1)}\right)} \\
+     &= \frac{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^*,\gamma^{(j-1)},\nu^{(j-1)}\right.\right)\right\}p(\beta^*,\gamma^{(j-1)})}{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\theta^{(j-1)}\right.\right)\right\}p\left(\beta^{(j-1)},\gamma^{(j-1)}\right)}.
+    \end{align*}
     \item Draw $u \sim \mbox{Unif}[0,1]$. If $u < \min\{1, R\}$, set $\beta^{(j)} = \beta^*$. Otherwise, set $\beta^{(j)} = \beta^{(j-1)}$.
     \end{enumerate}
 \item \label{step:gamma} Sample $\gamma^{(j)}$ from its full conditional conditional distribution.
     \begin{enumerate}
     \item Draw $\gamma^* \sim \mbox{N}\left(\gamma^{(j-1)},\tau^2_{\gamma}\right)$.
     \item Calculate Metropolis ratio, $R$, by
-    \[R = \frac{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^*,\nu^{(j-1)}\right.\right)\right\}p(\beta, \gamma^*)}{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j-1)},\nu^{(j-1)}\right.\right)\right\}p\left(\beta, \gamma^{(j-1)}\right)}.\]
+    \begin{align*}
+    R &=     \frac{p\left(\gamma^*|x_{0:T}^{(j)},\beta^{(j)},\nu^{(j-1)}\right)}{p\left(\gamma^{(j-1)}|x_{0:T}^{(j)},\beta^{(j)},\nu^{(j-1)}\right)} \\
+     &= \frac{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^*,\nu^{(j-1)}\right.\right)\right\}p(\beta^{(j)}, \gamma^*)}{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j-1)},\nu^{(j-1)}\right.\right)\right\}p\left(\beta^{(j)}, \gamma^{(j-1)}\right)}.
+    \end{align*}
     \item Draw $u \sim \mbox{Unif}[0,1]$. If $u < \min\{1, R\}$, set $\gamma^{(j)} = \gamma^*$. Otherwise, set $\gamma^{(j)} = \gamma^{(j-1)}$.
     \end{enumerate}
 \item \label{step:nu} Sample $\nu^{(j)}$ from its full conditional conditional distribution.
     \begin{enumerate}
     \item Draw $\nu^* \sim \mbox{N}\left(\nu^{(j-1)},\tau^2_{\nu}\right)$.
     \item Calculate Metropolis ratio, $R$, by
-    \[R = \frac{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j)},\nu^*\right.\right)\right\}p(\nu^*)}{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j)},\nu^{(j-1)}\right.\right)\right\}p\left(\nu^{(j-1)}\right)}.\]
+    \begin{align*}
+    R &=     \frac{p\left(\nu^*|x_{0:T}^{(j)},\beta^{(j)},\gamma^{(j)}\right)}{p\left(\nu^{(j-1)}|x_{0:T}^{(j)},\beta^{(j)},\gamma^{(j)}\right)} \\
+     &= \frac{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j)},\nu^*\right.\right)\right\}p(\nu^*)}{\left\{\prod_{t=1}^T p\left(x^{(j)}_t\left|x^{(j)}_{t-1},\beta^{(j)},\gamma^{(j)},\nu^{(j-1)}\right.\right)\right\}p\left(\nu^{(j-1)}\right)}.
+    \end{align*}
     \item Draw $u \sim \mbox{Unif}[0,1]$. If $u < \min\{1, R\}$, set $\nu^{(j)} = \nu^*$. Otherwise, set $\nu^{(j)} = \nu^{(j-1)}$.
     \end{enumerate}
 \item Set $j = j + 1$ and go back to step \ref{step:gibbs}
 \end{enumerate}
 
-The output of this algorithm is a dependent chain of samples that approximates $p(x_{0:T},\theta,y_{1:T})$ provided $j$ is large enough \cite[Chapter 7][]{Robe:Case:mont:2004}. Initial values $\theta^{(0)}$ and $x_{0:T}^{(0)}$ could be chosen arbitrarily or by sampling from the prior $\prod_{t=1}^T\left\{p(x_t|x_{t-1},\theta)\right\}p(x_0,\theta)$. In either case, the dependence of the resulting chain could be sensitive to the initial values, and generating multiple chains from different starting points could help determine reasonable starting values or burn-in period necessary for the algorithm to generate samples from the posterior distribution \citep{giv:hoet:2005:comp}.
+The output of this algorithm is a dependent chain of samples with stationary distribution $p(x_{0:T},\theta,y_{1:T})$ provided $j$ is large enough \cite[Chapter 7][]{Robe:Case:mont:2004}. Initial values $\theta^{(0)}$ and $x_{0:T}^{(0)}$ could be chosen arbitrarily or by sampling from the prior $\prod_{t=1}^T\left\{p(x_t|x_{t-1},\theta)\right\}p(x_0,\theta)$. In either case, the effective sample size of the chain could be sensitive to the initial values. Generating multiple chains from different starting points could help determine reasonable starting values or the burn-in period necessary before the algorithm starts generating samples from the stationary distribution \citep{giv:hoet:2005:comp}.
 
-The standard deviation of the random-walk proposal distributions, i.e. $\tau_{x_t}$ for $t = 0,1,\ldots,T$, $\tau_{\beta}$, $\tau_{\gamma}$, and $\tau_{\nu}$, are tuning parameters that are adjusted during the burn-in period of the MCMC. During burn-in, if the proposed value of a state or parameter at any given iteration of the Gibbs sampler is accepted, the corresponding tuning parameter is adjusted by multiplying by 1.1. If the proposed value is rejected, the tuning parameter is adjusted by dividing by 1.1. The idea here is that a high acceptance rate indicates that proposed samples are in areas of high posterior probability while a low acceptance rate indicates that they are in areas of low posterior probability. We seek proposal distributions that strike a balance in the acceptance rate such that the entire sample space of the posterior is explored. Acceptance rates indicative of optimal mixing of MCMC chains varies by model and has been explored by \citet{Robe:Gel:gilks:1997:optmh} and \citet{bed:2008:optmh}.
+The standard deviations of the random-walk proposal distributions, i.e. $\tau_{x_t}$ for $t = 0,1,\ldots,T$, $\tau_{\beta}$, $\tau_{\gamma}$, and $\tau_{\nu}$, are tuning parameters that are adjusted during the burn-in period of the MCMC. During burn-in, if the proposed value of a state or parameter at any given iteration of the Gibbs sampler is accepted, the corresponding tuning parameter is adjusted by multiplying by 1.1. If the proposed value is rejected, the tuning parameter is adjusted by dividing by 1.1. The idea here is that a high acceptance rate indicates that proposed samples are in areas of high posterior probability while a low acceptance rate indicates that they are in areas of low posterior probability. We seek proposal distributions that strike a balance in the acceptance rate such that the entire sample space of the posterior is explored. Acceptance rates indicative of optimal mixing of MCMC chains varies by model and have been explored by \citet{Robe:Gel:gilks:1997:optmh} and \citet{bed:2008:optmh}.
 
 \subsection{MCMC applied to dynamic regression \label{sec:mcmc:dr}}
 
 We now derive an MCMC algorithm to sample from the joint posterior distribution of states and unknown parameters from the dynamic intercept ($M_{101}$) and dynamic slope ($M_{011}$) models discussed in Sections \ref{sec:dlm:M101} and \ref{sec:dlm:M011}. Recall that these models are DLMs of the form given in equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with
 \begin{align*}
 U_t &= (1, u_t) &\quad \beta &= (\beta_0, \beta_1)' \\
-V &= \sigma^2_m &\quad F_t &= \left\{\begin{array}{ll} 1, & \mbox{for} M_{101} \\ u_t, & \mbox{for} M_{011} \end{array}\right. \\
+V &= \sigma^2_m &\quad F_t &= \left\{\begin{array}{ll} 1, & \mbox{for } M_{101} \\ u_t, & \mbox{for } M_{011} \end{array}\right. \\
 G &= \phi &\quad W &= \sigma^2_s,
 \end{align*}
 where $x_t$ is the univariate state representing the change in the intercept or slope at time $t$ and $\theta = (\beta',\phi,\sigma^2_s,\sigma^2_m)'$ are the unknown fixed parameters. We place a prior of the form
