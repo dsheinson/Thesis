@@ -250,7 +250,7 @@ b_t &= b_0 + \frac{1}{2}\left(\sum_{i=1}^t \left(y_i - x_i^{(k)}\right)^2 + \fra
 \end{enumerate}
 Note that the RM is not a truly sequential particle filter because of the increase in computation required with increasing $t$.
 
-\subsection{Particle learning \label{sec:pl}}
+\subsection{Particle learning (PL) \label{sec:pl}}
 
 We consider a particle filtering algorithm called particle learning \citep{Carv:Joha:Lope:Pols:part} that can be applied to a particular class of state-space models which includes DLMs. For models within this class, particle learning prescribes a truly sequential algorithm that samples new values for $\theta$ from $p(\theta|y_{1:t})$ using conditional sufficient statistics. Let $s_t$ denote the sufficient statistics for $\theta$ conditional on the current state $x_t$. Then, we add the sampled values of the sufficient statistics, $s_t^{(j)}$, to the particles, i.e. particle $j$ and time $t$ is now represented by $\left(x_t^{(j)},s_t^{(j)},\theta_t^{(j)}\right)$. We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\theta|y_{1:t+1})$ by the following procedure for each particle $j = 1,2,\ldots,J$:
 \begin{enumerate}
