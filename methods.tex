@@ -226,6 +226,8 @@ The general RM algorithm proceeds in the following way. Given a particle approxi
 \item \label{step:move} Move particles: draw a new particle $\left(x^{(j)}_{0:t+1},\theta^{(j)}_{t+1}\right)$ from some transition kernel $q\left(x_{0:t+1},\theta|\tilde{x}^{(k)}_{0:t+1},\theta^{(k)}_t\right)$ with invariant distribution $p(x_{0:t+1},\theta|y_{1:t+1})$.
 \end{enumerate}
 
+\subsubsection{\emph{RM for the local level DLM with common observation and state variance factor} \label{sec:rm:ll}}
+
 In Chapter \ref{ch:comp}, we run this algorithm on data simulated from the local level DLM with unknown common variance factor, $\theta$, described in Section \ref{sec:dlm:ll}. To do this, we need to define an MCMC kernel, $q$, for the ``Move particles'' step in the above algorithm. In this case, we sample from $q$ as follows: For a given particle $j$ and sampled index $k$,
 \begin{enumerate}
 \item \label{step:move:ll} Sample $\theta^{(j)}_{t+1} \sim \mbox{IG}(a_t, b_t)$, where
