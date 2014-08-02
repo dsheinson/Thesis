@@ -96,7 +96,7 @@ Let $x^{(j)}_{0:T} = \left(x^{(j)}_0, x^{(j)}_1, \ldots, x^{(j)}_T\right)'$ and 
 \item Set $j = j + 1$ and go back to step \ref{step:gibbs}
 \end{enumerate}
 
-The output of this algorithm is a dependent chain of samples which, provided $j$ is large enough, can be assumed to represent draws from the stationary distribution $p(x_{0:T},\theta|y_{1:T})$ \cite[Chapter 7][]{Robe:Case:mont:2004}. Initial values $\theta^{(0)}$ and $x_{0:T}^{(0)}$ could be chosen arbitrarily or by sampling from the prior $\prod_{t=1}^T\left\{p(x_t|x_{t-1},\theta)\right\}p(x_0,\theta)$. In either case, the effective sample size of the chain could be sensitive to the initial values. Generating multiple chains from different starting points could help determine reasonable starting values or a necessary burn-in period before the samples can be assumed to come from the stationary distribution \citep{giv:hoet:2005:comp}.
+The output of this algorithm is a dependent chain of samples which, provided $j$ is large enough, can be assumed to represent draws from the stationary distribution $p(x_{0:T},\theta|y_{1:T})$ \cite[Chapter 7][]{Robe:Case:mont:2004}. Initial values $\theta^{(0)}$ and $x_{0:T}^{(0)}$ could be chosen arbitrarily or by sampling from the prior $\prod_{t=1}^T\left\{p(x_t|x_{t-1},\theta)\right\}p(x_0,\theta)$. In either case, the effective sample size of the chain could be sensitive to the initial values. Generating multiple chains from different starting points could help determine reasonable starting values or the burn-in period required before the samples can be assumed to come from the stationary distribution \citep{giv:hoet:2005:comp}. In Section \ref{sec:epid:pmcmc}, we state the initial values used in our implementation of this algorithm applied to data simulated from the epidemic model described in Section \ref{sec:epid}.
 
 The standard deviations of the random-walk proposal distributions, i.e. $\tau_{x_t}$ for $t = 0,1,\ldots,T$, $\tau_{\beta}$, $\tau_{\gamma}$, and $\tau_{\nu}$, are tuning parameters that are adjusted during the burn-in period of the MCMC. During burn-in, if the proposed value of a state or parameter at any given iteration of the Gibbs sampler is accepted, the corresponding tuning parameter is adjusted by multiplying by 1.1. If the proposed value is rejected, the tuning parameter is adjusted by dividing by 1.1. The idea here is that a high acceptance rate indicates that proposed samples are in areas of high posterior probability while a low acceptance rate indicates that they are in areas of low posterior probability. We seek proposal distributions that strike a balance in the acceptance rate such that the entire sample space of the posterior is explored. Acceptance rates indicative of optimal mixing of MCMC chains varies by model and have been explored by \citet{Robe:Gel:gilks:1997:optmh} and \citet{bed:2008:optmh}.
 
@@ -119,9 +119,9 @@ on the initial state and fixed parameters, where $p(x_0) = \delta_0(x_0)$ and, a
 \end{align*}
 The conjugate form of these priors, conditional on $x_t$, allows for direct sampling from the full conditional distributions of the fixed parameters. Combining this with the forward-filtering backward sampling (FFBS) algorithm for jointly sampling the states \citep{Cart:Kohn:on:1994} allows for a relatively straightforward Gibbs sampler.
 
-Suppose we observe $y_t$ for $t = 1,2,\ldots,T$, and let $x^{(j)}_{0:T} = \left(x^{(j)}_0, x^{(j)}_1, \ldots, x^{(j)}_T\right)'$ and $\theta^{(j)} = \left({\beta^{(j)}}', \phi^{(j)}, {\sigma^2_s}^{(j)}, {\sigma^2_m}^{(j)}\right)'$ represent the sampled values of the states and fixed parameters, respectively, at iteration $j$ of the Gibbs sampler. We generate samples from $p(x_{0:T},\theta|y_{1:T})$ using the following Gibbs sampling algorithm:
+Suppose we observe $y_t$ for $t = 1,2,\ldots,T$ and let $x^{(j)}_{0:T} = \left(x^{(j)}_0, x^{(j)}_1, \ldots, x^{(j)}_T\right)'$ and $\theta^{(j)} = \left({\beta^{(j)}}', \phi^{(j)}, {\sigma^2_s}^{(j)}, {\sigma^2_m}^{(j)}\right)'$ represent the sampled values of the states and fixed parameters, respectively, at iteration $j$ of the Gibbs sampler. We generate samples from $p(x_{0:T},\theta|y_{1:T})$ using the following Gibbs sampling algorithm:
 \begin{enumerate}
-\item Start with initial draws $\theta^{(0)} = \left({\beta^{(0)}}', \phi^{(0)}, {\sigma^2_s}^{(0)}, {\sigma^2_m}^{(0)}\right)'$ and \\ $x^{(0)}_{0:T} = \left(x^{(0)}_0, x^{(0)}_1, \ldots, x^{(0)}_T\right)$. Set $j = 1$.
+\item \label{step:init} Start with initial draws $\theta^{(0)} = \left({\beta^{(0)}}', \phi^{(0)}, {\sigma^2_s}^{(0)}, {\sigma^2_m}^{(0)}\right)'$ and \\ $x^{(0)}_{0:T} = \left(x^{(0)}_0, x^{(0)}_1, \ldots, x^{(0)}_T\right)$. Set $j = 1$.
 \item \label{step:gibbs:dr:beta} Jointly sample ${\sigma^2_m}^{(j)} \sim \mbox{IG}(a_{m_T}, b_{m_T})$ and $\beta^{(j)}|{\sigma^2_m}^{(j)} \sim \mbox{N}(\vartheta_T,{\sigma^2_m}^{(j)}B_T)$, where
 \begin{align}
 a_{m_T} &= T/2 + a_{m_0} \label{eqn:dr:am} \\
@@ -140,16 +140,16 @@ b_{s_T} &= \frac{1}{2}(\mbox{SS}_x + \varphi_0'\Phi_0^{-1}\varphi_0 - \varphi_T'
 \end{align}
 \item \label{step:ffbs} Sample $x_{0:t}^{(j)}$ using the following FFBS algorithm \cite[Section 4.4][]{petris:camp:2009:dynamic}:
 \begin{enumerate}
-\item Starting with initial values $m_0 = C_0 = 0$, calculate $z_t$, $R_t$, $m_t$ and $C_t$ for $t = 1,2,\ldots,T$ using the Kalman filter (see equation \eqref{eqn:dlm:kal}).
+\item Starting with initial values $m_0 = C_0 = 0$, calculate $z_t$, $R_t$, $m_t$ and $C_t$ for $t = 1,2,\ldots,T$ using the Kalman filter given by equation \eqref{eqn:dlm:kal}.
 \item Draw $x_T^{(j)} \sim \mbox{N}(m_T,C_T)$. Then, for $t = T-1,\ldots,0$, draw $x_t^{(j)} \sim \mbox{N}(h_t,H_t)$, where
     \begin{align*}
     h_t &= m_t + C_tG'R_{t+1}^{-1}(x_{t+1}^{(j)} - z_{t+1}) \\
     H_t &= C_t - C_tG'R_{t+1}^{-1}GC_t.
     \end{align*}
-\item Set $j = j + 1$ and go back to Step \ref{step:gibbs:dr:beta}
+\item Set $j = j + 1$ and go back to Step \ref{step:gibbs:dr:beta}.
 \end{enumerate}
 \end{enumerate}
-Note that both this algorithm and the MCMC for the epidemic model described in Section \ref{sec:mcmc:epid} provide joint samples from $p(x_{0:T},\theta|y_{1:T})$. Samples from the smoothed distributions, $p(x_s,\theta|y_{1:T})$ for $s < T$, can be directly obtained from these joint samples through Monte Carlo integration \cite[Chapter 3][]{Robe:Case:mont:2004}.
+We discuss initial values that we use in Step \ref{step:init} when we apply this algorithm to simulated fMRI data in Section \ref{sec:fmri:sim}. Note that both this algorithm and the MCMC for the epidemic model described in Section \ref{sec:mcmc:epid} provide joint samples from $p(x_{0:T},\theta|y_{1:T})$. Samples from the smoothed distributions, $p(x_s,\theta|y_{1:T})$ for $s < T$, can be directly obtained from these joint samples through Monte Carlo integration \cite[Chapter 3][]{Robe:Case:mont:2004}.
 
 \section{Particle filtering \label{sec:filtering}}
 
