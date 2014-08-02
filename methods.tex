@@ -6,7 +6,7 @@ Sequential Monte Carlo (SMC) - or particle filtering - techniques, on the other 
 
 In Chapters \ref{ch:epid} and \ref{ch:comp}, we compare the performance of several particle filtering algorithms in different model settings. In Chapter \ref{ch:fmri}, we use SMC methods as a tool for model comparison, where we compare the relative posterior probabilities of several models that represent different types/sources of autocorrelation that might be present in fMRI time series data. We discuss possible reasons for the presence of autocorrelation in fMRI time series data and possible modeling approaches in Section \ref{sec:fmri:cor}. In each of Chapters \ref{ch:epid}, \ref{ch:comp}, and \ref{ch:fmri}, we compare SMC results with MCMC, which has been the standard over the past two decades for Bayesian analysis of analytically intractable models. Thus, in this chapter, we review several strategies for both MCMC and particle filtering.
 
-Specifically, in Section \ref{sec:mcmc}, we describe the MCMC algorithms we use for the epidemic model described in Section \ref{sec:epid} ( considered further in Chapter \ref{ch:epid}) and the dynamic regression models described in Sections \ref{sec:dlm:M101} and \ref{sec:dlm:M011} (considered further Chapter \ref{ch:fmri}). In Section \ref{sec:filtering}, we describe several particle filtering strategies and how to apply them to the models outlined in Chapter \ref{ch:models}. In Section \ref{sec:resample}, we discuss the resampling methods within several particle filtering algorithms. In Section \ref{sec:comp}, we show how SMC techniques can be used for model comparison. Lastly, in Section \ref{sec:pmcmc}, we describe a particle MCMC algorithm that we also use to study the epidemic model, and which we found to perform more efficiently than standard MCMC.
+Specifically, in Section \ref{sec:mcmc}, we describe the MCMC algorithms we use for the epidemic model described in Section \ref{sec:epid} ( considered further in Chapter \ref{ch:epid}) and the dynamic regression models described in Sections \ref{sec:dlm:M101} and \ref{sec:dlm:M011} (considered further Chapter \ref{ch:fmri}). In Section \ref{sec:filtering}, we describe several particle filtering strategies and how to apply them to the models outlined in Chapter \ref{ch:models}. In Section \ref{sec:resample}, we discuss the resampling methods within several particle filtering algorithms. In Section \ref{sec:comp}, we show how SMC techniques can be used for model comparison. Lastly, in Section \ref{sec:pmcmc}, we describe a particle MCMC algorithm that we also use to analyze simulated data from the epidemic model, and which we found to perform more efficiently than standard MCMC.
 
 \section{MCMC algorithms \label{sec:mcmc}}
 
@@ -37,16 +37,19 @@ where $p(w|\hdots)$ represents the full conditional distribution of $w$, for any
 
 We use these full conditional distributions to generate samples from $p(x_{0:T},\theta|y_{1:T})$ by implementing a Gibbs sampler with adaptive rejection Metropolis-Hastings (MH) steps \citep{Metr:Rose:Rose:Tell:Tell:equa:1953, Hast:mont:1970,  Gema:Gema:stoc:1984, gilks1995adaptive}. In general, the algorithm works by iteratively sampling each state and fixed parameter, conditional on the current sample, from some proposal distribution, $g$, and accepting the proposed sample with probability $R$. $R$ is given by
 \begin{equation}
-R = \frac{f(x^*)g(x|x^*)}{f(x)g(x^*|x)}, \label{eqn:mhrat}
+R = \frac{f(w^*)g(w|w^*)}{f(w)g(w^*|w)}, \label{eqn:mhrat}
 \end{equation}
-where $x$ is the current sample, $x^*$ is the proposed sample from $g$, and $f(\cdot)$ is the full conditional distribution of the state or fixed parameter evaluated at `$\cdot$' \cite[Chapter 7][]{giv:hoet:2005:comp}. $R$ is termed the \emph{Metropolis ratio}. In our algorithm, we use Gaussian random-walk proposals for each state and fixed parameter, i.e. each proposed sample is drawn from a normal distribution centered at the current sampled value with standard deviation given by a tuning parameter that is adjusted according to the MH acceptance rate.
+where $w$ is the current sample, $w^*$ is the proposed sample from $g$, and $f(\cdot)$ is the full conditional distribution of the state or fixed parameter evaluated at `$\cdot$' \cite[Chapter 7][]{giv:hoet:2005:comp}. $R$ is termed the \emph{Metropolis ratio}. In our algorithm, we use Gaussian random-walk proposals for each state and fixed parameter, i.e. each proposed sample is drawn from a normal distribution centered at the current sampled value with standard deviation given by a tuning parameter that is adjusted according to the MH acceptance rate. Because these proposal distributions are symmetric, $g(w|w^*)$ and $g(w^*|w)$ cancel out, reducing the Metropolis ratio to
+\begin{equation}
+R = \frac{f(w^*)}{f(w)}. \label{eqn:mhrat:reduce}
+\end{equation}
 
 Let $x^{(j)}_{0:T} = \left(x^{(j)}_0, x^{(j)}_1, \ldots, x^{(j)}_T\right)'$ and $\theta^{(j)} = \left(\beta^{(j)},\gamma^{(j)},\nu^{(j)}\right)'$ represent the sampled values of the states and fixed parameters, respectively, at iteration $j$ of the Gibbs sampler. The full Gibbs sampler applied to the epidemic model proceeds as follows:
 \begin{enumerate}
 \item Start with initial draws $x^{(0)}_{0:T} = \left(x^{(0)}_0, x^{(0)}_1, \ldots, x^{(0)}_T\right)'$ and $\theta^{(0)} = \left(\beta^{(0)}, \gamma^{(0)}, \nu^{(0)}\right)'$. Set $j = 1$.
 \item \label{step:gibbs} Sample the states, $x^{(j)}_t$ for $t = 0,1,\ldots,T$, from their full conditional distributions. For $t = 1, 2, \ldots, T$,
     \begin{enumerate}
-    \item Draw $x^*_t \sim \mbox{N}\left(x^{(j-1)}_t,\tau^2_{x_t}\right)$.
+    \item Draw $x^*_t \sim \mbox{N}\left(x^{(j-1)}_t,\tau^2_{x_t} I_2\right)$.
     \item Calculate the Metropolis ratio, $R$, by
       \[R = \left\{
       \begin{array}{cl}
@@ -83,6 +86,9 @@ Let $x^{(j)}_{0:T} = \left(x^{(j)}_0, x^{(j)}_1, \ldots, x^{(j)}_T\right)'$ and 
     \end{enumerate}
 \item Set $j = j + 1$ and go back to step \ref{step:gibbs}
 \end{enumerate}
+
+The output of this algorithm is a dependent chain of samples that approximates $p(x_{0:T},\theta,y_{1:T})$ provided $j$ is large enough \cite[Chapter 7][]{Robe:Case:mont:2004}. Initial values $\theta^{(0)}$ and $x_{0:T}^{(0)}$ could be chosen arbitrarily or by sampling from the prior $\prod_{t=1}^T\left\{p(x_t|x_{t-1},\theta)\right\}p(x_0,\theta)$. In either case, the dependence of the resulting chain could be sensitive to the initial values, and generating multiple chains from different starting points could help determine reasonable starting values or burn-in period necessary for the algorithm to generate samples from the posterior distribution \citep{giv:hoet:2005:comp}.
+
 The standard deviation of the random-walk proposal distributions, i.e. $\tau_{x_t}$ for $t = 0,1,\ldots,T$, $\tau_{\beta}$, $\tau_{\gamma}$, and $\tau_{\nu}$, are tuning parameters that are adjusted during the burn-in period of the MCMC. During burn-in, if the proposed value of a state or parameter at any given iteration of the Gibbs sampler is accepted, the corresponding tuning parameter is adjusted by multiplying by 1.1. If the proposed value is rejected, the tuning parameter is adjusted by dividing by 1.1. The idea here is that a high acceptance rate indicates that proposed samples are in areas of high posterior probability while a low acceptance rate indicates that they are in areas of low posterior probability. We seek proposal distributions that strike a balance in the acceptance rate such that the entire sample space of the posterior is explored. Acceptance rates indicative of optimal mixing of MCMC chains varies by model and has been explored by \citet{Robe:Gel:gilks:1997:optmh} and \citet{bed:2008:optmh}.
 
 \subsection{MCMC applied to dynamic regression \label{sec:mcmc:dr}}
