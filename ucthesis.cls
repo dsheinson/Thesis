@@ -1182,6 +1182,8 @@
     \hline
     $p(x_0,\theta)$ & prior distribution of the initial \\
      & state and fixed parameters \\
+     & \\
+     & \\
     \hline
      $p(y_{t+1}|x_t,\theta)$ & conditional predictive distribution of data at \\
       & time $t+1$ given current state at time $t$ \\

@@ -224,7 +224,7 @@ When data are collected sequentially, it is often of interest to determine the \
 p(x_t,\theta| y_{1:t}) &\propto p(y_t|x_t,\theta)p(x_t,\theta|y_{1:t-1}) \label{eqn:filtered} \\
 p(x_{0:t},\theta|y_{1:t}) &\propto p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(x_{0:t-1},\theta|y_{1:t-1}), \label{eqn:filtered:hist}
 \end{align}
-where $y_{1:t} = (y_1,\ldots,y_t)$. The \emph{smoothed distribution}, $p(x_s,\theta|y_{1:t})$ for any $s < t$, is then calculated by integrating $p(x_{0:t},\theta|y_{1:t})$ over all states $\{x_t: t \ne s\}$.
+where $y_{1:t} = (y_1,\ldots,y_t)$. The \emph{smoothed distribution}, $p(x_s,\theta|y_{1:t})$ for any $s < t$, is then calculated by integrating $p(x_{0:t},\theta|y_{1:t})$ over all states $\{x_j: j \in \{0,\ldots,t\} / \{s\}\}$.
 
 Only in special cases can these filtered or smoothed distributions be evaluated analytically. The DLM described by equations \eqref{eqn:dlm:obs} and \eqref{eqn:dlm:state} is one such case, provided all fixed parameters (i.e. $\theta$) are known. In this case, an explicit form for $p(x_t|y_{1:t})$ can be found according to $x_t|y_{1:t} \sim \mbox{N}(m_t,C_t)$, where $m_t$ and $C_t$ are calculated recursively using the Kalman filter \citep{kal:1960:ekf}. Starting with known $m_0$ and $C_0$, the filtering recursions are given by the following equations \cite[Section 2.7.2][]{petris:camp:2009:dynamic}:
 \begin{align}
@@ -237,9 +237,9 @@ When unknown fixed parameters are present in DLMs, analytical tractibility exist
 \begin{equation}
 x_t|\theta,y_{1:t} \sim \mbox{N}(m_t,\theta c_t) \quad \theta|y_{1:t} \sim \mbox{IG}(a_t, b_t), \label{eqn:ll:post}
 \end{equation}
-where $m_t$, $\tilde{C}_t$, $a_t$, and $b_t$ are calculated recursively according to
+where $m_t$, $c_t$, $a_t$, and $b_t$ are calculated recursively according to
 \begin{align}
-f_t &= m_{t-1} &\qquad Q_t &= c_{t-1} + \lambda + 1 \label{eqn:ll:kal} \\
+f_t &= m_{t-1} &\qquad q_t &= c_{t-1} + \lambda + 1 \label{eqn:ll:kal} \\
 m_t &= (1 - c_t)f_t + c_ty_t &\qquad c_t &= 1 - \frac{1}{q_t} \nonumber \\
 a_t &= a_{t-1} + \frac{1}{2} &\qquad b_t &= b_{t-1} + \frac{(y_t-f_t)^2}{2q_t}, \nonumber
 \end{align}
@@ -250,7 +250,7 @@ y_t|y_{1:t-1} &\sim \mbox{T}\left(f_t,q_t \frac{b_{t-1}}{a_{t-1}},2a_{t-1}\right
 \end{align}
 In Chapter \ref{ch:comp}, we evaluate the abilities of several particle filters to approximate the marginal likelihood of data generated from this model through comparison with the true marginal likelihood that can be calculated analytically according to
 \begin{equation}
-p(y_{1:t}) = \prod_{k=1}^t p(y_k|y_{1:k-1}) \label{eqn:ll:marglik}.
+p(y_{1:t}) = \left(\prod_{k=2}^t p(y_k|y_{1:k-1})\right)p(y_1) \label{eqn:ll:marglik}.
 \end{equation}
 
 The remaining DLMs described in sections \ref{sec:dlm:arma} and \ref{sec:dlm:arwn} do not emit analytically tractable forms of the posterior. When analytical tractability is not present, we turn to numerical methods including deterministic versions, e.g. the extended Kalman filter \cite[Section 1.6][]{hay:2001:kal} and the Gaussian sum filter \citep{Alsp:Sore:nonl:1972}, or Monte Carlo versions such as particle filters. In Chapter \ref{ch:meth}, we describe a variety of Markov chain Monte Carlo and sequential Monte Carlo algorithms that we use to estimate states and unknown fixed parameters in state-space models for which filtered distributions are intractable. 
