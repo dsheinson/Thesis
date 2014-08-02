@@ -24,7 +24,7 @@ Suppose we observe syndromic surveillance data, $y_t$, for $t = 1, 2, \ldots, T$
 \begin{equation}
 p(y_{1:T},x_{0:T},\theta) = \prod_{t = 1}^T \left\{p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)\right\}p(x_0,\theta), \label{eqn:joint}
 \end{equation}
-we derive the \emph{full conditional distribution}, i.e. distribution of a random variable conditional on all of the remaining variables, for each of $x_0, x_1, \ldots, x_T$, $\beta$, $\gamma$, and $\nu$ as
+we derive the \emph{full conditional distribution}, i.e. distribution of a random vector conditional on all of the remaining variables in the model, for each of $x_0, x_1, \ldots, x_T$, $\beta$, $\gamma$, and $\nu$ as
 \begin{align}
 p(x_0|\hdots) &\propto p(x_1|x_0,\theta)p(x_0) \label{eqn:epid:fullcond} \\
 p(x_t|\hdots) &\propto p(y_t|x_t)p(x_{t+1}|x_t,\theta)p(x_t|x_{t-1},\theta) \mbox{, for } t = 1,\ldots,T-1 \nonumber \\
@@ -33,7 +33,7 @@ p(\beta|\hdots) &\propto \prod_{t=1}^T \left\{p(x_t|x_{t-1},\theta)\right\}p(\be
 p(\gamma|\hdots) &\propto \prod_{t=1}^T \left\{p(x_t|x_{t-1},\theta)\right\}p(\beta, \gamma) \nonumber \\
 p(\nu|\hdots) &\propto \prod_{t=1}^T \left\{p(x_t|x_{t-1},\theta)\right\}p(\nu), \nonumber
 \end{align}
-where $p(w|\hdots)$ represents the full conditional distribution of $w$, for any $w$. Note that since each of the unknown fixed parameters $\beta$, $\gamma$, and $\nu$ is present only in the state equation of the model, their full conditional distributions do not depend on $y_t$.
+where $p(w|\hdots)$ represents the full conditional distribution of $w$, for any $w$. Note that since each of the unknown fixed parameters $\beta$, $\gamma$, and $\nu$ is present only in the state equation of the model, their full conditional distributions do not depend on $y_t$. By the same argument $p(y_t|x_t,\theta)$ reduces to $p(y_t|x_t)$.
 
 We use these full conditional distributions to generate samples from $p(x_{0:T},\theta|y_{1:T})$ by implementing a Gibbs sampler with adaptive rejection Metropolis-Hastings (MH) steps \citep{Metr:Rose:Rose:Tell:Tell:equa:1953, Hast:mont:1970,  Gema:Gema:stoc:1984, gilks1995adaptive}. In general, the algorithm works by iteratively sampling each state and fixed parameter, conditional on the current sample, from some proposal distribution, $g$, and accepting the proposed sample with probability $R$. $R$ is given by
 \begin{equation}
