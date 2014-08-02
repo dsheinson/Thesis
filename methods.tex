@@ -348,25 +348,30 @@ The algorithms described in Sections \ref{sec:bf} through \ref{sec:pl} were cons
 
 \section{Model comparison \label{sec:comp}}
 
-Each of the particle filters described in previous sections, in addition to generating a weighted sample approximation to $p(x_t,\theta|y_{1:t})$, provide an approximation to the marginal likelihood, $p(y_{1:t})$. We first note that given $p(y_{1:t-1})$, $p(y_{1:t})$ can be updated recursively by
+Each of the particle filters described in previous sections, in addition to generating a weighted sample approximation to $p(x_t,\theta|y_{1:t})$, provide an approximation to the marginal likelihood, $p(y_{1:t})$. We first note that, given $p(y_{1:t-1})$ for any $t \ge 2$ , $p(y_{1:t})$ can be updated recursively by
 \begin{equation}
 p(y_{1:t}) = p(y_t|y_{1:t-1})p(y_{1:t-1}). \label{eqn:marglik:recurse}
 \end{equation}
-Thus, $p(y_{1:t})$ can be calculated through the one-step ahead predictive densities, $p(y_k|y_{1:k-1})$ for $k=1,\ldots,t$ (letting $p(y_1|y_0) = p(y_1)$), according to
+Thus, $p(y_{1:t})$ can be calculated through the one-step ahead predictive densities, $p(y_k|y_{1:k-1})$ for $k=2,\ldots,t$, and initial $p(y_1)$, according to
 \begin{equation}
-p(y_{1:t}) = \prod_{k=1}^t p(y_k|y_{1:k-1}). \label{eqn:marglik}
+p(y_{1:t}) = \left(\prod_{k=2}^t p(y_k|y_{1:k-1})\right)p(y_1). \label{eqn:marglik}
 \end{equation}
-At each step of the particle filter (i.e. at each time $t$), an approximation to $p(y_t|y_{1:t-1})$ can be obtained using
-\begin{equation}
-p(y_t|y_{1:t-1}) \approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{t-1}\tilde{w}^{(j)}_t, & \mbox{for the BF, RM, and PL} \\ \left(\frac{1}{J}\sum_{j=1}^J \tilde{w}^{(j)}_{t-1}\right)\left(\sum_{j=1}^J\tilde{g}^{(j)}_t\right) & \mbox{for the APF and KDPF} \end{array} \right.\label{eqn:onestep:pf}
-\end{equation}
-\cite[Section 4.2][]{douc:joh:tut:2009}. Given approximations to $p(y_k|y_{1:k-1})$ for $k = 1,\ldots,t$, the marginal likelihood can be approximated via equation \eqref{eqn:marglik}.
+At any step of the particle filter (i.e. for any time $t \ge 1$), an approximation to $p(y_t|y_{1:t-1})$ (or $p(y_1)$ if $t = 1$) can be obtained by the following equations:
+\begin{align}
+\mbox{if } t = 1, & \nonumber \\
+p(y_1) &\approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{0}\tilde{w}^{(j)}_1, & \mbox{for the BF, RM, and PL} \\ \left(\frac{1}{J}\sum_{j=1}^J \tilde{w}^{(j)}_{0}\right)\left(\sum_{j=1}^J\tilde{g}^{(j)}_1\right) & \mbox{for the APF and KDPF} \end{array} \right. \label{eqn:onestep:pf:init} \\
+ & \nonumber \\
+\mbox{if } t \ge 2, & \nonumber \\
+p(y_t|y_{1:t-1}) &\approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{t-1}\tilde{w}^{(j)}_t, & \mbox{for the BF, RM, and PL} \\ \left(\frac{1}{J}\sum_{j=1}^J \tilde{w}^{(j)}_{t-1}\right)\left(\sum_{j=1}^J\tilde{g}^{(j)}_t\right) & \mbox{for the APF and KDPF} \end{array} \right. \label{eqn:onestep:pf} \\
+ & \nonumber
+\end{align}
+\cite[Section 4.2][]{douc:joh:tut:2009}. Given approximations to $p(y_1)$ and $p(y_k|y_{1:k-1})$ for $k = 2,\ldots,t$, the marginal likelihood can be approximated via equation \eqref{eqn:marglik}.
 
 Having prescribed a method for approximating $p(y_{1:t})$ sequentially using particle filtering, we can compare a set of $N$ possible models ${M_1,M_2,\ldots,M_N}$ according to their posterior model probabiities, given by
 \begin{equation}
 p(M_i|y_{1:t}) = \frac{p(y_{1:t}|M_i)p(M_i)}{\sum_{i=1}^N p(y_{1:t}|M_i)p(M_i)}. \label{eqn:modelcomp}
 \end{equation}
-In Chapter \ref{ch:comp}, we compare estimated marginal likelihoods using the KDPF, RM and PL with the true marginal likelihood under the local level DLM described in Section \ref{sec:dlm:ll} that can be calculated analytically. In Chapter \ref{ch:fmri} we compare relative posterior probabilities among the models $M_{101}$, $M_{011}$, and $M_{001}$ using PL.
+In Chapter \ref{ch:comp}, we compare estimated marginal likelihoods using the KDPF, RM and PL with the true marginal likelihood that can be calculated analytically under the local level DLM described in Section \ref{sec:dlm:ll}. In Chapter \ref{ch:fmri} we compare relative posterior probabilities among the models $M_{101}$, $M_{011}$, and $M_{001}$ using PL.
 
 \section{Particle MCMC \label{sec:pmcmc}}
 
