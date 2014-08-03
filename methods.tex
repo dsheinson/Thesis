@@ -173,7 +173,7 @@ The BF is first successful version of the particle filter \citep{Gord:Salm:Smit:
 \item Calculate weights and renormalize:
 \[ \tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}\left|x_{t+1}^{(j)}\right.\right) \qquad w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)}\left/ \sum_{l=1}^J \tilde{w}_{t+1}^{(l)} \right. .\]
 \end{enumerate}
-This procedure can be applied recursively beginning with an initial set of weights $w_0^{(j)}$ and locations $x_0^{(j)}$ for all $j$, usually obtained by sampling from the prior with uniform weights.
+This procedure can be applied recursively beginning with an initial set of weights $w_0^{(j)}$ and locations $x_0^{(j)}$ for all $j$. For all particle filters that we implement, we initialize the algorithm by sampling from the prior with uniform weights.
 
 \subsection{Auxiliary particle filter (APF) \label{sec:apf}}
 
@@ -254,11 +254,11 @@ Note that the RM is not a truly sequential particle filter because of the increa
 
 We consider a particle filtering algorithm called particle learning \citep{Carv:Joha:Lope:Pols:part} that can be applied to a particular class of state-space models which includes DLMs. For models within this class, particle learning prescribes a truly sequential algorithm that samples new values for $\theta$ from $p(\theta|y_{1:t})$ using conditional sufficient statistics. Let $s_t$ denote the sufficient statistics for $\theta$ conditional on the current state $x_t$ (unrelated to $s_t$ in the epidemic model from Section \ref{sec:epid}). Then, we incorporate the sampled values of the sufficient statistics, $s_t^{(j)}$, into the particles, i.e. particle $j$ at time $t$ is now represented by $\left(x_t^{(j)},s_t^{(j)},\theta_t^{(j)}\right)$. We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\theta|y_{1:t+1})$ by the following procedure for each particle $j = 1,2,\ldots,J$:
 \begin{enumerate}
-\item Calculate weights an renormalize:
+\item Calculate weights and renormalize:
     \[\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}|x_t^{(j)},\theta_t^{(j)}\right) \qquad w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)} \left/ \sum_{l=1}^J \tilde{w}_{t+1}^{(l)}\right.,\]
 \item Resample: sample an index $k \in \{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w_{t+1}^{(1)},\ldots,w_{t+1}^{(j)},\ldots,w_{t+1}^{(J)}\}$,
 \item Propagate: sample $x_{t+1}^{(j)} \sim p\left(x_{t+1}|y_{t+1},x_t^{(k)},\theta_t^{(k)}\right)$,
-\item Update: calculate $s_{t+1}^{(j)} = S\left(y_{t+1},x_{t+1}^{(j)},s_t^{(k)}\right)$, and
+\item Update sufficient statistics: calculate $s_{t+1}^{(j)} = S\left(y_{t+1},x_{t+1}^{(j)},s_t^{(k)}\right)$, and
 \item Regenerate: sample $\theta_{t+1}^{(j)} \sim p\left(\theta|s_{t+1}^{(j)}\right)$.
 \end{enumerate}
 Note that this algorithm puts the ``Resample'' step ahead of the ``Propagate'' step, and thus is sometimes referred to as a \emph{resample-propagate} particle filter. Also, this algorithm requires the ability to evaluate the conditional predictive distribution $p(y_{t+1}|x_t,\theta)$ and sample from the conditional filtered distributions $p(x_{t+1}|y_{t+1},x_t,\theta)$ and $p(\theta|s_t)$. Thus, particle learning is only applicable to models for which the form of these distributions is analytically tractable. In addition, we must define the recursive map $S$ to update the sufficient statistics based on the new observation $y_{t+1}$ and the newly sampled state $x_{t+1}^{(j)}$. In Chapter \ref{ch:comp} we run PL on simulated data from the local level DLM described in Section \ref{sec:dlm:ll}, and in Chapter \ref{ch:fmri}, we apply PL to the dynamic regression models described in Sections \ref{sec:dlm:M101} and \ref{sec:dlm:M011} using real and simulated fMRI data. We now show how to implement PL for these specific models.
@@ -285,8 +285,8 @@ b_t &= b_0 + \frac{1}{2}\left(\sum_{k=1}^t (y_k - x_k)^2 + \frac{1}{\lambda}\sum
 \end{align*}
 Thus, $s_t = (a_t,b_t)$ are the conditional sufficient statistics for $\theta$ at time $t$, which can be updated according to the recursive map $S$ defined by
 \begin{align}
-a_{t+1} &= a_t + 1, t \ge 1 \label{eqn:pl:ll:a} \\
-b_{t+1} &= \frac{1}{2}\left((y_{t+1}-x_{t+1})^2 + \frac{1}{\lambda}(x_{t+1}-x_t)^2\right) + b_t, t \ge 1 \label{eqn:pl:ll:b}
+a_{t+1} &= a_t + 1, \ \ t \ge 1 \label{eqn:pl:ll:a} \\
+b_{t+1} &= \frac{1}{2}\left((y_{t+1}-x_{t+1})^2 + \frac{1}{\lambda}(x_{t+1}-x_t)^2\right) + b_t, \ \ t \ge 1 \label{eqn:pl:ll:b}
 \end{align}
 with initial conditions
 \begin{align*}
@@ -307,7 +307,7 @@ We specify the prior distributions $p(\beta,\sigma^2_m)$ and $p(\phi,\sigma^2_s)
 \beta|\sigma^2_m &\sim \mbox{N}(\vartheta_0, \sigma^2_m B_0) &\quad \sigma^2_m &\sim \mbox{IG}(a_{m_0},b_{m_0}) \label{eqn:pl:prior:beta} \\
 \phi|\sigma^2_s &\sim \mbox{N}(\varphi_0, \sigma^2_s \Phi_0) &\quad \sigma^2_s &\sim \mbox{IG}(a_{s_0},b_{s_0}) \label{eqn:pl:prior:phi}
 \end{align}
-with $x_0 = 0$ (i.e. $p(x_0) = \delta_0(x_0)$) and the hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ assumed known.
+with $x_0 = 0$ (i.e. $p(x_0) = \delta_0(x_0)$) and the hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ assumed known. $s_0$ that shows up in the subscripts of $a_{s_0}$ and $b_{s_0}$ is unrelated to the sufficient statistic $s_0$ as well as $s_0$ from the epidemic model from Section \eqref{sec:epid}.
 
 To implement a particle learning algorithm for this model, we derive the conditional predictive and conditional filtered distributions
 \begin{align}
@@ -324,7 +324,7 @@ The filtered distribution for $\theta$ conditional on the states is then given b
 \beta|\sigma^2_m,y_{1:t},x_{0:t} &\sim \mbox{N}(\vartheta_t, \sigma^2_m B_t) &\quad \sigma^2_m|y_{1:t},x_{0:t} &\sim \mbox{IG}(a_{m_t},b_{m_t}) \label{eqn:pl:post:beta} \\
 \phi|\sigma^2_s,y_{1:t},x_{0:t} &\sim \mbox{N}(\varphi_t, \sigma^2_s \Phi_t) &\quad \sigma^2_s|y_{1:t},x_{0:t} &\sim \mbox{IG}(a_{s_t},b_{s_t}), \label{eqn:pl:post:phi}
 \end{align}
-where $\vartheta_t$, $B_t$, $\varphi_t$, $\Phi_t$, $a_{m_t}$, $b_{m_t}$, $a_{s_t}$, and $b_{m_t}$ are calculated according to the equations in Steps \ref{step:gibbs:dr:beta} and \ref{step:gibbs:dr:phi} of the Gibbs sampler outlined in Section \ref{sec:mcmc:dr} (with $T = t$). We let $s_t = (\vartheta_t, B_t, a_{m_t}, \xi_{m_t}, \varphi_t, \Phi_t, a_{s_t}, \xi_{s_t})$ denote the sufficient statistics for $\theta$ and update them through the recursive map given by
+where $\vartheta_t$, $B_t$, $\varphi_t$, $\Phi_t$, $a_{m_t}$, $b_{m_t}$, $a_{s_t}$, and $b_{s_t}$ are calculated according to the equations in Steps \ref{step:gibbs:dr:beta} and \ref{step:gibbs:dr:phi} of the Gibbs sampler outlined in Section \ref{sec:mcmc:dr} (with $T = t$). We let $s_t = (\vartheta_t, B_t, a_{m_t}, \xi_{m_t}, \varphi_t, \Phi_t, a_{s_t}, \xi_{s_t})$ denote the sufficient statistics for $\theta$ and update them through the recursive map given by
 \begin{align}
 B_t^{-1}\vartheta_t &= B_{t-1}^{-1}\vartheta_{t-1} + U_t'(y_t - F_tx_t) & B_t^{-1} &= B_{t-1}^{-1} + U_t'U_t \label{eqn:pl:dr:suff} \\
 a_{m_t} &= a_{m_{t-1}} + 1/2 & \xi_{m_t} &= \xi_{m_{t-1}} + (y_t - F_tx_t)^2 \nonumber \\
