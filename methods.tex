@@ -138,7 +138,7 @@ b_{s_T} &= \frac{1}{2}(\mbox{SS}_x + \varphi_0'\Phi_0^{-1}\varphi_0 - \varphi_T'
 \varphi_T &= \Phi_T\left( \sum^T_{t=1} x_tx_{t-1} + \Phi_0^{-1}\varphi_0\right) \label{eqn:dr:phi} \\
 \Phi_T &= \left(\sum^T_{t=1} x_{t-1}^2 + \Phi_0^{-1}\right)^{-1}. \label{eqn:dr:Phi}
 \end{align}
-\item \label{step:ffbs} Sample $x_{0:t}^{(j)}$ using the following FFBS (forward filtering, backward sampling) algorithm \cite[Section 4.4][]{petris:camp:2009:dynamic}, setting $\theta = \theta^{(j)}$ from Steps \ref{step:gibbs:dr:beta} and \ref{step:gibbs:dr:phi}:
+\item \label{step:ffbs} Sample $x_{0:T}^{(j)}$ using the following FFBS (forward filtering, backward sampling) algorithm \cite[Section 4.4][]{petris:camp:2009:dynamic}, setting $\theta = \theta^{(j)}$ from Steps \ref{step:gibbs:dr:beta} and \ref{step:gibbs:dr:phi}:
 \begin{enumerate}
 \item \label{ffbs:init} Start with initial values $m_0 = C_0 = 0$.
 \item \label{ffbs:kal} Calculate $z_t$, $R_t$, $m_t$ and $C_t$ for $t = 1,2,\ldots,T$ using the Kalman filter given by equation \eqref{eqn:dlm:kal}.
@@ -252,7 +252,7 @@ Note that the RM is not a truly sequential particle filter because of the increa
 
 \subsection{Particle learning (PL) \label{sec:pl}}
 
-We consider a particle filtering algorithm called particle learning \citep{Carv:Joha:Lope:Pols:part} that can be applied to a particular class of state-space models which includes DLMs. For models within this class, particle learning prescribes a truly sequential algorithm that samples new values for $\theta$ from $p(\theta|y_{1:t})$ using conditional sufficient statistics. Let $s_t$ denote the sufficient statistics for $\theta$ conditional on the current state $x_t$. Then, we add the sampled values of the sufficient statistics, $s_t^{(j)}$, to the particles, i.e. particle $j$ and time $t$ is now represented by $\left(x_t^{(j)},s_t^{(j)},\theta_t^{(j)}\right)$. We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\theta|y_{1:t+1})$ by the following procedure for each particle $j = 1,2,\ldots,J$:
+We consider a particle filtering algorithm called particle learning \citep{Carv:Joha:Lope:Pols:part} that can be applied to a particular class of state-space models which includes DLMs. For models within this class, particle learning prescribes a truly sequential algorithm that samples new values for $\theta$ from $p(\theta|y_{1:t})$ using conditional sufficient statistics. Let $s_t$ denote the sufficient statistics for $\theta$ conditional on the current state $x_t$ (unrelated to $s_t$ in the epidemic model from Section \ref{sec:epid}). Then, we incorporate the sampled values of the sufficient statistics, $s_t^{(j)}$, into the particles, i.e. particle $j$ at time $t$ is now represented by $\left(x_t^{(j)},s_t^{(j)},\theta_t^{(j)}\right)$. We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\theta|y_{1:t+1})$ by the following procedure for each particle $j = 1,2,\ldots,J$:
 \begin{enumerate}
 \item Calculate weights an renormalize:
     \[\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}|x_t^{(j)},\theta_t^{(j)}\right) \qquad w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)} \left/ \sum_{l=1}^J \tilde{w}_{t+1}^{(l)}\right.,\]
@@ -265,7 +265,7 @@ Note that this algorithm puts the ``Resample'' step ahead of the ``Propagate'' s
 
 \subsubsection{\emph{PL for the local level DLM with common observation and state variance factor} \label{sec:pl:ll}}
 
-To implement a particle learning algorithm for the local level DLM given by equations \eqref{eqn:ll:obs} and \eqref{eqn:ll:state}, we derive the conditional predictive distribution of $y_{t+1}$ given on $x_t$ and $\theta$ and the filtered distribution of $x_{t+1}$ given $x_t$ and $\theta$. These distributions are given by
+To implement a particle learning algorithm for the local level DLM given by equations \eqref{eqn:ll:obs} and \eqref{eqn:ll:state}, we derive the conditional predictive distribution of $y_{t+1}$ given $x_t$ and $\theta$, and the filtered distribution of $x_{t+1}$ given $x_t$ and $\theta$, for each $t$. These distributions are given by
 \begin{align}
 &y_{t+1}|x_t,\theta \sim \mbox{N}\left(x_t,\theta(1+\lambda)\right) \label{eqn:pl:ll:pred} \\
 &x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau^2) \label{eqn:pl:ll:state},
@@ -312,12 +312,12 @@ with $x_0 = 0$ (i.e. $p(x_0) = \delta_0(x_0)$) and the hyperparameters $\varthet
 To implement a particle learning algorithm for this model, we derive the conditional predictive and conditional filtered distributions
 \begin{align}
 &y_{t+1}|x_t,\theta \sim \mbox{N}(U_{t+1}\beta + F_t\phi x_t, F_t^2\sigma^2_s + \sigma^2_m) \label{eqn:pl:dr:pred} \\
-&x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau^2), \label{eqn:pl:dr:state}
+&x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau_t^2), \label{eqn:pl:dr:state}
 \end{align}
-where \[\mu_t = \tau^2\left(\frac{(y_{t+1}-U_{t+1}\beta)F_{t+1}}{\sigma^2_m} + \frac{\phi x_t}{\sigma^2_s}\right) \qquad \tau^2 = \left(\frac{F_{t+1}^2}{\sigma^2_m} + \frac{1}{\sigma^2_s}\right)^{-1}.\]
+where \[\mu_t = \tau_t^2\left(\frac{(y_{t+1}-U_{t+1}\beta)F_{t+1}}{\sigma^2_m} + \frac{\phi x_t}{\sigma^2_s}\right) \qquad \tau_t^2 = \left(\frac{F_{t+1}^2}{\sigma^2_m} + \frac{1}{\sigma^2_s}\right)^{-1}.\]
 In addition, we derive $p(\theta|y_{1:t},x_{0:t})$ using the fact that
 \begin{equation}
-p(\theta|y_{1:t},x_{0:t}) \propto \left(\prod_{k=1}^t p(y_k|x_k,\beta,\sigma^2_m)p(x_k|x_{k-1},\phi,\sigma^2_s)\right)p(\beta,\sigma^2_m)p(\beta,\sigma^2_m)\delta_0(x_0). \label{eqn:pl:dr:theta}
+p(\theta|y_{1:t},x_{0:t}) \propto \left(\prod_{k=1}^t p(y_k|x_k,\beta,\sigma^2_m)p(x_k|x_{k-1},\phi,\sigma^2_s)\right)p(\beta,\sigma^2_m)p(\phi,\sigma^2_s)\delta_0(x_0). \label{eqn:pl:dr:theta}
 \end{equation}
 The filtered distribution for $\theta$ conditional on the states is then given by
 \begin{align}
@@ -329,9 +329,9 @@ where $\vartheta_t$, $B_t$, $\varphi_t$, $\Phi_t$, $a_{m_t}$, $b_{m_t}$, $a_{s_t
 B_t^{-1}\vartheta_t &= B_{t-1}^{-1}\vartheta_{t-1} + U_t'(y_t - F_tx_t) & B_t^{-1} &= B_{t-1}^{-1} + U_t'U_t \label{eqn:pl:dr:suff} \\
 a_{m_t} &= a_{m_{t-1}} + 1/2 & \xi_{m_t} &= \xi_{m_{t-1}} + (y_t - F_tx_t)^2 \nonumber \\
 \Phi_t^{-1}\varphi_t &= \Phi_{t-1}^{-1}\varphi_{t-1} + x_tx_{t-1} & \Phi_t^{-1} &= \Phi_{t-1}^{-1} + x_{t-1}^2 \nonumber \\
-a_{s_t} &= a_{s_{t-1}} + 1/2 & \xi_{s_t} &= \xi_{s_{t-1}} + x_t^2 \nonumber
+a_{s_t} &= a_{s_{t-1}} + 1/2 & \xi_{s_t} &= \xi_{s_{t-1}} + x_t^2, \nonumber
 \end{align}
-Note that we update $\xi_{m_t}$ and $\xi_{s_t}$ in the recursive map and calculate the inverse-gamma rate parameters $b_{m_t}$ and $b_{s_t}$ according to
+where $\xi_{m_0} = \xi_{s_0} = 0$. Note that we update $\xi_{m_t}$ and $\xi_{s_t}$ in the recursive map and calculate the inverse-gamma rate parameters $b_{m_t}$ and $b_{s_t}$ according to
 \begin{align}
 b_{m_t} &= \frac{1}{2}\left(\xi_{m_t} + \vartheta_0'B_0^{-1}\vartheta_0 - \vartheta_t'B_t^{-1}\vartheta_t\right) + b_{m_0} \label{eqn:pl:dr:rate} \\
 b_{s_t} &= \frac{1}{2}\left(\xi_{s_t} + \varphi_0'\Phi_0^{-1}\varphi_0 - \varphi_t'\Phi_t^{-1}\varphi_t\right) + b_{s_0}. \nonumber
