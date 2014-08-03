@@ -248,7 +248,7 @@ b_t &= b_0 + \frac{1}{2}\left(\sum_{i=1}^t \left(y_i - x_i^{(k)}\right)^2 + \fra
 \item Sample $x_{0:t+1}^{(j)}$ using the FFBS algorithm detailed in Steps \ref{ffbs:kal} and \ref{ffbs:sample} of the Gibbs sampler from Section \ref{sec:mcmc:dr} with
 \[m_0 = 0 \quad C_0 = V = \theta^{(j)}_{t+1} \quad W = \theta_{t+1}^{(j)}\lambda \quad F_t = G = 1.\]
 \end{enumerate}
-Note that the RM is not a truly sequential particle filter because of the increase in computation required with increasing $t$.
+Note that the RM is not a truly sequential particle filter because of the increase in computation required with increasing $t$, due to the increasing dimension of the state component.
 
 \subsection{Particle learning (PL) \label{sec:pl}}
 
@@ -349,11 +349,11 @@ The algorithms described in Sections \ref{sec:bf} through \ref{sec:pl} were cons
 
 \section{Model comparison \label{sec:comp}}
 
-Each of the particle filters described in previous sections, in addition to generating a weighted sample approximation to $p(x_t,\theta|y_{1:t})$, provide an approximation to the marginal likelihood, $p(y_{1:t})$. We first note that, given $p(y_{1:t-1})$ for any $t \ge 2$ , $p(y_{1:t})$ can be updated recursively by
+Each of the particle filters described in previous sections, in addition to generating a weighted sample approximation to $p(x_t,\theta|y_{1:t})$, provide an approximation to the marginal likelihood, $p(y_{1:t})$. We first note that, given $p(y_{1:t-1})$, $p(y_{1:t})$ can be updated recursively by
 \begin{equation}
-p(y_{1:t}) = p(y_t|y_{1:t-1})p(y_{1:t-1}). \label{eqn:marglik:recurse}
+p(y_{1:t}) = p(y_t|y_{1:t-1})p(y_{1:t-1}), \mbox{ for } t \ge 2. \label{eqn:marglik:recurse}
 \end{equation}
-Thus, $p(y_{1:t})$ can be calculated through the one-step ahead predictive densities, $p(y_k|y_{1:k-1})$ for $k=2,\ldots,t$, and initial $p(y_1)$, according to
+Thus, $p(y_{1:t})$ can be calculated through the one-step ahead predictive densities, $p(y_k|y_{1:k-1})$ for $k=2,\ldots,t$ and $p(y_1)$, according to
 \begin{equation}
 p(y_{1:t}) = \left(\prod_{k=2}^t p(y_k|y_{1:k-1})\right)p(y_1). \label{eqn:marglik}
 \end{equation}
@@ -380,12 +380,12 @@ At the beginning of this chapter, some of the advantages and disadvantages of bo
 
 The MCMC algorithm proposed in Section \ref{sec:mcmc:epid} for analyzing data from the the epidemic model described in \ref{sec:epid} could be made more efficient by using PMCMC instead. Instead of using Gaussian random walk proposals for sampling each of $x_1,\ldots,x_T$ from their full conditional distributions, as is done in Step \ref{step:gibbs} of the Gibbs sampler in Section \ref{sec:mcmc:epid}, we could instead propose a sample path $x_{0:T}^*$ from $p(x_{0:T}|\theta,y_{1:T})$ using a particle filter. The {\tt pmcmc} function within R package {\tt pomp} \citep{pomp} implements this kind of algorithm to generate samples for the fixed parameters that are asymptotically (as $J \rightarrow \infty$) distributed according to $p(\theta|y_{1:T})$ \citep{Andr:Rob:2009:pseudomarg}.
 
-Let $\theta^{(j)} = \left(\beta^{(j)},\gamma^{(j)},\nu^{(j)}\right)'$ represent the sampled values of the fixed parameters at iteration $j$. The general algorithm implemented by {\tt pmcmc}, called the particle marginal Metropolis-Hastings sampler (PMMH) \cite[Section 2.4.2][]{Andr:Douc:Hol:pmcmc:2010}, proceeds as follows:
+Let $\theta^{(j)} = \left(\beta^{(i)},\gamma^{(i)},\nu^{(i)}\right)'$ represent the sampled values of the fixed parameters in the epidemic model at iteration $i$ of the MCMC chain. The general algorithm implemented by {\tt pmcmc}, called the particle marginal Metropolis-Hastings sampler (PMMH) \cite[Section 2.4.2][]{Andr:Douc:Hol:pmcmc:2010}, proceeds as follows:
 \begin{enumerate}
 \item Initialization:
 \begin{enumerate}
 \item Set initial values of the fixed parameters $\theta^{(0)}$,
-\item Run an SMC algorithm to generate an approximation to $p(x_{0:T}|y_{1:T},\theta^{(0)})$ via
+\item Treating the fixed parameters as known $\theta^{(0)}$, run an SMC algorithm to generate an approximation to $p(x_{0:T}|y_{1:T},\theta^{(0)})$ via
     \[\hat{p}\left(x_{0:T}|y_{1:T},\theta^{(0)}\right) = \sum_{j=1}^J w_T^{(j)} \delta_{\left(x_{0:T}^{(j)}\right)}(x_{0:T}),\]
 \item Sample $x_{0:T}^* \sim \hat{p}\left(x_{0:T}|y_{1:T},\theta^{(0)}\right)$ and calculate an estimate of the marginal likelihood (conditional on $\theta^{(0)}$), denoted $\hat{p}\left(y_{1:T}|\theta^{(0)}\right)$, via equations \eqref{eqn:onestep:pf} and \eqref{eqn:marglik}, and
 \item Set $i = 1$.
@@ -393,7 +393,7 @@ Let $\theta^{(j)} = \left(\beta^{(j)},\gamma^{(j)},\nu^{(j)}\right)'$ represent 
 \item For $i \ge 1$,
 \begin{enumerate}
 \item Sample $\theta^*$ from some proposal distribution $q(\theta|\theta^{(i-1)})$,
-\item Run an SMC algorithm to generate an approximation to $p(x_{0:T}|y_{1:T},\theta^*)$ via
+\item Treating the fixed parameters as known $\theta^*$, run an SMC algorithm to generate an approximation to $p(x_{0:T}|y_{1:T},\theta^*)$ via
     \[\hat{p}(x_{0:T}|y_{1:T},\theta^*) = \sum_{j=1}^J w_T^{(j)} \delta_{\left(x_{0:T}^{(j)}\right)}(x_{0:T}),\]
 \item Sample $x_{0:T}^* \sim \hat{p}(x_{0:T}|y_{1:T},\theta^*)$ and calculate an estimate of the marginal likelihood (conditional on $\theta^*$), denoted $\hat{p}(y_{1:T}|\theta^*)$, via equations \eqref{eqn:onestep:pf} and \eqref{eqn:marglik},
 \item With probability
