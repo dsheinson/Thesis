@@ -208,16 +208,16 @@ The data are then transformed according to
 \end{equation}
 where $\hat{S}$ is the Cholesky decomposition of $\hat{\Lambda}$. Lastly, the hypothesis test is performed using the OLS method with $\hat{y}^*$ and $\hat{X}^*$ used in place of $y$ and $X$ in equations \eqref{eqn:fmri:ols} and \eqref{eqn:fmri:ttest}.
 
-For hypothesis tests using REML, we first obtain an estimate of $\phi$ by maximizing the profiled log-restricted likelihood, derived by \citet{harville:reml:1977} and given by
+Estimation using the restricted likelihood is intended to remove bias in estimating variance components that is due to fixed regression coefficients being included in the model. This is achieved by integrating $\beta$ out of the full likelihood. For hypothesis tests using REML, we first obtain an estimate of $\phi$ by maximizing the profiled log-restricted likelihood, derived by \citet{harville:reml:1977} and given by
 \begin{align}
 \log p(y|\phi) \propto & -(T-2)\log\left|\left| y^* - X^*\left[(X^*)'X^*\right]^{-1}(X^*)'y^* \right|\right| \label{eqn:fmri:plrl} \\
  & - \frac{1}{2}\log\left|(X^*)'X^*\right| - \frac{1}{2} \log \Lambda. \nonumber
 \end{align}
-Estimation using the restricted likelihood is intended to remove bias in estimating variance components due to fixed regression coefficients, and the expression in \eqref{eqn:fmri:plrl} is obtained by integrating $\beta$ out of the full likelihood. Note that the data and design matrix in equation \eqref{eqn:fmri:plrl} are transformed such that the model errors are independent, and $y^*$, $X^*$, and $\Lambda$ are each implicitly functions of $\phi$. Once $\hat{\phi}$ that maximizes equation \eqref{eqn:fmri:plrl} is found, estimates of $\beta$ and $\sigma^2$ are computed by
+Here, we note that the data $y$ and design matrix $X$ have been transformed such that the model errors are independent, and each of $y^*$, $X^*$, and $\Lambda$ are implicitly functions of $\phi$. Once $\hat{\phi}$ that maximizes $\log p(y|\phi)$ in equation \eqref{eqn:fmri:plrl} is found, estimates of $\beta$ and $\sigma^2$ are computed according to
 \begin{equation}
 \hat{\beta} = \left[(\hat{X}^*)'\hat{X}^*\right]^{-1}(\hat{X}^*)'\hat{y}^* \qquad \hat{\sigma}^2 = \frac{1}{T-2}\left|\left| \hat{y}^*-\hat{X}^*\hat{\beta} \right|\right|, \label{eqn:fmri:reml}
 \end{equation}
-where $\hat{\phi}$ maximizes $\log p(y|\phi)$ and $\hat{X}^*$ and $\hat{y}^*$ are calculated using equations \eqref{eqn:pw:cor} and \eqref{eqn:pw:trans}. The t-test in equation \eqref{eqn:fmri:ttest} is then carried out using the REML estimates of $\hat{\beta}_1$ and $\hat{\sigma}^2$, and $\hat{X}^*$ is used in place of $X$.
+where $\hat{X}^*$ and $\hat{y}^*$ are calculated using equations \eqref{eqn:pw:cor} and \eqref{eqn:pw:trans}. The t-test in equation \eqref{eqn:fmri:ttest} is then carried out using the REML estimates of $\hat{\beta}_1$ and $\hat{\sigma}^2$, with $\hat{X}^*$ used in place of $X$.
 
 % using the test statistic
 %\begin{equation}
@@ -225,7 +225,7 @@ where $\hat{\phi}$ maximizes $\log p(y|\phi)$ and $\hat{X}^*$ and $\hat{y}^*$ ar
 %\end{equation}
 %and $p^*$ is calculated as in equation \eqref{eqn:fmri:ttest} under the assumption that $t^* \sim \mbox{T}(0,1,T-2)$.
 
-We used the {\tt gls} function in R package {\tt nlme} to find $\hat{\phi}$ that maximizes the profiled log-restricted likelihood in equation \eqref{eqn:fmri:plrl} \citep{pin:bates:mixed:2000}. The t-test was then performed conditional on the REML estimate of $\Lambda$, as described above. However, because the correlation structure is estimated and not known, the null distribution of the t-statistic does not exactly follow $\mbox{T}(0,1,T-2)$. Alternatively, we can adjust the degrees of freedom of the t-distribution to account for the estimated autocorrelation in the data. We consider a strategy that corrects the degrees of freedom using an effective sample size adjustment for time series with first-order autocorrelation \citep{dawdy:matalas:ess:1964}. Specifically, we adjust the degrees of freedom in the t-test to $T' - 2$, where
+We used the {\tt gls} function in R package {\tt nlme} to find $\hat{\phi}$ that maximizes the profiled log-restricted likelihood in equation \eqref{eqn:fmri:plrl} \citep{pin:bates:mixed:2000}. The t-test described above was then performed conditional on the REML estimate of $\Lambda$. However, because the correlation structure is estimated and not known, the null distribution of the t-statistic does not exactly follow $\mbox{T}(0,1,T-2)$. Alternatively, we can adjust the degrees of freedom of the t-distribution to account for the estimated autocorrelation in the data. We consider a strategy that corrects the degrees of freedom using an effective sample size adjustment for time series with first-order autocorrelation \citep{dawdy:matalas:ess:1964}. Specifically, we adjust the degrees of freedom in the t-test to $T' - 2$, where
 \begin{equation}
 T' = T\frac{1-\hat{\phi}}{1+\hat{\phi}}. \label{eqn:fmri:ess}
 \end{equation}

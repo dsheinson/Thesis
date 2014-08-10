@@ -172,7 +172,7 @@ where $\mbox{vec}(\Omega) = (I_{m^2} - G\otimes G)^{-1} \mbox{vec}(ee')$ and $\p
 
 The regression model with ARMA errors described in Section \ref{sec:dlm:arma} is represented as a DLM by setting the observation error $v_t$ in equation \eqref{eqn:dlm:reg:obs} equal to 0 for all $t$ and completely specifying the error structure through the state equation. By instead letting $v_t$ be random, we can add an additional layer of variance to the model that represents observation or measurement noise. Furthermore, we can introduce additional structure into the errors through $F_t$.
 
-\subsubsection{\emph{Example 1: Dynamic intercept regression} \label{sec:dlm:M101}}
+\subsubsection{\emph{Example 1: Dynamic intercept model} \label{sec:dlm:M101}}
 
 For example, consider a simple linear regression model with an intercept and a slope given by $\beta_0$ and $\beta_1$, respectively, and errors that follow an AR(1) plus white noise (AR(1)+WN) process, i.e.
 \begin{align}
