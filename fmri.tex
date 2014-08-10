@@ -425,9 +425,11 @@ Identifiability of true model parameters in all three models improves by increas
 
 \subsection{Fitting word recognition data \label{sec:fmri:mle}}
 
-We now provide results from fitting the word recognition data set to $M_{101}$ and $M_{011}$ using maximum likelihood estimation. As in Section \ref{sec:fmri:id}, the {\tt dlmMLE} function was used to obtain MLEs for fixed parameters in $M_{101}$ and $M_{011}$. In addition, we offer a comparison with standard GLM fits of $M_{001}$ using OLS. Figure \ref{fig:fmri:mle:beta} displays two-dimensional histograms of $\hat{\beta}$ over the 125 voxels from each brain region according to each model. The histograms suggest that significant brain activation is present in all regions except for FP. Also, estimates are relatively consistent across models for all brain regions with the exception of FP, where histograms for $M_{011}$ include a cloud of more active voxels while the other two models don't.
+We now provide results from fitting the word recognition data set to $M_{101}$ and $M_{011}$ using maximum likelihood estimation. As in Section \ref{sec:fmri:id}, the {\tt dlmMLE} function was used to obtain MLEs for fixed parameters in $M_{101}$ and $M_{011}$. In addition, we offer a comparison with standard GLM fits of $M_{001}$ using OLS. OLS estimates are obtained according to equation \eqref{eqn:fmri:ols}, and in this case we let $\hat{\sigma}^2_m = \hat{\sigma}^2$. We let $\hat{\theta} = (\hat{\beta}',\hat{\phi},\hat{\sigma}^2_s,\hat{\sigma}^2_m)'$ denote the MLEs of the fixed parameters in $M_{011}$ and $M_{101}$, and $\hat{\theta} = (\hat{\beta}',\hat{\sigma}^2_m)'$ are the MLEs for fixed parameters in $M_{001}$.
 
-Also apparent from this figure is the bimodal nature of brain activation in SV-left and SV-right. Voxels were divided into high and low clusters, denoted by ``Cluster H'' and ``Cluster L'', respectively, in these two regions for each model using the K-means clustering method \citep{hartigan:wong:kmeans:1979} applied to $\hat{\theta}$. Table \ref{tab:fmri:prop} shows that about 65\% of voxels from these two regions fall in a cluster of higher activation and higher baseline BOLD response, evidenced by the higher regional average values of $\hat{\beta_1}$ and $\hat{\beta_0}$ in Table \ref{tab:fmri:mle:clusters}. The clustering of voxels in these brain regions could provide support for the $M_{011}$ model, since an apparent change in the regression slope over such close space might suggest that a change in the regression slope over time is also reasonable.
+Figure \ref{fig:fmri:mle:beta} displays two-dimensional histograms of $\hat{\beta}$ over the 125 voxels from each brain region according to each model. The histograms suggest that significant brain activation is present in all regions except for FP. Also, estimates are relatively consistent across models for all brain regions with the exception of FP, where histograms for $M_{011}$ include a cloud of more active voxels while the other two models don't.
+
+Also apparent from this figure is the bimodal nature of brain activation in SV-left and SV-right. For each model, voxels in these two regions were divided into high and low clusters, denoted by ``Cluster H'' and ``Cluster L'', respectively, using the K-means clustering method \citep{hartigan:wong:kmeans:1979} applied to $\hat{\theta}$. Table \ref{tab:fmri:prop} shows that about 65\% of voxels from these two regions fall into a cluster of higher activation and higher baseline BOLD response, evidenced by the higher regional average values of $\hat{\beta_1}$ and $\hat{\beta_0}$ in Table \ref{tab:fmri:mle:clusters}. The clustering of voxels in these brain regions could provide support for the $M_{011}$ model, since an apparent change in the regression slope over such close space might suggest that a change in the regression slope over time might also be reasonable.
 
 Unlike MLEs for $\beta$, MLEs for $\phi$, $\sigma^2_s$, and $\sigma^2_m$ are not consistent between $M_{011}$ and $M_{101}$. Tables \ref{tab:fmri:mle:means} and \ref{tab:fmri:mle:clusters} show that in IPS-left, IPS-right, and PV, estimates for $\phi$ are, on average, higher under $M_{011}$ than they are under $M_{101}$.  In addition, the average signal-to-noise ratio, $\sigma^2_s / \sigma^2_m$, is estimated to be much higher in these three regions for $M_{101}$. In contrast, average estimates of $\phi$ in SV-left and SV-right are lower under $M_{011}$ than they are under $M_{101}$, and the opposite relationship is true for the average estimates of $\sigma^2_s / \sigma^2_m$. The opposing nature of autocorrelation and signal-to-noise estimates between $M_{101}$ and $M_{011}$ suggests that these models account for variation and autocorrelation in the data differently. What $M_{101}$ models as increased signal-to-noise, $M_{011}$ interprets as increased autocorrelation in the dynamic slope. Conversely, what $M_{011}$ models as increased signal-to-noise, $M_{101}$ interprets as increased autocorrelation in the errors.
 
@@ -438,7 +440,7 @@ Unlike MLEs for $\beta$, MLEs for $\phi$, $\sigma^2_s$, and $\sigma^2_m$ are not
 \centering
 \caption{Histograms of MLEs of regression coefficients} \label{fig:fmri:mle:beta}
 \includegraphics[width=0.6\textwidth]{craig_mle-beta}
-\caption*{Two-dimensional histograms of MLEs of $\beta$ using real fMRI data from six brain regions (rows) fitted to dynamic regression models (columns). Blue X's denote the marginal averages of the MLEs from each brain region, and for each of two clusters in SV-left and SV-right.}
+\caption*{Two-dimensional histograms of MLEs for $\beta$ using fMRI data from a word recognition experiment extracted from six brain regions (rows) fit to models $M_{011}$, $M_{101}$, and $M_{001}$ (columns). Blue X's denote the marginal averages of the MLEs from each brain region, and for each of two clusters in SV-left and SV-right.}
 \end{figure}
 
 %\begin{figure}
@@ -488,7 +490,7 @@ $\beta_1$ & -1.448 & 16.087 & 24.688 & 19.039 \\
 $\sigma^2_m$ & 12.480 & 29.579 & 54.511 & 37.629 \\
 \hline
 \end{tabular}
-\caption*{Average MLEs calculated marginally for each fixed parameter (rows) for real fMRI data from four different brain regions (columns) fit to dynamic regression models (embedded tables).}
+\caption*{Average MLEs calculated marginally for each fixed parameter (rows) using fMRI data from a word recognition experiment extracted from four different brain regions (columns) fit to models $M_{011}$, $M_{101}$, and $M_{001}$ (embedded tables).}
 \end{table}
 
 \begin{table}
@@ -524,7 +526,7 @@ $\beta_1$ & 22.414 & 12.135 & 21.723 & 10.168 \\
 $\sigma^2_m$ & 17.409 & 6.332 & 19.450 & 11.108 \\
 \hline
 \end{tabular}
-\caption*{Average MLEs calculated marginally for each fixed parameter (rows) for real fMRI data from each cluster of secondary visual left and secondary visual right (columns) fit to dynamic regression models (embedded tables).}
+\caption*{Average MLEs calculated marginally for each fixed parameter (rows) using fMRI data from a word recognition experiment extracted from each cluster of secondary visual left and secondary visual right (columns) fit to dynamic regression models (embedded tables).}
 \end{table}
 
 \begin{table}
