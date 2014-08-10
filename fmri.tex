@@ -108,9 +108,9 @@ where $\hat{\beta_1}$, $\hat{\sigma}^2$, and $\hat{\lambda}$ are the REML estima
 
 \subsection{Exploration of ARMA models \label{sec:fmri:arma}}
 
-Numerous studies have used first and second order autoregressive models for the error term of the GLM \citep{bullmore:prewhiten:1996, loc:jos:arma:1997}. We now explore the class of regression models with ARMA errors discussed in Section \ref{sec:dlm:arma} using maximum likelihood estimation to see if other ARMA error structures might be appropriate for the word recognition data set.
+Numerous studies have used first and second order autoregressive models for the error term of the GLM \citep{bullmore:prewhiten:1996, loc:jos:arma:1997}. We now explore the class of regression models with $\mbox{ARMA}(P,Q)$ errors discussed in Section \ref{sec:dlm:arma} using maximum likelihood estimation to see if other ARMA error structures might be appropriate for the word recognition data set.
 
-Recall from Section \ref{sec:dlm:arma} that the DLM formulation of a regression model with ARMA errors is given by equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with $x_t = (x_{t,1} ,x_{t,2}, \ldots, x_{t,m})'$ an $m$-dimensional vector, $m = \mbox{max}(P,Q+1)$, $F_t$ a time-invariant $1 \times m$ vector with first element equal to 1 and the rest 0, $v_t = 0$ for all $t$, $G$ a $m \times m$ matrix that takes the form
+Recall from Section \ref{sec:dlm:arma} that the DLM formulation of a regression model with $\mbox{ARMA}(P,Q)$ errors is given by equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with $x_t = (x_{t,1} ,x_{t,2}, \ldots, x_{t,m})'$ an $m$-dimensional vector, $m = \mbox{max}(P,Q+1)$, $F_t$ a time-invariant $1 \times m$ vector with first element equal to 1 and the rest 0, $v_t = 0$ for all $t$, $G$ a $m \times m$ matrix that takes the form
 \[
 G = \left(
  \begin{array}{ccccc}
@@ -163,16 +163,16 @@ Secondary visual right     & 3.20 & 3.00 & 3.10 & 2.50 & 0.70 & 0.70 \\
 Mean across regions     & 3.21 & 3.07 & 2.97 & 2.76 & 1.22 & 0.69 \\
 \hline
 \end{tabular}
-\caption*{Mean AR and MA orders ($P$ and $Q$, respectively) chosen according to AIC, AICC, and BIC for fits of regression models with ARMA errors to voxel-wise time series from 5 by 5 by 5 voxel cubes taken from 6 different brain regions.}
+\caption*{Mean AR and MA orders ($P$ and $Q$, respectively) chosen according to AIC, AICC, and BIC for maximum likelihood fits of regression models with ARMA errors to voxel-wise time series from 5 by 5 by 5 voxel cubes taken from 6 different brain regions.}
 \end{table}
 
 \subsection{False positive and true positive rates \label{sec:fmri:fpr}}
 
-In this section, we consider the impact of using different approaches to testing for brain activation in autocorrelated voxel-wise time series. Specifically, we examine false positive and true positive rates. The false positive rate is the rate of concluding significant neural activation in a voxel when there is no activity present. The true positive rate (or power) is the rate of concluding significant neural activation when there is in fact activity present. We would like to use a method that can increase the true positive rate while keeping the false positive rate low. We examine the effect on the false positive rate of using standard OLS estimation of the regression slope and compare different methods for accounting for temporal autocorrelation in terms of their effect on false postive and true positive rates.
+In this section, we consider the impact of different approaches to testing for brain activation in autocorrelated voxel-wise time series. Specifically, we examine false positive and true positive rates. The false positive rate is the rate of concluding significant neural activation in a voxel when there is no activity present. The true positive rate (or power) is the rate of concluding significant neural activation when there is in fact activity present. We prefer methods that yield a high true positive rate while keeping the false positive rate low. In this section, we examine the effect on the false positive rate of using standard OLS estimation of the regression slope, and we compare different methods for accounting for temporal autocorrelation in terms of their effect on false postive and true positive rates.
 
-In order to be able to analyze false positive and true positive rates, we simulated fMRI data using the regression model described in Section \ref{sec:fmri:arma} with AR(1) error structure (i.e. $P = 1$ and $Q = 0$). An experiment with a rapid event-related design and a single event type was created by simulating random times between onsets according to a truncated geometric distribution with a maximum time-to-event of 10 TRs. We used a TR of 2 seconds and let the experiment run for 250 total TRs. Onset of the stimuli were assumed to last the length of the TR, and an on-off boxcar function of 1's and 0's was constructed to match the stimulus pattern. The independent variable in the regression, $\mbox{conv}_t$, was constructed by convolving the boxcar function with the gamma hrf from equation \eqref{eqn:hrf} with $\tau = 2$ and $n = 4$. Figure \ref{fig:fmri:design} displays the simulated experimental design and expected BOLD response for active voxels.
+To analyze false positive and true positive rates, we simulated fMRI data from the regression model described in Section \ref{sec:fmri:arma} with AR(1) error structure (i.e. $P = 1$ and $Q = 0$). An experiment with a rapid event-related design and a single event type was created by simulating random times between onsets according to a truncated geometric distribution with a maximum time-to-event of 10 TRs. We used a TR of 2 seconds and let the experiment run for 250 total TRs. Onset of the stimuli were assumed to last the length of the TR, and an on-off boxcar function of 1's and 0's was constructed to match the stimulus pattern. The independent variable in the regression, $\mbox{conv}_t$, was constructed by convolving the boxcar function with the gamma hrf from equation \eqref{eqn:hrf} with $\tau = 2$ and $n = 4$. Figure \ref{fig:fmri:design} displays the simulated experimental design and expected BOLD response for active voxels.
 
-Time series of length $T = 250$ were then simulated according to a regression model with AR(1) errors. For these simulations, we let $\beta_0 = 750$ and $\sigma^2 = 15$, and one thousand time series were generated for each of $\beta_1 \in \{0,1,2,3\}$ and $\phi \in \{0.25,0.50,0.75,0.95\}$. Different values of $\beta_1$ were used so that we could analyze false positive rates (for $\beta_1 = 0$) and power (for $\beta_1 > 0$). Similarly, different values of $\phi$ were used for simulation so that we could analyze false positive rates and true positive rates for increasing amounts of autocorrelation in the data.
+Time series of length $T = 250$ were then simulated according to $M_{100}$, i.e. a regression model with AR(1) errors. For these simulations, we let $\beta_0 = 750$ and $\sigma^2 = 15$, and one thousand time series were generated for every $(\beta_1,\phi) \in \{0,1,2,3\}\times\{0.25,0.50,0.75,0.95\}$. Different values of $\beta_1$ were used so that we could analyze false positive rates (for $\beta_1 = 0$) and power (for $\beta_1 > 0$). Similarly, different values of $\phi$ were used for simulation so that we could analyze false positive rates and true positive rates for increasing amounts of autocorrelation in the data.
 
 \begin{figure}
 \ssp
@@ -182,28 +182,50 @@ Time series of length $T = 250$ were then simulated according to a regression mo
 \caption*{Simulated boxcar function (top), hrf (middle), and convolution of the boxcar with the hrf (bottom) for a rapid-event related design of an fMRI experiment.}
 \end{figure}
 
-For each simulated time series, we tested the hypothesis in equation \eqref{eqn:fmri:hyp} using the OLS method, i.e. where the test statistic and p-value are calculated according to equations \eqref{eqn:fmri:ols} and \eqref{eqn:fmri:ttest}. We also performed hypothesis tests using prewhitening (PW) and two variations of a REML approach. Our PW and REML approaches both assume an AR(1) correlation structure for the error terms. For PW, each time series was fit using OLS, and the residuals from this fit were refit to a zero-mean AR(1) process using {\tt arima}. The maximum likelihood estimate of $\phi$, given by $\hat{\phi}$, was then used to obtain an estimate of the correlation matrix $\Lambda$, computed according to
+For each simulated time series, we tested the hypothesis in equation \eqref{eqn:fmri:hyp} using the OLS method, i.e. where the test statistic and p-value are calculated according to equations \eqref{eqn:fmri:ols} and \eqref{eqn:fmri:ttest}. We also performed hypothesis tests using prewhitening (PW) and two variations of a REML approach. Our PW and REML approaches both assume a stationary AR(1) process for the error terms in the GLM, i.e.
+\begin{align}
+y &= X\beta + \epsilon, \quad \mbox{ where} \label{eqn:fmri:ar1} \\
+\epsilon &\sim \mbox{N}(0,\sigma^2\Lambda), \nonumber \\
+\Lambda_{i,j} &= \frac{\phi^{|i-j|}}{1 - \phi^2}, \nonumber
+\end{align}
+$\beta = (\beta_0,\beta_1)'$ are the fixed regression coefficients, $y$ and $X$ are data vector and design matrix, respectively, as defined in equations \eqref{eqn:fmri:ols} and \eqref{eqn:fmri:ttest}, and $\epsilon = (\epsilon_1,\ldots,\epsilon_T)'$ is the vector of error terms.
+ 
+The PW approach uses the fact that if $\Lambda$ is known, the data can be transformed via
 \begin{equation}
-\hat{\Lambda}_{(i,j)} = \hat{\phi}^{|i-j|}. \label{eqn:pw:cor}
+y^* = S^{-1}y \qquad X^* = S^{-1}X, \label{eqn:gls:trans}
 \end{equation}
-The data were then transformed according to
+where $S$ is the Cholesky decomposition of $\Lambda$ (i.e. $SS' = \Lambda$), to yield the independent error GLM given by
 \begin{equation}
-y^* = \hat{S}^{-1}y \qquad X^* = \hat{S}^{-1}X, \label{eqn:pw:trans}
+y^* = X^*\beta + \epsilon \quad \epsilon \sim \mbox{N}(0,\sigma^2I_T). \label{eqn:gls}
 \end{equation}
-where $y = (y_1,y_2,\ldots,y_T)'$ is the vector of simulated fMRI data and $\hat{S}$ is the Cholesky decomposition of $\hat{\Lambda}$ (i.e. $\hat{S}\hat{S}' = \hat{\Lambda}$). Lastly, the hypothesis test was performed using the OLS method with $y^*$ and $X^*$ used in place of $y$ and $X$ in equations \eqref{eqn:fmri:ols} and \eqref{eqn:fmri:ttest}.
+We carry out the PW method on a time series from a single voxel by first fitting the data using OLS. Then, the residuals from this fit are refit using maximum likelihood to a zero-mean AR(1) process via the {\tt arima} function in R. The maximum likelihood estimate of the autocorrelation in the residuals, given by $\hat{\phi}$, is used to approximate $\phi$ in equation \eqref{eqn:fmri:ar1}, and an estimate of the covariance matrix $\Lambda$ is computed according to
+\begin{equation}
+\hat{\Lambda}_{(i,j)} = \frac{\hat{\phi}^{|i-j|}}{1-\hat{\phi}^2}. \label{eqn:pw:cor}
+\end{equation}
+The data are then transformed according to
+\begin{equation}
+\hat{y}^* = \hat{S}^{-1}y \qquad \hat{X}^* = \hat{S}^{-1}X, \label{eqn:pw:trans}
+\end{equation}
+where $\hat{S}$ is the Cholesky decomposition of $\hat{\Lambda}$. Lastly, the hypothesis test is performed using the OLS method with $\hat{y}^*$ and $\hat{X}^*$ used in place of $y$ and $X$ in equations \eqref{eqn:fmri:ols} and \eqref{eqn:fmri:ttest}.
 
-For hypothesis tests using REML estimation, we first obtain an estimate of $\phi$ by maximizing the profiled log-restricted likelihood, derived by \citet{harville:reml:1977} and given by
+For hypothesis tests using REML, we first obtain an estimate of $\phi$ by maximizing the profiled log-restricted likelihood, derived by \citet{harville:reml:1977} and given by
 \begin{align}
 \log p(y|\phi) \propto & -(T-2)\log\left|\left| y^* - X^*\left[(X^*)'X^*\right]^{-1}(X^*)'y^* \right|\right| \label{eqn:fmri:plrl} \\
  & - \frac{1}{2}\log\left|(X^*)'X^*\right| - \frac{1}{2} \log \Lambda. \nonumber
 \end{align}
-Note that $y^*$, $X^*$, and $\Lambda$ are all functions of $\phi$. Estimates of $\beta$ and $\sigma^2$ are then computed by
+Estimation using the restricted likelihood is intended to remove bias in estimating variance components due to fixed regression coefficients, and the expression in \eqref{eqn:fmri:plrl} is obtained by integrating $\beta$ out of the full likelihood. Note that the data and design matrix in equation \eqref{eqn:fmri:plrl} are transformed such that the model errors are independent, and $y^*$, $X^*$, and $\Lambda$ are each implicitly functions of $\phi$. Once $\hat{\phi}$ that maximizes equation \eqref{eqn:fmri:plrl} is found, estimates of $\beta$ and $\sigma^2$ are computed by
 \begin{equation}
-\hat{\beta} = \left[\left(X^*(\hat{\phi})\right)'X^*(\hat{\phi})\right]^{-1}\left(X^*(\hat{\phi})\right)'y^*(\hat{\phi}) \qquad \hat{\sigma}^2 = \frac{1}{T-2}\left|\left| y^*(\hat{\phi})-X^*(\hat{\phi})\hat{\beta} \right|\right|, \label{eqn:fmri:reml}
+\hat{\beta} = \left[(\hat{X}^*)'\hat{X}^*\right]^{-1}(\hat{X}^*)'\hat{y}^* \qquad \hat{\sigma}^2 = \frac{1}{T-2}\left|\left| \hat{y}^*-\hat{X}^*\hat{\beta} \right|\right|, \label{eqn:fmri:reml}
 \end{equation}
-where $\hat{\phi}$ maximizes $\log p(y|\phi)$. $X^*(\hat{\phi})$ and $y^*(\hat{\phi})$ are calculated using equations \eqref{eqn:pw:cor} and \eqref{eqn:pw:trans}. The t-test in equation \eqref{eqn:fmri:ttest} is then carried out using these estimates and $X^*(\hat{\phi})$ in place of $X$.
+where $\hat{\phi}$ maximizes $\log p(y|\phi)$ and $\hat{X}^*$ and $\hat{y}^*$ are calculated using equations \eqref{eqn:pw:cor} and \eqref{eqn:pw:trans}. The t-test in equation \eqref{eqn:fmri:ttest} is then carried out using the REML estimates of $\hat{\beta}_1$ and $\hat{\sigma}^2$, and $\hat{X}^*$ is used in place of $X$.
 
-We used the {\tt gls} function in R package {\tt nlme} to find $\hat{\phi}$ that maximizes the profiled log-restricted likelihood \citep{pin:bates:mixed:2000}. It is standard to then perform the t-test conditional on the REML estimate of $\phi$. However, because the correlation structure is estimated and not known, the null distribution of the t-statistic does not exactly follow $\mbox{T}(0,1,T-2)$. Alternatively, we can adjust the degrees of freedom of the t-distribution to account for the estimated autocorrelation in the data. We consider a strategy that corrects the degrees of freedom using an effective sample size adjustment for time series with first-order autocorrelation \citep{dawdy:matalas:ess:1964}. Specifically, we adjust the degrees of freedom in the t-test to $T' - 2$, where
+% using the test statistic
+%\begin{equation}
+%t^* = \frac{\hat{\beta_1}}{\sqrt{\left((X'X)^{-1}X'(\hat{\sigma}^2\hat{\Lambda})X(X'X)^{-1}\right)_{(2,2)}}}, \label{eqn:fmri:hyp-reml:ar1}
+%\end{equation}
+%and $p^*$ is calculated as in equation \eqref{eqn:fmri:ttest} under the assumption that $t^* \sim \mbox{T}(0,1,T-2)$.
+
+We used the {\tt gls} function in R package {\tt nlme} to find $\hat{\phi}$ that maximizes the profiled log-restricted likelihood in equation \eqref{eqn:fmri:plrl} \citep{pin:bates:mixed:2000}. The t-test was then performed conditional on the REML estimate of $\Lambda$, as described above. However, because the correlation structure is estimated and not known, the null distribution of the t-statistic does not exactly follow $\mbox{T}(0,1,T-2)$. Alternatively, we can adjust the degrees of freedom of the t-distribution to account for the estimated autocorrelation in the data. We consider a strategy that corrects the degrees of freedom using an effective sample size adjustment for time series with first-order autocorrelation \citep{dawdy:matalas:ess:1964}. Specifically, we adjust the degrees of freedom in the t-test to $T' - 2$, where
 \begin{equation}
 T' = T\frac{1-\hat{\phi}}{1+\hat{\phi}}. \label{eqn:fmri:ess}
 \end{equation}
