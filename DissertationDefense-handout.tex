@@ -462,7 +462,7 @@ Regenerate fixed parameter values using a kernel closer to $p(\theta|y_{1:t})$ \
 Given a particle approximation to $p(x_{0:t},\theta|y_{1:t})$, move to a particle approximation to $p(x_{0:t+1},\theta|y_{1:t+1})$ by the following for each particle $j=1,\ldots,J$: \pause
 \begin{enumerate}
 \item Propagate: draw $\tilde{x}^{(j)}_{t+1}$ from $p\left(x_{t+1}|x^{(j)}_t,\theta^{(j)}_t\right)$. Incorporate $\tilde{x}^{(j)}_{t+1}$ into particle $j$ and denote the new augmented particle by $\left(\tilde{x}^{(j)}_{0:t+1},\theta^{(j)}_t\right)$, \pause
-\item Calculate weights: $\tilde{w}^{(j)}_t = p\left(y_{t+1}|\tilde{x}^{(j)}_{t+1},\theta^{(j)}_t\right)$ \pause 
+\item Calculate weights: $\tilde{w}^{(j)}_t = p\left(y_{t+1}|\tilde{x}^{(j)}_{t+1},\theta^{(j)}_t\right)$ \pause
 \item Renormalize: $w^{(j)}_{t+1} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}, \right.$ \pause
 \item Resample: sample an index $k$ from $\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w^{(1)}_{t+1},\ldots,w^{(j)}_{t+1},\ldots,w^{(J)}_{t+1}\}$, and \pause
 \item \label{step:move} Move particles: draw a new particle $\left(x^{(j)}_{0:t+1},\theta^{(j)}_{t+1}\right) \sim q\left(x_{0:t+1},\theta|\tilde{x}^{(k)}_{0:t+1},\theta^{(k)}_t\right)$ with invariant distribution $p(x_{0:t+1},\theta|y_{1:t+1})$.
@@ -482,8 +482,8 @@ Sample from $q$ as follows: For a given particle $j$ and sampled index $k$,
 a_t &= a_0 + 1/2 + t \\
 b_t &= b_0 + \frac{1}{2}\left(\sum_{i=1}^t \left(y_i - \tilde{x}_i^{(k)}\right)^2 + \frac{1}{\lambda}\sum_{i=1}^t \left(\tilde{x}_i^{(k)} - \tilde{x}_{i-1}^{(k)}\right)^2 + \left(\tilde{x}^{(k)}_0\right)^2\right)
 \end{align*} \pause
-\item Sample $x_{0:t+1}^{(j)}$ conditional on $\theta^{(j)}_{t+1}$ via forward filtering backward sampling (FFBS), based on Kalman filter and smoother recursions with
-\[m_0 = 0 \quad C_0 = V = \theta^{(j)}_{t+1} \quad W = \theta_{t+1}^{(j)}\lambda \quad F_t = G = 1.\]
+\item Sample $x_{0:t+1}^{(j)}$ conditional on $\theta^{(j)}_{t+1}$ via forward filtering backward sampling (FFBS), based on Kalman filter and smoother recursions %with
+%\[m_0 = 0 \quad C_0 = V = \theta^{(j)}_{t+1} \quad W = \theta_{t+1}^{(j)}\lambda \quad F_t = G = 1.\]
 \end{enumerate}
 }
 
@@ -516,6 +516,70 @@ We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\
 \end{enumerate}
 }
 
+\frame{\frametitle{PL example - first-order DLM} \pause
+\begin{align*}
+&y_{t+1}|x_t,\theta \sim \mbox{N}\left(x_t,\theta(1+\lambda)\right) & x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau^2) \\
+&\mu_t = \frac{\lambda}{1+\lambda}(y_{t+1} + x_t / \lambda) & \tau^2 = \theta\frac{\lambda}{1+\lambda}
+\end{align*} \pause
+\begin{align*}
+&\theta|y_{1:t},x_{0:t} \sim \mbox{IG}(a_t,b_t) & \\ \pause
+&s_t = (a_t,b_t) & \\ \pause
+&a_{t+1} = a_t + 1, \ \ t \ge 1 &  \\ \pause
+&b_{t+1} = \frac{1}{2}\left((y_{t+1}-x_{t+1})^2 + \frac{1}{\lambda}(x_{t+1}-x_t)^2\right) + b_t, \ \ t \ge 1 & \\ \pause
+&b_1 = \frac{1}{2}\left((y_1-x_1)^2 + \frac{1}{\lambda}(x_1-x_0)^2 + x_0^2\right) + b_0 & a_1 = 3/2 + a_0
+\end{align*}
+}
+
+\frame{\frametitle{PL example - dynamic regression} \pause
+\begin{align*}
+&y_t = \beta_0 + \beta_1u_t + F_tx_t + v_t & v_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_m) \\
+&x_t = \phi x_{t-1} + w_t & w_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_s) \\ \pause
+&F_t = 1 \Rightarrow M_{101} & F_t = u_t \Rightarrow M_{011} \\ \pause
+&\theta = (\beta',\phi,\sigma^2_s,\sigma^2_m)' & \pause
+\end{align*}
+Priors: \pause $p(x_0,\theta) = p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s)\delta_0(x_0)$ \\ \pause
+\begin{align*}
+&\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_m B_0) &\quad \sigma^2_m &\sim \mbox{IG}(a_{m_0},b_{m_0}) \\
+&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s \Phi_0) &\quad \sigma^2_s &\sim \mbox{IG}(a_{s_0},b_{s_0})
+\end{align*} \pause
+Hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ assumed known
+}
+
+\frame{\frametitle{PL example - dynamic regression}
+\begin{align*}
+&y_{t+1}|x_t,\theta \sim \mbox{N}(U_{t+1}\beta + F_t\phi x_t, F_t^2\sigma^2_s + \sigma^2_m) & x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau_t^2) \\ \pause
+&\mu_t = \tau_t^2\left(\frac{(y_{t+1}-U_{t+1}\beta)F_{t+1}}{\sigma^2_m} + \frac{\phi x_t}{\sigma^2_s}\right) & \tau_t^2 = \left(\frac{F_{t+1}^2}{\sigma^2_m} + \frac{1}{\sigma^2_s}\right)^{-1} \pause
+\end{align*}
+\[\begin{array}{ll}
+\beta|\sigma^2_m,y_{1:t},x_{0:t} \sim \mbox{N}(\vartheta_t, \sigma^2_m B_t) & \sigma^2_m|y_{1:t},x_{0:t} \sim \mbox{IG}(a_{m_t},\frac{1}{2}(\xi_{m_t} - \vartheta_t'B_t^{-1}\vartheta_t)) \\ \pause
+\phi|\sigma^2_s,y_{1:t},x_{0:t} \sim \mbox{N}(\varphi_t, \sigma^2_s \Phi_t) & \sigma^2_s|y_{1:t},x_{0:t} \sim \mbox{IG}(a_{s_t},\frac{1}{2}(\xi_{s_t} - \varphi_t'\Phi_t^{-1}\varphi_t)) \\ \pause
+\xi_{m_0} = \vartheta_0'B_0^{-1}\vartheta_0 + 2b_{m_0} & \xi_{s_0} = \varphi_0'\Phi_0^{-1}\varphi_0 + 2b_{s_0} \pause
+\end{array}\]
+\begin{align*}
+&s_t = (\vartheta_t, B_t, a_{m_t}, \xi_{m_t}, \varphi_t, \Phi_t, a_{s_t}, \xi_{s_t}) & \\ \pause
+&B_t^{-1}\vartheta_t = B_{t-1}^{-1}\vartheta_{t-1} + U_t'(y_t - F_tx_t) & B_t^{-1} = B_{t-1}^{-1} + U_t'U_t \\ \pause
+&a_{m_t} = a_{m_{t-1}} + 1/2 & \xi_{m_t} = \xi_{m_{t-1}} + (y_t - F_tx_t)^2 \\ \pause
+&\Phi_t^{-1}\varphi_t = \Phi_{t-1}^{-1}\varphi_{t-1} + x_tx_{t-1} & \Phi_t^{-1} = \Phi_{t-1}^{-1} + x_{t-1}^2 \\ \pause
+&a_{s_t} = a_{s_{t-1}} + 1/2 & \xi_{s_t} = \xi_{s_{t-1}} + x_t^2 \pause
+\end{align*}
+}
+
+\frame{\frametitle{Particle MCMC (PMCMC) \citep{Andr:Douc:Hol:pmcmc:2010}} \pause
+MCMC - Gibbs sampling with Metropolis-Hastings (MH) steps \\ \pause
+Increases efficiency of MCMC using SMC to generate MH proposals \\ \pause
+Particle marginal Metropolis-Hastings sampler (PMMH) \\ \pause
+Given $(y_1,\ldots,y_T)$, $\theta^{(i-1)}$, and $\hat{p}\left(y_{1:T}|\theta^{(i-1)}\right)$: \pause
+\begin{enumerate}
+\item Sample $\theta^*$ from some proposal distribution $q(\theta|\theta^{(i-1)})$ \pause
+\item Approximate $p(x_{0:T}|y_{1:T},\theta^*)$ and $p(y_{1:t})$ via SMC conditional on $\theta^*$ \pause
+\item Sample $x_{0:T}^*$ from approximation of $p(x_{0:T}|y_{1:T},\theta^*)$ \pause
+\item Letting $\hat{p}(y_{1:T}|\theta^*)$ denote approximation to $p(y_{1:t})$, set $\theta^{(i)} = \theta^*$ and $\hat{p}\left(y_{1:T}|\theta^{(i)}\right) = \hat{p}(y_{1:T}|\theta^*)$ with probability
+    \[R = \min\left(1, \frac{\hat{p}(y_{1:T}|\theta^*)p(\theta^*)}{\hat{p}\left(y_{1:T}|\theta^{(i-1)}\right)p\left(\theta^{(i-1)}\right)} \frac{q\left(\theta^{(i-1)}|\theta^*\right)}{q\left(\theta^*|\theta^{(i-1)}\right)} \right).\]
+    Otherwise, set
+    \[\theta^{(i)} = \theta^{(i-1)} \qquad \hat{p}\left(y_{1:T}\left|\theta^{(i)}\right.\right) = \hat{p}\left(y_{1:T}\left|\theta^{(i-1)}\right.\right).\]
+\end{enumerate}
+}
+
 \section{Results \label{sec:def:results}}
 
 \frame{\frametitle{References}
@@ -525,4 +589,4 @@ We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\
 }
 }
 
-\end{document}
+\end{document} 
