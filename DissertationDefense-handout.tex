@@ -10,6 +10,10 @@
 \usepackage{verbatim,xmpmulti,color,multicol,multirow,graphicx,natbib,undertilde}
 \setlength{\unitlength}{\textwidth}  % measure in textwidths
 
+\graphicspath{{/Users/Danny/Documents/"UCSB - Research"/Thesis/graphs/},
+{/Users/Danny/Documents/"UCSB - Research"/Thesis/graphs/fmri/}
+}
+
 \def\newblock{\hskip .11em plus .33em minus .07em}
 
 %\usepackage{beamerthemesplit}
@@ -18,9 +22,9 @@
 \setbeamertemplate{block body theorem}{bg=orange}
 \setkeys{Gin}{width=0.6\textwidth}
 
-\title{Sequential Monte Carlo methods: applications to disease surveillance and fMRI data}
+\title[SMC applications: epidemics and fMRI]{Sequential Monte Carlo methods: applications to disease surveillance and fMRI data}
 \subtitle{Dissertation Defense}
-\author{Danny Sheinson}
+\author[Daniel M. Sheinson]{Daniel M. Sheinson \\ \ \\ Committee: Jarad Niemi (co-chair), Wendy Meiring (co-chair), \\ Greg Ashby, John Hsu}
 \institute[UCSB]{University of California, Santa Barbara}
 \date{August 15, 2014}
 
@@ -32,20 +36,18 @@
 Introduction / Motivation \\ \pause
 State-space models
 \begin{itemize}
-\item Epidemic tracking
 \item Dynamic linear models
+\item Sequential estimation
 \end{itemize} \pause
-Monte Carlo estimation
+Sequential Monte Carlo methods
 \begin{itemize}
-\item MCMC
-\item particle filtering
+\item particle filters
+\item model comparison
 \end{itemize} \pause
-Results \pause
+Analysis of fMRI data \pause
 \begin{itemize}
-\item simulated influenza-like epidemic \pause
-\item model comparison simulation study \pause
-\item comparison of autocorrelation estimation techniques for fMRI data \pause
-\item model comparison applied to fMRI data
+\item standard approaches \pause
+\item SMC model comparison
 \end{itemize}
 }
 
@@ -69,8 +71,8 @@ Functional magnetic resonance imaging (fMRI) \pause
 \end{itemize}
 Sequential Monte Carlo methods \\ \pause
 \begin{itemize}
-\item performs estimation sequentially \pause
-\item provides direct way to compare models
+\item sequential estimation \pause
+\item direct way to compare models
 \end{itemize}
 }
 
@@ -85,11 +87,11 @@ Governed by two equations:
 \begin{enumerate}
 \item state equation \pause
 \begin{itemize}
-\item describes evolution of the latent, unobserved state over time
+\item evolution of the latent, unobserved state over time
 \end{itemize} \pause
 \item observation equation \pause
 \begin{itemize}
-\item describes how observed data depend on the unobserved state
+\item dependence of observations on the unobserved state
 \end{itemize}
 \end{enumerate}
 }
@@ -125,125 +127,89 @@ Notation \pause
 \end{figure}
 }
 
-\frame{\frametitle{Sequential estimation in state-space models} \pause
-Joint likelihood \pause
-\begin{itemize}
-\item $p(y_{1:t},x_{0:t},\theta) = p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(y_{1:t-1},x_{0:t-1},\theta)$
-\end{itemize} \pause
-Filtered distributions \pause
-\begin{itemize}
-\item $p(x_{0:t},\theta|y_{1:t}) \propto p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(x_{0:t-1},\theta|y_{1:t-1})$ \pause
-\item $p(x_t,\theta| y_{1:t}) \propto \int p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(x_{t-1},\theta|y_{1:t-1})\mbox{d}x_{t-1}$ \pause
-\end{itemize}
-Smoothed distributions: $p(x_s,\theta|y_{1:t})$ for any $s < t$ \pause
-\begin{itemize}
-\item $p(x_s,\theta|y_{1:t}) = \int_{x_{0:s-1}} \int_{x_{s+1:t}} p(x_{0:t},\theta|y_{1:t},)\mbox{d}x_{0:s-1}\mbox{d}x_{s+1:t}$ \pause
-\end{itemize}
-Marginal likelihood of the data: $p(y_{1:t})$ \pause
-\begin{itemize}
-\item $p(y_{1:t}) = \int_{\theta} \int_{x_{0:t}} p(y_{1:t},x_{0:t},\theta)\mbox{d}x_{0:t}\mbox{d}\theta$ \pause
-\end{itemize}
-Analytical tractability only in special cases
-}
+%\frame{\frametitle{State-space model of an epidemic} \pause
+%Modeling disease transmission: \pause
+%\begin{itemize}
+%\item SIR model \pause
+%\item keep track of \% of population susceptible ($s_t$), infected ($i_t$), and recovered ($r_t$) at each day $t = 0,1,2,\ldots,T$ \pause
+%\item fixed population size $P$ \pause
+%\item $s_t + i_t + r_t = 1$ \pause
+%\item $x_t = (s_t,i_t)$ - unobserved state of the epidemic at day $t$ \pause
+%\item fixed parameters $\beta > 0$, $\gamma > 0$, and $\nu > 0$: \pause
+%\item $\beta =$ rate of spread \pause
+%\item $\gamma =$ recovery time from infection \pause
+%\item $\nu =$ population mixing intensity \pause
+%\item $\theta = (\beta, \gamma, \nu)'$
+%\end{itemize}
+%}
+%
+%\frame{\frametitle{State-space model of an epidemic}
+%State equation: \pause
+%\[x_{t+1}\left|x_t,\theta\right. \sim \mbox{N}_\Omega\left(f(x_t,\theta),Q(\theta)\right),\]
+%where
+%\[f(x_t,\theta) = \left(
+%\begin{array}{c}
+%s_t - \beta i_ts^\nu_t \phantom{- \gamma i_t}\,\, \\
+%i_t +  \beta i_ts^\nu_t - \gamma i_t
+%\end{array}
+%\right),
+%\qquad
+%Q(\theta) = \frac{\beta}{P^2} \left(
+%\begin{array}{ccccc}
+%1 & -1 \\
+%-1 & 1 + \gamma/\beta
+%\end{array}
+%\right),\]
+%$\Omega = \{(s_t,i_t): s_t \ge 0, i_t \ge 0, s_t + i_t \le 1\}$, and \\ \pause
+%$p(x_0,\theta) = p(i_0)\delta_{1-i_0}(s_0)p(\theta)$ with $i_0 \sim \mbox{N}_{[0,1]}(0.002,0.0005^2)$ \pause
+%\begin{itemize}
+%\item \citet{skvortsov2012monitoring,sheinson:niemi:meiring:epidtrack:2014} \pause
+%\item \citet{herwaarden1995stochepid,dangerfield2009stochepid,anderson2004sars}
+%\end{itemize}
+%}
+%
+%\frame{\frametitle{State-space model of an epidemic}
+%\begin{itemize}
+%\item $R_0 = \frac{\beta}{\gamma}$ - basic reproductive number \pause
+%\item seasonal flu - $R_0 \approx 1.5$, polio - $R_0 \approx 5$, chicken pox - $R_0 \approx 10$
+%\end{itemize} \pause
+%\includegraphics[width=0.45\textwidth]{sircurves1} \pause
+%\includegraphics[width=0.45\textwidth]{sircurves2}
+%}
+%
+%\frame{\frametitle{State-space model of an epidemic}
+%Observation equation: \pause
+%\begin{itemize}
+%\item observe syndromic data from $L$ streams \pause
+%\item $y_{l,t}$ - observed data from stream $l$ at day $t$ \pause
+%\item e.g. counts of flu-related internet search queries, emergency room visits, etc. \pause
+%\item $y_t = (y_{1,t},y_{2,t},\ldots,y_{L,t})'$ be observed data at day $t$, $t=1,2,\ldots,T$ \pause
+%\item assume a stochastic power-law relationship between $\log y_t$ and $i_t$, i.e.
+%\[\log y_{l,t} |x_t,\theta \sim \mbox{N}\left(b_li_t^{\varsigma_l}+\eta_l,\sigma_l^2\right)\] \pause
+%\item \citet{Gins:Mohe:Pate:Bram:Smol:Bril:dete:2009}, \citet{skvortsov2012monitoring} \pause
+%\item initially assume $L = 4$ and $\eta_l$, $b_l$, $\varsigma_l$, and $\sigma_l$ known for all $l$ \pause
+%\item extended analysis: $L = 1$ and $\theta = (\beta,\gamma,\nu,b,\varsigma,\sigma,\eta)'$
+%\end{itemize}
+%}
 
-\frame{\frametitle{State-space model of an epidemic} \pause
-Modeling disease transmission: \pause
-\begin{itemize}
-\item SIR model \pause
-\item keep track of \% of population susceptible ($s_t$), infected ($i_t$), and recovered ($r_t$) at each day $t = 0,1,2,\ldots,T$ \pause
-\item fixed population size $P$ \pause
-\item $s_t + i_t + r_t = 1$ \pause
-\item $x_t = (s_t,i_t)$ - unobserved state of the epidemic at day $t$ \pause
-\item fixed parameters $\beta > 0$, $\gamma > 0$, and $\nu > 0$: \pause
-\item $\beta =$ rate of spread \pause
-\item $\gamma =$ recovery time from infection \pause
-\item $\nu =$ population mixing intensity \pause
-\item $\theta = (\beta, \gamma, \nu)'$
-\end{itemize}
-}
-
-\frame{\frametitle{State-space model of an epidemic}
-State equation: \pause
-\[x_{t+1}\left|x_t,\theta\right. \sim \mbox{N}_\Omega\left(f(x_t,\theta),Q(\theta)\right),\]
-where
-\[f(x_t,\theta) = \left(
-\begin{array}{c}
-s_t - \beta i_ts^\nu_t \phantom{- \gamma i_t}\,\, \\
-i_t +  \beta i_ts^\nu_t - \gamma i_t
-\end{array}
-\right),
-\qquad
-Q(\theta) = \frac{\beta}{P^2} \left(
-\begin{array}{ccccc}
-1 & -1 \\
--1 & 1 + \gamma/\beta
-\end{array}
-\right),\]
-$\Omega = \{(s_t,i_t): s_t \ge 0, i_t \ge 0, s_t + i_t \le 1\}$, and \\ \pause
-$p(x_0,\theta) = p(i_0)\delta_{1-i_0}(s_0)p(\theta)$ with $i_0 \sim \mbox{N}_{[0,1]}(0.002,0.0005^2)$ \pause
-\begin{itemize}
-\item \citet{skvortsov2012monitoring,sheinson:niemi:meiring:epidtrack:2014} \pause
-\item \citet{herwaarden1995stochepid,dangerfield2009stochepid,anderson2004sars}
-\end{itemize}
-}
-
-\frame{\frametitle{State-space model of an epidemic}
-\begin{itemize}
-\item $R_0 = \frac{\beta}{\gamma}$ - basic reproductive number \pause
-\item seasonal flu - $R_0 \approx 1.5$, polio - $R_0 \approx 5$, chicken pox - $R_0 \approx 10$
-\end{itemize} \pause
-\includegraphics[width=0.45\textwidth]{sircurves1} \pause
-\includegraphics[width=0.45\textwidth]{sircurves2}
-}
-
-\frame{\frametitle{State-space model of an epidemic}
-Observation equation: \pause
-\begin{itemize}
-\item observe syndromic data from $L$ streams \pause
-\item $y_{l,t}$ - observed data from stream $l$ at day $t$ \pause
-\item e.g. counts of flu-related internet search queries, emergency room visits, etc. \pause
-\item $y_t = (y_{1,t},y_{2,t},\ldots,y_{L,t})'$ be observed data at day $t$, $t=1,2,\ldots,T$ \pause
-\item assume a stochastic power-law relationship between $\log y_t$ and $i_t$, i.e.
-\[\log y_{l,t} |x_t,\theta \sim \mbox{N}\left(b_li_t^{\varsigma_l}+\eta_l,\sigma_l^2\right)\] \pause
-\item \citet{Gins:Mohe:Pate:Bram:Smol:Bril:dete:2009}, \citet{skvortsov2012monitoring} \pause
-\item initially assume $L = 4$ and $\eta_l$, $b_l$, $\varsigma_l$, and $\sigma_l$ known for all $l$ \pause
-\item extended analysis: $L = 1$ and $\theta = (\beta,\gamma,\nu,b,\varsigma,\sigma,\eta)'$
-\end{itemize}
-}
+\subsection{Dynamic linear models}
 
 \frame{\frametitle{Dynamic linear models (DLMs)} \pause
 \begin{align*}
-y_t &= U_t\beta + F_tx_t + v_t, &\quad v_t \stackrel{iid}{\sim} \mbox{N}(0,V) \\
-x_t &= Gx_{t-1} + w_t, &\quad w_t \stackrel{iid}{\sim} \mbox{N}(0,W) \\
-x_0 &\sim \mbox{N}(m_0, C_0) &
-\end{align*} \pause
+\mbox{obs. eqn.:  } & y_t = U_t\beta + F_tx_t + v_t, \quad & v_t &\stackrel{iid}{\sim} \mbox{N}(0,V) \\ \pause
+\mbox{state eqn.:  } & x_t = Gx_{t-1} + w_t, \quad & w_t &\stackrel{iid}{\sim} \mbox{N}(0,W) \\ \pause
+\mbox{prior:  } & x_0 \sim \mbox{N}(m_0, C_0) \quad & &  \pause
+\end{align*}
+\begin{align*}
+y_t:& \ q \times 1 & U_t:& \ q \times d & \beta:& \ d \times 1 & & \\ \pause
+x_t:& \ p \times 1 & F_t:& \ q \times p & v_t:& \ q \times 1 & V:& \ q \times q \\ \pause
+G:& \ p \times p & W:& \ p \times p & m_0:& \ p \times 1 & C_0:& \ p \times p \pause
+\end{align*}
 \begin{itemize}
-\item $y_t: q \times 1 \quad v_t: q \times 1 \quad V: q \times q$ \pause
-\item $x_t: p \times 1 \quad w_t: p \times 1 \quad W: p \times p$  \pause
-\item $F_t: q \times p \quad G: p \times p$ \pause
-\item $U_t: q \times d \quad \beta: d \times 1$ \pause
-\item $m_0: p \times 1 \quad C_0: p \times p$ \pause
 \item $v_s \perp w_s'$ for all $s \ne s'$ \pause
 \item assume univariate $y_t$, i.e. $q = 1$ \pause
 \item $G$, $V$, $W$, $C_0$, and $\beta$ could contain unknown fixed parameters
 \end{itemize}
-}
-
-\frame{\frametitle{Dynamic linear models (DLMs)}
-Analytical tractability if all fixed parameters known \pause \\
-Filtered distributions $x_t|y_{1:t} \sim \mbox{N}(m_t,C_t)$ for $t=1,\ldots,T$, where
-\begin{align*}
-z_t &= Gm_{t-1} &\qquad R_t &= GC_{t-1}G' + W \\
-f_t &= F_tz_t + U_t\beta &\qquad Q_t &= F_tR_tF_t' + V \\
-m_t &= z_t + R_tF_t'Q_t^{-1}(y_t-f_t) &\qquad C_t &= R_t - R_tF_t'Q_t^{-1}F_tR_t
-\end{align*} \pause
-Smoothed distributions $x_t|y_{1:T} \sim \mbox{N}(h_t,H_t)$ for any $t < T$, where
-\begin{align*}
-h_t &= m_t + C_tG'R_{t+1}^{-1}(h_{t+1} - z_{t+1}) \\
-H_t &= C_t - C_tG'R_{t+1}^{-1}(R_{t+1} - H_{t+1})R_{t+1}^{-1}GC_t
-\end{align*}
-with $h_T = m_T$ and $H_T = C_T$ \pause \\
-Recursions known as Kalman filter and Kalman smoother \citep{kal:1960:ekf,petris:camp:2009:dynamic}
 }
 
 \frame{\frametitle{First-order DLM with common variance factor} \pause
@@ -260,31 +226,22 @@ x_t &\sim \mbox{N}(x_{t-1}, \theta\lambda)
 \end{itemize}
 }
 
-\frame{\frametitle{First-order DLM with common variance factor}
-Analytically tractable filtered distributions \pause \\
-$x_t|\theta,y_{1:t} \sim \mbox{N}(m_t,\theta c_t) \quad \theta|y_{1:t} \sim \mbox{IG}(a_t, b_t) \quad x_t|y_{1:t} \sim \mbox{T}\left(m_t,c_t \frac{b_t}{a_t},2a_t\right)$, \pause
-where $m_t$, $c_t$, $a_t$, and $b_t$ are calculated recursively according to
-\begin{align*}
-f_t &= m_{t-1} &\qquad q_t &= c_{t-1} + \lambda + 1 \\
-m_t &= (1 - c_t)f_t + c_ty_t &\qquad c_t &= 1 - \frac{1}{q_t} \\
-a_t &= a_{t-1} + \frac{1}{2} &\qquad b_t &= b_{t-1} + \frac{(y_t-f_t)^2}{2q_t}
-\end{align*}
-starting with $m_0 = 0$, $c_0 = 1$, and known $a_0$ and $b_0$ \pause \\
-Analytically tractable marginal likelihood $p(y_{1:t})$ \pause \\
-$y_t|y_{1:t-1} \sim \mbox{T}\left(f_t,q_t\frac{b_{t-1}}{a_{t-1}},2a_{t-1}\right) \quad p(y_{1:t}) = \left(\prod_{k=2}^t p(y_k|y_{1:k-1})\right)p(y_1)$ \\
-$y_1 \sim \mbox{T}(f_1,q_1b_0/a_0,2a_0)$
-}
-
 \frame{\frametitle{Regression with ARMA errors} \pause
-$y_t = U_t\beta + x_t$, where, $x_t$ follows a zero-mean $\mbox{ARMA}(P, Q)$ stochastic process \pause \\
+\begin{align*}
+y_t &= U_t\beta + x_t \\ \pause
+x_t &= \phi_1x_{t-1} + \cdots + \phi_Px_{t-P} + \epsilon_t + \gamma_1\epsilon_{t-1} + \cdots + \gamma_Q\epsilon_{t-Q} \\ \pause
+\epsilon_j &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2), \ j \ge 0 \pause
+\end{align*}
 \[
-\begin{array}{ccc}
-x_t &= & (x_{t,1} ,x_{t,2}, \ldots, x_{t,m})' \\
-m &= & \mbox{max}(P,Q+1) \\ \pause
-F_t &= & (1,0,\ldots,0)_{1\times m} \\ \pause
-v_t &= & 0 \\ \pause
-W &= & \sigma^2ee' \\
-e &= & (1, \gamma_1, \ldots, \gamma_{m-1})' \pause
+\begin{array}{ll}
+x_t &= (x_{t,1} ,x_{t,2}, \ldots, x_{t,m})' \\
+m &= \mbox{max}(P,Q+1) \\ \pause
+F_t &= (1,0,\ldots,0)_{1\times m} \\ \pause
+v_t &= 0 \\ \pause
+W &= \sigma^2ee' \\
+e &= (1, \gamma_1, \ldots, \gamma_{m-1})' \\ \pause
+\phi_s &= 0, \ s > P \\ \pause
+\gamma_r &= 0, \ r > Q \pause
 \end{array} \quad
 G = \left(
  \begin{array}{ccccc}
@@ -296,9 +253,9 @@ G = \left(
  \phi_m &\vdots & 0 & \cdots & 0
  \end{array}
 \right)\] \pause
-$\phi_s = 0$ for $s > P$ and $\gamma_r = 0$ for $r > Q$ \pause \\
-$y_t = U_t\beta + \phi_1x_{t-1,1} + \cdots + \phi_Px_{t-P,1} + \epsilon_t + \gamma_1\epsilon_{t-1} + \cdots + \gamma_Q\epsilon_{t-Q}$,
-where $t \ge m$ and $\epsilon_j \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2)$ for $j \ge 0$
+%$\phi_s = 0$ for $s > P$ and $\gamma_r = 0$ for $r > Q$ \pause \\
+%$y_t = U_t\beta + \phi_1x_{t-1,1} + \cdots + \phi_Px_{t-P,1} + \epsilon_t + \gamma_1\epsilon_{t-1} + \cdots + \gamma_Q\epsilon_{t-Q}$,
+%where $t \ge m$ and $\epsilon_j \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2)$ for $j \ge 0$
 }
 
 \frame{\frametitle{Regression with ARMA errors}
@@ -322,23 +279,28 @@ x_t &= Gx_{t-1} + w_t, &\quad w_t \stackrel{iid}{\sim} \mbox{N}(0,W)
 \end{align*} \pause
 Let $x_t$ follow an AR(1) process, i.e. $W = \sigma^2_s$ and $G = \phi$ \pause \\
 Let $V = \sigma^2_m$, $U_t = (1,u_t)$, and $\beta = (\beta_0,\beta_1)'$ \pause \\
-Let $p(x_0) = \delta_{0}(x_0)$ \pause \\
+%Let $p(x_0) = \delta_{0}(x_0)$, i.e. $x_0 = 0$ \pause \\
 Dynamic intercept model: $F_t = 1$ for all $t$ \pause \\
 \[y_t = (\beta_0 + x_t) + \beta_1u_t + v_t, \ v_t \stackrel{iid}{\sim}\mbox{N}(0,\sigma^2_m)\] \pause
 Dynamic slope model: $F_t = u_t$ \pause \\
 \[y_t = \beta_0 + (\beta_1 + x_t)u_t + v_t, \ v_t \stackrel{iid}{\sim}\mbox{N}(0,\sigma^2_m)\] \pause
-Unknown fixed parameters $\theta = (\beta',\phi,\sigma^2_s,\sigma^2_m)'$
+Unknown fixed parameters $\theta = (\beta',\phi,\sigma^2_s,\sigma^2_m)'$ \\ \pause
+Nonstationarity: $p(x_0) = \delta_{0}(x_0)$, i.e. $x_0 = 0$
 }
 
 \frame{\frametitle{Dynamic regression models}
-Dynamic intercept and slope model $M_{111}$: \pause
-\[F_t = (1, u_t) \quad G = \left(\begin{array}{cc} \phi & 0 \\ 0 & \rho \end{array}\right) \quad W = \left(\begin{array}{cc} \sigma^2_s & 0 \\ 0 & \sigma^2_b \end{array}\right)\] \pause
+Dynamic intercept and slope model: \pause
 \begin{align*}
-y_t &= (\beta_0 + x_{t,1}) + (\beta_1 + x_{t,2})u_t + v_t, \ v_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_m) \\
-x_{t,1} &= \phi x_{t-1,1} + w_{t,1}, \ w_{t,1} \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_s) \\
-x_{t,2} &= \rho x_{t-1,2} + w_{t,2}, \ w_{t,2} \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_b)
+F_t &= (1, u_t) & G &= \left(\begin{array}{cc} \phi & 0 \\ 0 & \rho \end{array}\right) & W &= \left(\begin{array}{cc} \sigma^2_s & 0 \\ 0 & \sigma^2_b \end{array}\right) \\ \pause
+x_t &= (x_{t,1},x_{t,2})' & V &= \sigma^2_m
+\end{align*}
+\begin{align*}
+y_t &= (\beta_0 + x_{t,1}) + (\beta_1 + x_{t,2})u_t + v_t, & \ v_t &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_m) \\
+x_{t,1} &= \phi x_{t-1,1} + w_{t,1}, & \ w_{t,1} &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_s) \\
+x_{t,2} &= \rho x_{t-1,2} + w_{t,2}, & \ w_{t,2} &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_b)
 \end{align*} \pause
-Unknown fixed parameters $\theta = (\beta',\phi,\rho,\sigma^2_s,\sigma^2_b,\sigma^2_m)'$
+Unknown fixed parameters $\theta = (\beta_0,\beta_1,\phi,\rho,\sigma^2_s,\sigma^2_b,\sigma^2_m)'$ \\ \pause
+Nonstationarity: $p(x_0) = \delta_{(0,0)}(x_0)$, i.e. $x_{0,1} = x_{0,2} = 0$
 }
 
 \frame{\frametitle{Dynamic regression models}
@@ -355,14 +317,70 @@ Regression with AR(1) errors: $M_{100}$ \\ \pause
 Simple linear regression: $M_{001}$
 }
 
+\subsection{Sequential estimation}
+
+\frame{\frametitle{Sequential estimation in state-space models} \pause
+Joint likelihood \pause
+\begin{itemize}
+\item $p(y_{1:t},x_{0:t},\theta) = p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(y_{1:t-1},x_{0:t-1},\theta)$
+\end{itemize} \pause
+Filtered distributions \pause
+\begin{itemize}
+\item $p(x_{0:t},\theta|y_{1:t}) \propto p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(x_{0:t-1},\theta|y_{1:t-1})$ \pause
+\item $p(x_t,\theta| y_{1:t}) \propto \int p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(x_{t-1},\theta|y_{1:t-1})\mbox{d}x_{t-1}$ \pause
+\end{itemize}
+Smoothed distributions: $p(x_s,\theta|y_{1:t})$ for any $s < t$ \pause
+\begin{itemize}
+\item $p(x_s,\theta|y_{1:t}) = \int_{x_{0:s-1}} \int_{x_{s+1:t}} p(x_{0:t},\theta|y_{1:t},)\mbox{d}x_{0:s-1}\mbox{d}x_{s+1:t}$ \pause
+\end{itemize}
+Marginal likelihood of the data: $p(y_{1:t})$ \pause
+\begin{itemize}
+\item $p(y_{1:t}) = \int_{\theta} \int_{x_{0:t}} p(y_{1:t},x_{0:t},\theta)\mbox{d}x_{0:t}\mbox{d}\theta$ \pause
+\end{itemize}
+Analytical tractability only in special cases
+}
+
+\frame{\frametitle{Kalman filter and smoother \citep{kal:1960:ekf}}
+Analytical tractability in DLMs when fixed parameters known \pause \\
+$p(x_t|y_{1:t})$ computed recursively \pause \\
+Filtered distributions $x_t|y_{1:t} \sim \mbox{N}(m_t,C_t)$ for $t=1,\ldots,T$\pause, where
+\begin{align*}
+z_t &= Gm_{t-1} &\qquad R_t &= GC_{t-1}G' + W \\
+f_t &= F_tz_t + U_t\beta &\qquad Q_t &= F_tR_tF_t' + V \\
+m_t &= z_t + R_tF_t'Q_t^{-1}(y_t-f_t) &\qquad C_t &= R_t - R_tF_t'Q_t^{-1}F_tR_t
+\end{align*} \pause
+Smoothed distributions $x_s|y_{1:t} \sim \mbox{N}(h_t,H_t)$ for any $s < t$\pause, where
+\begin{align*}
+h_s &= m_s + C_sG'R_{s+1}^{-1}(h_{s+1} - z_{s+1}) \\
+H_s &= C_s - C_sG'R_{s+1}^{-1}(R_{s+1} - H_{s+1})R_{s+1}^{-1}GC_s
+\end{align*}
+with $h_t = m_t$ and $H_t = C_t$
+}
+
+\frame{\frametitle{Estimation in first-order DLM with common variance factor}
+$y_t \sim \mbox{N}(x_t, \theta) \quad x_t \sim \mbox{N}(x_{t-1}, \theta\lambda) \quad x_0|\theta \sim \mbox{N}(0, \theta) \quad \theta \sim \mbox{IG}(a_0,b_0)$ \\ \pause
+Analytically tractable filtered distributions \pause \\
+$x_t|\theta,y_{1:t} \sim \mbox{N}(m_t,\theta c_t) \quad \theta|y_{1:t} \sim \mbox{IG}(a_t, b_t) \quad x_t|y_{1:t} \sim \mbox{T}\left(m_t,c_t \frac{b_t}{a_t},2a_t\right)$, \pause
+where $m_t$, $c_t$, $a_t$, and $b_t$ are calculated recursively via
+\begin{align*}
+f_t &= m_{t-1} &\qquad q_t &= c_{t-1} + \lambda + 1 \\
+m_t &= (1 - c_t)f_t + c_ty_t &\qquad c_t &= 1 - \frac{1}{q_t} \\
+a_t &= a_{t-1} + \frac{1}{2} &\qquad b_t &= b_{t-1} + \frac{(y_t-f_t)^2}{2q_t}
+\end{align*}
+starting with $m_0 = 0$, $c_0 = 1$, and known $a_0$ and $b_0$ \pause \\
+Analytically tractable marginal likelihood $p(y_{1:t})$ \pause \\
+$y_t|y_{1:t-1} \sim \mbox{T}\left(f_t,q_t\frac{b_{t-1}}{a_{t-1}},2a_{t-1}\right) \quad p(y_{1:t}) = \left(\prod_{k=2}^t p(y_k|y_{1:k-1})\right)p(y_1)$ \\
+$y_1 \sim \mbox{T}(f_1,q_1b_0/a_0,2a_0)$
+}
+
 \section{Monte Carlo estimation \label{sec:def:est}}
 
 \frame{\frametitle{Monte Carlo approximation}
-What if $p(x_t,\theta|y_{1:t})$ cannot be calculated? \\ \pause
+What if $p(x_t,\theta|y_{1:t})$ has no closed form? \\ \pause
 Sample-based approximations \\ \pause
 Markov chain Monte Carlo (MCMC) \pause
 \begin{itemize}
-\item provides smoothed estimates of states in state-space models \pause
+\item smoothed estimates of states in state-space models \pause
 \item inefficient for sequential analysis \pause
 \end{itemize}
 Sequential Monte Carlo (SMC), a.k.a. particle filtering \pause
@@ -372,6 +390,8 @@ Sequential Monte Carlo (SMC), a.k.a. particle filtering \pause
 \item inefficient for smoothing
 \end{itemize}
 }
+
+\subsection{Particle filtering}
 
 \frame{\frametitle{Particle filtering} \pause
 Based on a sequential use of important sampling \\ \pause
@@ -385,7 +405,8 @@ Approximates $p(x_t,\theta|y_{1:t})$ through a weighted Monte Carlo realization 
 
 \frame{\frametitle{Bootstrap filter (BF) \citep{Gord:Salm:Smit:nove:1993,Kita:mont:1996}} \pause
 Assume $\theta$ known \\ \pause
-Given an approximation to $p(x_t|y_{1:t})$, move to an approximation to $p(x_{t+1}|y_{1:t+1})$ by the following steps for each particle $j=1,\ldots,J$:
+Given a particle approximation to $p(x_t|y_{1:t})$, approximate $p(x_{t+1}|y_{1:t+1})$ \\ \pause
+For each particle $j=1,\ldots,J$:
 \begin{enumerate}
 \item Resample: sample an index $k\in\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\left\{w_t^{(1)},\ldots,w_t^{(j)},\ldots,w_t^{(J)}\right\}$, \pause
 \item Propagate: sample $x_{t+1}^{(j)} \sim p\left( x_{t+1}\left|x_t^{(k)}\right.\right)$, and \pause
@@ -415,9 +436,40 @@ Solution: look ahead for particles with higher likelihood using $y_{t+1}$ \\ \pa
 Typically $\mu_{t+1}^{(j)} = E\left(x_{t+1}\left|x_t^{(j)} \right.\right)$
 }
 
+\frame{\frametitle{Resampling} \pause
+Sample tends to degenerate toward one or a few particles \\ \pause
+Randomly select particles with probabilities equal to their weights \\ \pause
+\begin{center}
+\begin{table}
+\begin{tabular}{|cccccc|}
+\hline
+$j$ & 1 & 2 & 3 & 4 & 5 \\
+\hline
+$x_t^{(j)}$ & 0.04 & 0.05 & 0.03 & 0.07 & 0.02 \\
+$w_t^{(j)}$ & .2 & .4 & 0 & .2 & .2 \\
+\hline
+\end{tabular}
+\end{table} \pause
+$\stackrel{\downarrow}{\mbox{resample}}$
+\begin{table}
+\begin{tabular}{|cccccc|}
+\hline
+$j$ & 1 & 2 & 3 & 4 & 5 \\
+\hline
+$x_t^{(j)}$ & 0.04 & 0.05 & 0.05 & {\bf 0.05} & 0.02 \\
+$w_t^{(j)}$ & .2 & .2 & .2 & .2 & .2 \\
+\hline
+\end{tabular}
+\end{table}
+\end{center} \pause
+Avoids degeneracy in the weights \\ \pause
+Introduces more Monte Carlo variability into particle sample \\ \pause
+Degeneracy in fixed parameter values
+}
+
 \frame{\frametitle{Kernel density particle filter (KDPF) \citep{Liu:West:comb:2001}} \pause
-Problem: $\theta$ must be included in $x_t$ \pause $\Rightarrow$ degeneracy in unique fixed parameter values \\ \pause
-Solution: regenerate $\{\theta_t^{(1)},\ldots,\theta_t^{(J)}\}$ from a kernel density approximation to $p(\theta|y_{1:t})$ \\ \pause
+Problem: degeneracy in $\theta$ \\ \pause
+Solution: regenerate $\left\{\theta_t^{(1)},\ldots,\theta_t^{(J)}\right\}$ from a kernel density approximation \\ \pause
 Mixture of normals:
 \[p(\theta|y_{1:t}) \approx \sum_{j=1}^J w_t^{(j)}\mbox{N}(m_t^{(j)}, h^2V_t),\] \pause
 \begin{align*}
@@ -427,8 +479,7 @@ V_t &= \mbox{ sample covariance of } \theta_t^{(1)},\ldots,\theta_t^{(J)} \\ \pa
 a^2 &= 1 - h^2 \\
 h^2 &= 1 - ((3\Delta - 1)/2\Delta)^2 \\
 \Delta &= \mbox{ discount factor } \in [0.95,0.99]
-\end{align*} \pause
-Reparameterize $\theta$ to the real line
+\end{align*}
 }
 
 \frame{\frametitle{Kernel density particle filter (KDPF) \citep{Liu:West:comb:2001}}
@@ -447,65 +498,50 @@ Reparameterize $\theta$ to the real line
 \end{enumerate}
 }
 
-\frame{\frametitle{Resample-move particle filter (RM) \citep{Gilk:Berz:foll:2001}} \pause
+\frame{\frametitle{Resample-move (RM) \citep{Gilk:Berz:foll:2001}} \pause
 Regenerate fixed parameter values using a kernel closer to $p(\theta|y_{1:t})$ \\ \pause
 \begin{itemize}
-\item MCMC transition kernel $q$ with stationary distribution equal to $p(\theta|y_{1:t})$ \\ \pause
-\item Define $x_{0:t}^{(j)} = \left(x_0^{(j)},x_1^{(j)},\ldots,x_t^{(j)}\right)$ and represent particle $j$ by $\left(x_{0:t}^{(j)},\theta_t^{(j)}\right)$ \\ \pause
+\item MCMC transition kernel $q$ \\ \pause
+\item Add past states to particles\pause, i.e.
+\[\left(x_{0:t}^{(j)},\theta_t^{(j)}\right) \ \mbox{with} \ x_{0:t}^{(j)} = \left(x_0^{(j)},x_1^{(j)},\ldots,x_t^{(j)}\right)\] \pause
 \item $q$ satisfies $\int_{\theta}\int_{x_{0:t}} p(x_{0:t},\theta|y_{1:t})q\left(x_{0:t}^*,\theta^*|x_{0:t}^{(j)},\theta_t^{(j)}\right)\mbox{d}x_{0:t}\mbox{d}\theta = p(x_{0:t},\theta|y_{1:t})$ \\ \pause
-\item $\left(x_{0:t}^{(j)},\theta_t^{(j)}\right) \stackrel{.}{\sim} p(x_{0:t},\theta|y_{1:t})$ implies $\left(x_{0:t}^*,\theta^*\right)$ drawn from $q\left(x_{0:t},\theta|x_{0:t}^{(j)},\theta_t^{(j)}\right)$ can only have distribution closer to  $p(x_{0:t},\theta|y_{1:t})$ \pause
-\item $\theta^*$ has distribution closer to $p(\theta|y_{1:t})$
+\item Draw $\left( x_{0:t}^*, \theta^*\right) \sim q\left(x_{0:t}^*,\theta^*|x_{0:t}^{(j)},\theta_t^{(j)}\right)$ \pause
+\item $\left(x_{0:t}^{(j)},\theta_t^{(j)}\right) \stackrel{.}{\sim} p(x_{0:t},\theta|y_{1:t}) \Rightarrow \theta^* \stackrel{.}{\sim} p(\theta|y_{1:t})$
 \end{itemize}
 }
 
-\frame{\frametitle{Resample-move particle filter (RM) \citep{Gilk:Berz:foll:2001}}
-Given a particle approximation to $p(x_{0:t},\theta|y_{1:t})$, move to a particle approximation to $p(x_{0:t+1},\theta|y_{1:t+1})$ by the following for each particle $j=1,\ldots,J$: \pause
+\frame{\frametitle{Resample-move (RM) \citep{Gilk:Berz:foll:2001}}
+Given a particle approximation to $p(x_{0:t},\theta|y_{1:t})$, approximate $p(x_{t+1},\theta|y_{1:t+1})$ \\ \pause
+For each particle $j=1,\ldots,J$:
 \begin{enumerate}
-\item Propagate: draw $\tilde{x}^{(j)}_{t+1}$ from $p\left(x_{t+1}|x^{(j)}_t,\theta^{(j)}_t\right)$. Incorporate $\tilde{x}^{(j)}_{t+1}$ into particle $j$ and denote the new augmented particle by $\left(\tilde{x}^{(j)}_{0:t+1},\theta^{(j)}_t\right)$, \pause
+\item Propagate: draw $\tilde{x}^{(j)}_{t+1}$ from $p\left(x_{t+1}|x^{(j)}_t,\theta^{(j)}_t\right)$ \pause
+\item Augment: add $\tilde{x}^{(j)}_{t+1}$ to particle $j$ and call new particle $\left(\tilde{x}^{(j)}_{0:t+1},\theta^{(j)}_t\right)$ \pause
 \item Calculate weights: $\tilde{w}^{(j)}_t = p\left(y_{t+1}|\tilde{x}^{(j)}_{t+1},\theta^{(j)}_t\right)$ \pause
-\item Renormalize: $w^{(j)}_{t+1} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}, \right.$ \pause
-\item Resample: sample an index $k$ from $\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w^{(1)}_{t+1},\ldots,w^{(j)}_{t+1},\ldots,w^{(J)}_{t+1}\}$, and \pause
-\item \label{step:move} Move particles: draw a new particle $\left(x^{(j)}_{0:t+1},\theta^{(j)}_{t+1}\right) \sim q\left(x_{0:t+1},\theta|\tilde{x}^{(k)}_{0:t+1},\theta^{(k)}_t\right)$ with invariant distribution $p(x_{0:t+1},\theta|y_{1:t+1})$.
-\end{enumerate}
-}
-
-\frame{\frametitle{RM example - first-order DLM} \pause
-\begin{align*}
-y_t &\sim \mbox{N}(x_t, \theta) \\
-x_t &\sim \mbox{N}(x_{t-1}, \theta\lambda) \\
-x_0|\theta &\sim \mbox{N}(0, \theta) \quad \theta \sim \mbox{IG}(a_0,b_0)
-\end{align*} \pause
-Sample from $q$ as follows: For a given particle $j$ and sampled index $k$,
-\begin{enumerate}
-\item \label{step:move:ll} Sample $\theta^{(j)}_{t+1}$ conditional on $\tilde{x}_{0:t+1}^{(k)}$ from $\mbox{IG}(a_t, b_t)$, where
-\begin{align*}
-a_t &= a_0 + 1/2 + t \\
-b_t &= b_0 + \frac{1}{2}\left(\sum_{i=1}^t \left(y_i - \tilde{x}_i^{(k)}\right)^2 + \frac{1}{\lambda}\sum_{i=1}^t \left(\tilde{x}_i^{(k)} - \tilde{x}_{i-1}^{(k)}\right)^2 + \left(\tilde{x}^{(k)}_0\right)^2\right)
-\end{align*} \pause
-\item Sample $x_{0:t+1}^{(j)}$ conditional on $\theta^{(j)}_{t+1}$ via forward filtering backward sampling (FFBS), based on Kalman filter and smoother recursions %with
-%\[m_0 = 0 \quad C_0 = V = \theta^{(j)}_{t+1} \quad W = \theta_{t+1}^{(j)}\lambda \quad F_t = G = 1.\]
+\item Renormalize: $w^{(j)}_{t+1} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)} \right.$ \pause
+\item Resample: sample an index $k$ from $\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w^{(1)}_{t+1},\ldots,w^{(j)}_{t+1},\ldots,w^{(J)}_{t+1}\}$\pause
+\item \label{step:move} Move particles: draw a new particle $\left(x^{(j)}_{0:t+1},\theta^{(j)}_{t+1}\right) \sim q\left(x_{0:t+1},\theta|\tilde{x}^{(k)}_{0:t+1},\theta^{(k)}_t\right)$
 \end{enumerate}
 }
 
 \frame{\frametitle{Particle learning (PL) \citep{Carv:Joha:Lope:Pols:part}} \pause
-Increases efficiency by regenerating $\theta$ using sufficient statistics $s_t$ \\ \pause
+Let $s_t$ be sufficient statistics for $\theta$ \\ \pause
+Regenerate $\theta$ from $p(\theta|s_t)$ \\ \pause
 \begin{align*}
-p(x_{t+1},s_{t+1},\theta|y_{1:t+1}) \propto & \int_{s_t}\int_{x_t} p(s_{t+1}|y_{t+1},x_{t+1},s_t)p(x_{t+1}|y_{t+1},x_t,\theta) \\
-& p(y_{t+1}|x_t,\theta)p(x_t,s_t,\theta|y_{1:t})\mbox{d}x_t\mbox{d}s_t \pause
+&p(x_{t+1},s_{t+1},\theta|y_{1:t+1}) \propto & \int_{s_t}\int_{x_t} &p(s_{t+1}|y_{t+1},x_{t+1},s_t)p(x_{t+1}|y_{t+1},x_t,\theta) \\
+& & &p(y_{t+1}|x_t,\theta)p(x_t,s_t,\theta|y_{1:t})\mbox{d}x_t\mbox{d}s_t \pause
 \end{align*}
 \begin{itemize}
-\item incorporates look ahead strategy through $p(y_{t+1}|x_t,\theta)$ \pause
-\item propagates states through $p(x_{t+1}|y_{t+1},x_t,\theta)$ \pause
-\item sequential algorithm through tracking sufficient statistics for $\theta$ \pause
-\item must be able to sample from $p(\theta|s_t)$ and $p(x_{t+1}|y_{t+1},x_t,\theta)$ \pause
-\item must be able to evaluate $p(y_{t+1}|x_t,\theta)$ up to a constant \pause
-\item must be able to update $s_{t+1}$ given $s_t$, $x_{t+1}$, and $y_{t+1}$ \pause
-\item incorporate sufficient statistics into particles, i.e. location of particle $j$ at time $t$ is $\left(x^{(j)}_t,\theta^{(j)}_t,s_t^{(j)}\right)$
+\item looks ahead, like in APF, through $p(y_{t+1}|x_t,\theta)$ \pause
+\item propagate states through $p(x_{t+1}|y_{t+1},x_t,\theta)$ \pause
+\item need $p(y_{t+1}|x_t,\theta)$, $p(x_{t+1}|y_{t+1},x_t,\theta)$, and $p(\theta|s_t)$ \pause
+\item need to track $s_t$
+\item add $s_t$ to particles: $\left(x^{(j)}_t,\theta^{(j)}_t,s_t^{(j)}\right)$
 \end{itemize}
 }
 
 \frame{\frametitle{Particle learning (PL) \citep{Carv:Joha:Lope:Pols:part}}
-We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\theta|y_{1:t+1})$ by the following procedure for each particle $j = 1,2,\ldots,J$:
+Given a particle approximation to $p(x_t|y_{1:t})$, approximate $p(x_{t+1}|y_{1:t+1})$ \\ \pause
+For each particle $j=1,\ldots,J$:
 \begin{enumerate}
 \item Calculate weights: $\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}\left|x_t^{(j)},\theta_t^{(j)}\right.\right)$ \pause
 \item Renormalize: $w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)} \left/ \sum_{l=1}^J \tilde{w}_{t+1}^{(l)}\right.$ \pause
@@ -516,71 +552,131 @@ We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\
 \end{enumerate}
 }
 
-\frame{\frametitle{PL example - first-order DLM} \pause
+\frame{\frametitle{Practical implementation} \pause
+When to resample? \pause
+\begin{itemize}
+\item when particle weights are out of balance \pause
+\item effective sample size \citep{Liu:Chen:Wong:reje:1998} \pause
+\end{itemize}
+How to resample? \pause
+\begin{itemize}
+\item different resampling techniques \citep{Douc:Capp:Moul:comp:2005} \pause
+\item multinomial, residual, stratified, systematic resampling \pause
+\end{itemize}
+Influence of priors \\ \pause
+\citet{sheinson:niemi:meiring:epidtrack:2014}
+}
+
+\subsection{Model comparison}
+
+\frame{\frametitle{Estimating the marginal likelihood}
+Calculate $p(y_{1:T})$ through $p(y_1)$ and $p(y_t|y_{1:t-1})$ for $t=2,\ldots,T$ \\ \pause
+\[p(y_{1:T}) = \left(\prod_{t=2}^T p(y_t|y_{1:t-1})\right)p(y_1)\] \pause
+Approximate $p(y_t|y_{1:t-1})$ using particle filter: \\ \pause
 \begin{align*}
-&y_{t+1}|x_t,\theta \sim \mbox{N}\left(x_t,\theta(1+\lambda)\right) & x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau^2) \\
-&\mu_t = \frac{\lambda}{1+\lambda}(y_{t+1} + x_t / \lambda) & \tau^2 = \theta\frac{\lambda}{1+\lambda}
-\end{align*} \pause
-\begin{align*}
-&\theta|y_{1:t},x_{0:t} \sim \mbox{IG}(a_t,b_t) & \\ \pause
-&s_t = (a_t,b_t) & \\ \pause
-&a_{t+1} = a_t + 1, \ \ t \ge 1 &  \\ \pause
-&b_{t+1} = \frac{1}{2}\left((y_{t+1}-x_{t+1})^2 + \frac{1}{\lambda}(x_{t+1}-x_t)^2\right) + b_t, \ \ t \ge 1 & \\ \pause
-&b_1 = \frac{1}{2}\left((y_1-x_1)^2 + \frac{1}{\lambda}(x_1-x_0)^2 + x_0^2\right) + b_0 & a_1 = 3/2 + a_0
+p(y_t|y_{1:t-1}) &\approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{t-1}\tilde{w}^{(j)}_t, & \mbox{for the BF, RM, and PL} \\ \left(\frac{1}{J}\sum_{j=1}^J \tilde{w}^{(j)}_{t-1}\right)\left(\sum_{j=1}^J\tilde{g}^{(j)}_t\right) & \mbox{for the APF and KDPF} \end{array} \right.
 \end{align*}
 }
 
-\frame{\frametitle{PL example - dynamic regression} \pause
-\begin{align*}
-&y_t = \beta_0 + \beta_1u_t + F_tx_t + v_t & v_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_m) \\
-&x_t = \phi x_{t-1} + w_t & w_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_s) \\ \pause
-&F_t = 1 \Rightarrow M_{101} & F_t = u_t \Rightarrow M_{011} \\ \pause
-&\theta = (\beta',\phi,\sigma^2_s,\sigma^2_m)' & \pause
-\end{align*}
-Priors: \pause $p(x_0,\theta) = p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s)\delta_0(x_0)$ \\ \pause
-\begin{align*}
-&\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_m B_0) &\quad \sigma^2_m &\sim \mbox{IG}(a_{m_0},b_{m_0}) \\
-&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s \Phi_0) &\quad \sigma^2_s &\sim \mbox{IG}(a_{s_0},b_{s_0})
-\end{align*} \pause
-Hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ assumed known
+\frame{\frametitle{Comparing alternative models}
+Compare $N$ possible models ${M_1,M_2,\ldots,M_N}$ \\ \pause
+\[p(M_i|y_{1:t}) = \frac{p(y_{1:t}|M_i)p(M_i)}{\sum_{i=1}^N p(y_{1:t}|M_i)p(M_i)}\] \pause
+Example: simulated time series from first-order DLM with $\theta = \lambda = 1$, $T = 100$  \pause
+\begin{itemize}
+\item Can calculate true $p(y_{1:T})$, $p(M_i|y_{1:T})$ \pause
+\item Consider three models: $\lambda = 0.5, 1, 2$ \pause
+\item Estimate $p(M_i|y_{1:T})$ using KPDF, RM, and PL
+\item 20 separate runs on each model with each algorithm
+\end{itemize}
 }
 
-\frame{\frametitle{PL example - dynamic regression}
-\begin{align*}
-&y_{t+1}|x_t,\theta \sim \mbox{N}(U_{t+1}\beta + F_t\phi x_t, F_t^2\sigma^2_s + \sigma^2_m) & x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau_t^2) \\ \pause
-&\mu_t = \tau_t^2\left(\frac{(y_{t+1}-U_{t+1}\beta)F_{t+1}}{\sigma^2_m} + \frac{\phi x_t}{\sigma^2_s}\right) & \tau_t^2 = \left(\frac{F_{t+1}^2}{\sigma^2_m} + \frac{1}{\sigma^2_s}\right)^{-1} \pause
-\end{align*}
-\[\begin{array}{ll}
-\beta|\sigma^2_m,y_{1:t},x_{0:t} \sim \mbox{N}(\vartheta_t, \sigma^2_m B_t) & \sigma^2_m|y_{1:t},x_{0:t} \sim \mbox{IG}(a_{m_t},\frac{1}{2}(\xi_{m_t} - \vartheta_t'B_t^{-1}\vartheta_t)) \\ \pause
-\phi|\sigma^2_s,y_{1:t},x_{0:t} \sim \mbox{N}(\varphi_t, \sigma^2_s \Phi_t) & \sigma^2_s|y_{1:t},x_{0:t} \sim \mbox{IG}(a_{s_t},\frac{1}{2}(\xi_{s_t} - \varphi_t'\Phi_t^{-1}\varphi_t)) \\ \pause
-\xi_{m_0} = \vartheta_0'B_0^{-1}\vartheta_0 + 2b_{m_0} & \xi_{s_0} = \varphi_0'\Phi_0^{-1}\varphi_0 + 2b_{s_0} \pause
-\end{array}\]
-\begin{align*}
-&s_t = (\vartheta_t, B_t, a_{m_t}, \xi_{m_t}, \varphi_t, \Phi_t, a_{s_t}, \xi_{s_t}) & \\ \pause
-&B_t^{-1}\vartheta_t = B_{t-1}^{-1}\vartheta_{t-1} + U_t'(y_t - F_tx_t) & B_t^{-1} = B_{t-1}^{-1} + U_t'U_t \\ \pause
-&a_{m_t} = a_{m_{t-1}} + 1/2 & \xi_{m_t} = \xi_{m_{t-1}} + (y_t - F_tx_t)^2 \\ \pause
-&\Phi_t^{-1}\varphi_t = \Phi_{t-1}^{-1}\varphi_{t-1} + x_tx_{t-1} & \Phi_t^{-1} = \Phi_{t-1}^{-1} + x_{t-1}^2 \\ \pause
-&a_{s_t} = a_{s_{t-1}} + 1/2 & \xi_{s_t} = \xi_{s_{t-1}} + x_t^2 \pause
-\end{align*}
+\frame{\frametitle{Comparing alternative models}
+\centering
+\includegraphics[width=0.65\textwidth]{cv_pl_ternary-5-10-20-1-20}
 }
 
-\frame{\frametitle{Particle MCMC (PMCMC) \citep{Andr:Douc:Hol:pmcmc:2010}} \pause
-MCMC - Gibbs sampling with Metropolis-Hastings (MH) steps \\ \pause
-Increases efficiency of MCMC using SMC to generate MH proposals \\ \pause
-Particle marginal Metropolis-Hastings sampler (PMMH) \\ \pause
-Given $(y_1,\ldots,y_T)$, $\theta^{(i-1)}$, and $\hat{p}\left(y_{1:T}|\theta^{(i-1)}\right)$: \pause
-\begin{enumerate}
-\item Sample $\theta^*$ from some proposal distribution $q(\theta|\theta^{(i-1)})$ \pause
-\item Approximate $p(x_{0:T}|y_{1:T},\theta^*)$ and $p(y_{1:t})$ via SMC conditional on $\theta^*$ \pause
-\item Sample $x_{0:T}^*$ from approximation of $p(x_{0:T}|y_{1:T},\theta^*)$ \pause
-\item Letting $\hat{p}(y_{1:T}|\theta^*)$ denote approximation to $p(y_{1:t})$, set $\theta^{(i)} = \theta^*$ and $\hat{p}\left(y_{1:T}|\theta^{(i)}\right) = \hat{p}(y_{1:T}|\theta^*)$ with probability
-    \[R = \min\left(1, \frac{\hat{p}(y_{1:T}|\theta^*)p(\theta^*)}{\hat{p}\left(y_{1:T}|\theta^{(i-1)}\right)p\left(\theta^{(i-1)}\right)} \frac{q\left(\theta^{(i-1)}|\theta^*\right)}{q\left(\theta^*|\theta^{(i-1)}\right)} \right).\]
-    Otherwise, set
-    \[\theta^{(i)} = \theta^{(i-1)} \qquad \hat{p}\left(y_{1:T}\left|\theta^{(i)}\right.\right) = \hat{p}\left(y_{1:T}\left|\theta^{(i-1)}\right.\right).\]
-\end{enumerate}
-}
+%\frame{\frametitle{RM with first-order DLM} \pause
+%\begin{align*}
+%y_t &\sim \mbox{N}(x_t, \theta) \\
+%x_t &\sim \mbox{N}(x_{t-1}, \theta\lambda) \\
+%x_0|\theta &\sim \mbox{N}(0, \theta) \quad \theta \sim \mbox{IG}(a_0,b_0)
+%\end{align*} \pause
+%Sample from $q$ as follows: For a given particle $j$ and sampled index $k$,
+%\begin{enumerate}
+%\item \label{step:move:ll} Sample $\theta^{(j)}_{t+1}$ conditional on $\tilde{x}_{0:t+1}^{(k)}$ from $\mbox{IG}(a_t, b_t)$, where
+%\begin{align*}
+%a_t &= a_0 + 1/2 + t \\
+%b_t &= b_0 + \frac{1}{2}\left(\sum_{i=1}^t \left(y_i - \tilde{x}_i^{(k)}\right)^2 + \frac{1}{\lambda}\sum_{i=1}^t \left(\tilde{x}_i^{(k)} - \tilde{x}_{i-1}^{(k)}\right)^2 + \left(\tilde{x}^{(k)}_0\right)^2\right)
+%\end{align*} \pause
+%\item Sample $x_{0:t+1}^{(j)}$ conditional on $\theta^{(j)}_{t+1}$ via FFBS
+%\end{enumerate}
+%}
+%
+%\frame{\frametitle{PL example - first-order DLM} \pause
+%\begin{align*}
+%&y_{t+1}|x_t,\theta \sim \mbox{N}\left(x_t,\theta(1+\lambda)\right) & x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau^2) \\
+%&\mu_t = \frac{\lambda}{1+\lambda}(y_{t+1} + x_t / \lambda) & \tau^2 = \theta\frac{\lambda}{1+\lambda}
+%\end{align*} \pause
+%\begin{align*}
+%&\theta|y_{1:t},x_{0:t} \sim \mbox{IG}(a_t,b_t) & \\ \pause
+%&s_t = (a_t,b_t) & \\ \pause
+%&a_{t+1} = a_t + 1, \ \ t \ge 1 &  \\ \pause
+%&b_{t+1} = \frac{1}{2}\left((y_{t+1}-x_{t+1})^2 + \frac{1}{\lambda}(x_{t+1}-x_t)^2\right) + b_t, \ \ t \ge 1 & \\ \pause
+%&b_1 = \frac{1}{2}\left((y_1-x_1)^2 + \frac{1}{\lambda}(x_1-x_0)^2 + x_0^2\right) + b_0 & a_1 = 3/2 + a_0
+%\end{align*}
+%}
 
-\section{Results \label{sec:def:results}}
+%\frame{\frametitle{PL example - dynamic regression} \pause
+%\begin{align*}
+%&y_t = \beta_0 + \beta_1u_t + F_tx_t + v_t & v_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_m) \\
+%&x_t = \phi x_{t-1} + w_t & w_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_s) \\ \pause
+%&F_t = 1 \Rightarrow M_{101} & F_t = u_t \Rightarrow M_{011} \\ \pause
+%&\theta = (\beta',\phi,\sigma^2_s,\sigma^2_m)' & \pause
+%\end{align*}
+%Priors: \pause $p(x_0,\theta) = p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s)\delta_0(x_0)$ \\ \pause
+%\begin{align*}
+%&\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_m B_0) &\quad \sigma^2_m &\sim \mbox{IG}(a_{m_0},b_{m_0}) \\
+%&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s \Phi_0) &\quad \sigma^2_s &\sim \mbox{IG}(a_{s_0},b_{s_0})
+%\end{align*} \pause
+%Hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ assumed known
+%}
+%
+%\frame{\frametitle{PL example - dynamic regression}
+%\begin{align*}
+%&y_{t+1}|x_t,\theta \sim \mbox{N}(U_{t+1}\beta + F_t\phi x_t, F_t^2\sigma^2_s + \sigma^2_m) & x_{t+1}|y_{t+1},x_t,\theta \sim \mbox{N}(\mu_t,\tau_t^2) \\ \pause
+%&\mu_t = \tau_t^2\left(\frac{(y_{t+1}-U_{t+1}\beta)F_{t+1}}{\sigma^2_m} + \frac{\phi x_t}{\sigma^2_s}\right) & \tau_t^2 = \left(\frac{F_{t+1}^2}{\sigma^2_m} + \frac{1}{\sigma^2_s}\right)^{-1} \pause
+%\end{align*}
+%\[\begin{array}{ll}
+%\beta|\sigma^2_m,y_{1:t},x_{0:t} \sim \mbox{N}(\vartheta_t, \sigma^2_m B_t) & \sigma^2_m|y_{1:t},x_{0:t} \sim \mbox{IG}(a_{m_t},\frac{1}{2}(\xi_{m_t} - \vartheta_t'B_t^{-1}\vartheta_t)) \\ \pause
+%\phi|\sigma^2_s,y_{1:t},x_{0:t} \sim \mbox{N}(\varphi_t, \sigma^2_s \Phi_t) & \sigma^2_s|y_{1:t},x_{0:t} \sim \mbox{IG}(a_{s_t},\frac{1}{2}(\xi_{s_t} - \varphi_t'\Phi_t^{-1}\varphi_t)) \\ \pause
+%\xi_{m_0} = \vartheta_0'B_0^{-1}\vartheta_0 + 2b_{m_0} & \xi_{s_0} = \varphi_0'\Phi_0^{-1}\varphi_0 + 2b_{s_0} \pause
+%\end{array}\]
+%\begin{align*}
+%&s_t = (\vartheta_t, B_t, a_{m_t}, \xi_{m_t}, \varphi_t, \Phi_t, a_{s_t}, \xi_{s_t}) & \\ \pause
+%&B_t^{-1}\vartheta_t = B_{t-1}^{-1}\vartheta_{t-1} + U_t'(y_t - F_tx_t) & B_t^{-1} = B_{t-1}^{-1} + U_t'U_t \\ \pause
+%&a_{m_t} = a_{m_{t-1}} + 1/2 & \xi_{m_t} = \xi_{m_{t-1}} + (y_t - F_tx_t)^2 \\ \pause
+%&\Phi_t^{-1}\varphi_t = \Phi_{t-1}^{-1}\varphi_{t-1} + x_tx_{t-1} & \Phi_t^{-1} = \Phi_{t-1}^{-1} + x_{t-1}^2 \\ \pause
+%&a_{s_t} = a_{s_{t-1}} + 1/2 & \xi_{s_t} = \xi_{s_{t-1}} + x_t^2 \pause
+%\end{align*}
+%}
+%
+%\frame{\frametitle{Particle MCMC (PMCMC) \citep{Andr:Douc:Hol:pmcmc:2010}} \pause
+%MCMC - Gibbs sampling with Metropolis-Hastings (MH) steps \\ \pause
+%Increases efficiency of MCMC using SMC to generate MH proposals \\ \pause
+%Particle marginal Metropolis-Hastings sampler (PMMH) \\ \pause
+%Given $(y_1,\ldots,y_T)$, $\theta^{(i-1)}$, and $\hat{p}\left(y_{1:T}|\theta^{(i-1)}\right)$: \pause
+%\begin{enumerate}
+%\item Sample $\theta^*$ from some proposal distribution $q(\theta|\theta^{(i-1)})$ \pause
+%\item Approximate $p(x_{0:T}|y_{1:T},\theta^*)$ and $p(y_{1:t})$ via SMC conditional on $\theta^*$ \pause
+%\item Sample $x_{0:T}^*$ from approximation of $p(x_{0:T}|y_{1:T},\theta^*)$ \pause
+%\item Letting $\hat{p}(y_{1:T}|\theta^*)$ denote approximation to $p(y_{1:t})$, set $\theta^{(i)} = \theta^*$ and $\hat{p}\left(y_{1:T}|\theta^{(i)}\right) = \hat{p}(y_{1:T}|\theta^*)$ with probability
+%    \[R = \min\left(1, \frac{\hat{p}(y_{1:T}|\theta^*)p(\theta^*)}{\hat{p}\left(y_{1:T}|\theta^{(i-1)}\right)p\left(\theta^{(i-1)}\right)} \frac{q\left(\theta^{(i-1)}|\theta^*\right)}{q\left(\theta^*|\theta^{(i-1)}\right)} \right).\]
+%    Otherwise, set
+%    \[\theta^{(i)} = \theta^{(i-1)} \qquad \hat{p}\left(y_{1:T}\left|\theta^{(i)}\right.\right) = \hat{p}\left(y_{1:T}\left|\theta^{(i-1)}\right.\right).\]
+%\end{enumerate}
+%}
+%
+%\section{Results \label{sec:def:results}}
 
 \frame{\frametitle{References}
 \bibliographystyle{plainnat}
