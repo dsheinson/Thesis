@@ -564,7 +564,12 @@ How to resample? \pause
 \item multinomial, residual, stratified, systematic resampling \pause
 \end{itemize}
 Influence of priors \\ \pause
-\citet{sheinson:niemi:meiring:epidtrack:2014}
+\citet{sheinson:niemi:meiring:epidtrack:2014} \\ \pause
+\begin{itemize}
+\item epidemic model \pause
+\item compare BF, APF, KDPF \pause
+\item compare priors, resampling schemes
+\end{itemize}
 }
 
 \subsection{Model comparison}
@@ -581,11 +586,13 @@ p(y_t|y_{1:t-1}) &\approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{t-1}\ti
 \frame{\frametitle{Comparing alternative models}
 Compare $N$ possible models ${M_1,M_2,\ldots,M_N}$ \\ \pause
 \[p(M_i|y_{1:t}) = \frac{p(y_{1:t}|M_i)p(M_i)}{\sum_{i=1}^N p(y_{1:t}|M_i)p(M_i)}\] \pause
-Example: simulated time series from first-order DLM with $\theta = \lambda = 1$, $T = 100$  \pause
+Example: first-order DLM with $\theta = \lambda = 1$ \pause
 \begin{itemize}
-\item Can calculate true $p(y_{1:T})$, $p(M_i|y_{1:T})$ \pause
-\item Consider three models: $\lambda = 0.5, 1, 2$ \pause
-\item Estimate $p(M_i|y_{1:T})$ using KPDF, RM, and PL
+\item single simulated time series of length $T = 100$ \pause
+\item can calculate true $p(y_{1:T})$, $p(M_i|y_{1:T})$ \pause
+\item consider three models: $\lambda = 0.5, 1, 2$ \pause
+\item $p(M_i|y_{1:T}) = 1/3$ for all $i$ \pause
+\item estimate $p(M_i|y_{1:T})$ using KPDF, RM, and PL \pause
 \item 20 separate runs on each model with each algorithm
 \end{itemize}
 }
@@ -593,6 +600,193 @@ Example: simulated time series from first-order DLM with $\theta = \lambda = 1$,
 \frame{\frametitle{Comparing alternative models}
 \centering
 \includegraphics[width=0.65\textwidth]{cv_pl_ternary-5-10-20-1-20}
+}
+
+\section{Analysis of fMRI data}
+
+\subsection{Overview of fMRI}
+
+\frame{\frametitle{What is fMRI?} \pause
+\begin{itemize}
+\item indirect measure of brain activity in near-real time \pause
+\item $\frac{\mbox{oxygenated hemoglobin}}{\mbox{deoxygenated hemoglobin}} = \mbox{BOLD signal}$ \pause
+\item hrf - expected BOLD response to a single stimulus \pause
+\begin{itemize}
+\item canonical hrf \pause
+\item gamma hrf \citep{boyn:linear:1996} \pause
+\end{itemize}
+\end{itemize}
+\[h(s) = \frac{(s/\tau)^{n-1}e^{-s/\tau}}{\tau(n-1)!}\]
+}
+
+\frame{\frametitle{Canonical hrf} \pause
+\centering
+\includegraphics[width=0.65\textwidth]{CanonicalHRF}
+}
+
+\frame{\frametitle{Scanning session and data description} \pause
+\begin{itemize}
+\item episodic word recognition task \pause
+\item rapid event-related design \pause
+\item TR = 1.5 seconds \pause
+\item $T = 245$ total scans \pause
+\item 36 slices / scan \pause
+\item slice $= 64\times64$ grid of 3 $\mbox{mm}^3$ voxels \pause
+\item $64 \times 64 \times 36 \times 245 > 36 \ \mbox{mil}$ data points \pause
+\item $5 \times 5 \times 5$ voxel regions from 6 brain areas
+\item preprocessing
+\end{itemize}
+}
+
+\frame{\frametitle{Correlation-based GLM analysis} \pause
+\[y_t = \beta_0 + \beta_1\mbox{conv}_t + \epsilon_t, \ \epsilon_t \stackrel{iid}{\sim}\mbox{N}(0,\sigma^2)\] \pause
+\begin{itemize}
+\item $y_t$ - observed BOLD response in specific voxel at TR $t$ \pause
+\item $\mbox{conv}_t$ - expected BOLD response in active voxel at TR $t$ \pause
+\[\mbox{conv}_t = \int_0^t N(\omega)h(t-\omega)d\omega\] \pause
+\item $\beta_0$ - baseline BOLD level \pause
+\item $\beta_1$ - activation parameter \pause
+\item $\sigma^2$ - measurement variance \pause
+\end{itemize}
+}
+
+\frame{\frametitle{Correlation-based GLM analysis}
+\centering
+\includegraphics[width=0.6\textwidth]{fmri-design-3-500-1}
+}
+
+\frame{\frametitle{Correlation-based GLM analysis}
+\begin{align*}
+&y_t = \beta_0 + \beta_1\mbox{conv}_t + \epsilon_t, \ \epsilon_t \stackrel{iid}{\sim}\mbox{N}(0,\sigma^2) \\
+& \\
+&H_0: \beta_1 = 0 \quad H_A: \beta_1 > 0 \pause
+\end{align*}
+\begin{itemize}
+\item ordinary least squares (OLS) estimation, t-test \pause
+\item statistical parametric maps \pause
+\item multiple comparisons \pause
+\item invalid assumption of independent errors \pause
+\begin{itemize}
+\item uniform hrf \pause
+\item physiological noise \pause
+\end{itemize}
+\end{itemize}
+}
+
+\subsection{Temporal autocorrelation}
+
+\frame{\frametitle{Exploration of ARMA error models} \pause
+\begin{align*}
+y_t &= \beta_0 + \beta_1\mbox{conv}_t + x_t \\
+x_t &= \phi_1x_{t-1} + \cdots + \phi_Px_{t-P} + \epsilon_t + \gamma_1\epsilon_{t-1} + \cdots + \gamma_Q\epsilon_{t-Q} \\
+\epsilon_j &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2), \ j \ge 0 \\ \pause
+\theta &= (\beta_0,\beta_1,\phi_1,\ldots,\phi_P,\gamma_1,\ldots,\gamma_Q,\sigma^2)' \pause
+\end{align*}
+\begin{itemize}
+\item chose 5 voxels randomly from each region \pause
+\item estimate $\theta$ via maximum likelihood for all $P$ and $Q$ up to order 10 \pause
+\item compare AIC, AICC, BIC
+\end{itemize}
+}
+
+\frame{\frametitle{Exploration of ARMA error models}
+\begin{table}
+\centering
+\caption*{Mean AR and MA orders}
+\begin{tabular}{|l|cc|cc|cc|}
+\hline
+Region & \multicolumn{6}{|c|}{Criterion} \\
+\hline
+ & \multicolumn{2}{|c|}{AIC} & \multicolumn{2}{|c|}{AICC} & \multicolumn{2}{|c|}{BIC} \\
+\hline
+ & $P$ & $Q$ & $P$ & $Q$ & $P$ & $Q$ \\
+\hline
+Left frontal pole          & 2.80 & 3.20 & 2.80 & 2.90 & 1.70 & 0.90 \\
+Left intraparietal sulcus  & 3.75 & 3.50 & 3.50 & 3.25 & 1.81 & 0.06 \\
+Right intraparietal sulcus & 3.20 & 2.80 & 3.20 & 2.80 & 0.80 & 0.80 \\
+Primary visual             & 3.10 & 3.00 & 3.10 & 2.70 & 0.90 & 1.70 \\
+Secondary visual left      & 3.20 & 2.90 & 2.10 & 2.40 & 1.40 & 0.00 \\
+Secondary visual right     & 3.20 & 3.00 & 3.10 & 2.50 & 0.70 & 0.70 \\
+\hline
+Mean across regions     & 3.21 & 3.07 & 2.97 & 2.76 & 1.22 & 0.69 \\
+\hline
+\end{tabular}
+\end{table}
+}
+
+\frame{\frametitle{Autocorrelation estimation algorithms} \pause
+Prewhitening (FSL) \\ \pause
+\begin{itemize}
+\item first fit data using GLM with independent errors \pause
+\item fit residuals to zero-mean AR(1) process \pause
+\item transform data to be ``independent'' \pause
+\item refit transformed to GLM with independent errors \pause
+\end{itemize}
+Explicitly model autocorrelation (SPM) \\ \pause
+\begin{itemize}
+\item Restricted maximum likelihood estimation (REML) \pause
+\item adjust degrees of freedom in t-test \pause
+\item effective sample size
+\end{itemize}
+}
+
+\frame{\frametitle{Comparing autocorrelation estimation algorithms} \pause
+\begin{align*}
+y_t &= \beta_0 + \beta_1\mbox{conv}_t + x_t \\
+x_t &= \phi x_{t-1} + \epsilon_t \\
+\epsilon_j &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2), \ j \ge 0 \\ \pause
+\theta &= (\beta_0,\beta_1,\phi,\sigma^2)' \pause
+\end{align*}
+Simulate 1000 time series with $\beta_0 = 750$, $\sigma^2 = 10$, and each of \pause
+\begin{itemize}
+\item $\beta_1 \in \{0,1,2,3\}$
+\item $\phi \in \{0.25,0.5,0.75,0.95\}$ \pause
+\end{itemize}
+False positive rate of concluding significant activation \\ \pause
+ROC curves
+}
+
+\frame{\frametitle{False positive rates} \pause
+\begin{table}
+\resizebox{0.75\textwidth}{!}{\begin{minipage}{\textwidth}
+\centering
+\caption*{False positive rates for simulated fMRI data} \label{tab:fmri:fpr}
+\begin{tabular}{|c|cccc|}
+\hline
+$\alpha$ & OLS & PW & REML & REMLc \\
+\hline
+ & \multicolumn{4}{|c|}{$\phi = 0.25$} \\
+\hline
+0.001 & 0.006 & 0.001 & 0.001 & 0.001 \\
+0.010 & 0.028 & 0.011 & 0.010 & 0.010 \\
+0.050 & 0.106 & 0.050 & 0.049 & 0.048 \\
+\hline
+ & \multicolumn{4}{|c|}{$\phi = 0.50$} \\
+\hline
+0.001 & 0.022 & 0.002 & 0.002 & 0.002 \\
+0.010 & 0.070 & 0.010 & 0.009 & 0.007 \\
+0.050 & 0.161 & 0.054 & 0.052 & 0.052 \\
+\hline
+ & \multicolumn{4}{|c|}{$\phi = 0.75$} \\
+\hline
+0.001 & 0.061 & 0.001 & 0.001 & 0.000 \\
+0.010 & 0.130 & 0.017 & 0.016 & 0.015 \\
+0.050 & 0.213 & 0.064 & 0.062 & 0.055 \\
+\hline
+ & \multicolumn{4}{|c|}{$\phi = 0.95$} \\
+\hline
+0.001 & 0.072 & 0.000 & 0.000 & 0.000 \\
+0.010 & 0.144 & 0.011 & 0.011 & 0.000 \\
+0.050 & 0.230 & 0.046 & 0.049 & 0.023 \\
+\hline
+\end{tabular}
+\end{minipage} }
+\end{table}
+}
+
+\frame{\frametitle{ROC curves} \pause
+\centering
+\includegraphics[width=0.6\textwidth]{simstudy-ROC-3-fill2}
 }
 
 %\frame{\frametitle{RM with first-order DLM} \pause
@@ -677,6 +871,13 @@ Example: simulated time series from first-order DLM with $\theta = \lambda = 1$,
 %}
 %
 %\section{Results \label{sec:def:results}}
+
+\section{Questions?}
+\frame{
+\begin{centering}
+Thanks! Questions?
+\end{centering}
+}
 
 \frame{\frametitle{References}
 \bibliographystyle{plainnat}
