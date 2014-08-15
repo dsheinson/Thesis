@@ -34,14 +34,14 @@
 
 \frame{\frametitle{Outline} \pause
 Introduction / Motivation \\ \pause
-State-space models
+State-space models \pause
 \begin{itemize}
-\item Dynamic linear models
+\item Dynamic linear models \pause
 \item Sequential estimation
 \end{itemize} \pause
-Sequential Monte Carlo methods
+Sequential Monte Carlo methods \pause
 \begin{itemize}
-\item particle filters
+\item particle filters \pause
 \item model comparison
 \end{itemize} \pause
 Analysis of fMRI data \pause
@@ -91,22 +91,23 @@ Governed by two equations:
 \end{itemize} \pause
 \item observation equation \pause
 \begin{itemize}
-\item dependence of observations on the unobserved state
+\item dependence of observations on the unobserved state \pause
 \end{itemize}
 \end{enumerate}
+May contain unknown fixed parameters
 }
 
 \frame{\frametitle{State-space models}
 Notation \pause
 \begin{itemize}
-\item $x_t$ - unobserved state vector at time $t$, $t=0,1,2,\ldots,T$ \pause
-\item $y_t$ - observed data vector at time $t$, $t=1,2,\ldots,T$ \pause
+\item $x_t$ - unobserved state vector at time $t$, $t=0,1,2,\ldots$ \pause
+\item $y_t$ - observed data vector at time $t$, $t=1,2,\ldots$ \pause
 \item $\theta$ - vector of unknown, fixed parameters \pause
 \item $y_{1:t}$ - collection of vectors $y_1,\ldots,y_t$ \pause
 \item $p(x_t|x_{t-1},\theta)$ - state transition density (state equation) \pause
-\item $p(y_t|x_t,\theta)$ - conditional likelihood (observation equation) \pause
-\item $(y_t \perp y_{1:t-1},y_{t+1:T}) | x_t,\theta$ and $(x_t \perp x_{1:t-2},y_{1:t-1}) | x_{t-1},\theta$ \pause
+\item $p(y_t|x_t,\theta)$ - likelihood (observation equation) \pause
 \item $p(x_0,\theta)$ - prior distribution on initial state and fixed parameters \pause
+\item $(y_t \perp y_{1:t-1},y_{t+1:T}) | x_t,\theta$ and $(x_t \perp x_{0:t-2},y_{1:t-1}) | x_{t-1},\theta$
 \end{itemize}
 \begin{figure}[ht]
 \centering
@@ -196,15 +197,15 @@ Notation \pause
 
 \frame{\frametitle{Dynamic linear models (DLMs)} \pause
 \begin{align*}
-\mbox{obs. eqn.:  } & y_t = U_t\beta + F_tx_t + v_t, \quad & v_t &\stackrel{iid}{\sim} \mbox{N}(0,V) \\ \pause
-\mbox{state eqn.:  } & x_t = Gx_{t-1} + w_t, \quad & w_t &\stackrel{iid}{\sim} \mbox{N}(0,W) \\ \pause
-\mbox{prior:  } & x_0 \sim \mbox{N}(m_0, C_0) \quad & &  \pause
-\end{align*}
+\mbox{obs. eqn.:  } & y_t = U_t\beta + F_tx_t + v_t, \quad & v_t &\stackrel{iid}{\sim} \mbox{N}(0,V) \\
+\mbox{state eqn.:  } & x_t = Gx_{t-1} + w_t, \quad & w_t &\stackrel{iid}{\sim} \mbox{N}(0,W) \\
+\mbox{prior:  } & x_0 \sim \mbox{N}(m_0, C_0) \quad & &
+\end{align*} \pause
 \begin{align*}
-y_t:& \ q \times 1 & U_t:& \ q \times d & \beta:& \ d \times 1 & & \\ \pause
-F_t:& \ q \times p & x_t:& \ p \times 1 & v_t:& \ q \times 1 & V:& \ q \times q \\ \pause
-G:& \ p \times p & W:& \ p \times p & m_0:& \ p \times 1 & C_0:& \ p \times p \pause
-\end{align*}
+y_t:& \ q \times 1 & U_t:& \ q \times d & \beta:& \ d \times 1 & & \\
+F_t:& \ q \times p & x_t:& \ p \times 1 & v_t:& \ q \times 1 & V:& \ q \times q \\
+G:& \ p \times p & W:& \ p \times p & m_0:& \ p \times 1 & C_0:& \ p \times p
+\end{align*} \pause
 \begin{itemize}
 \item $v_s \perp w_s'$ for all $s \ne s'$ \pause
 \item assume univariate $y_t$, i.e. $q = 1$ \pause
@@ -226,118 +227,122 @@ x_t &\sim \mbox{N}(x_{t-1}, \theta\lambda)
 \end{itemize}
 }
 
-\frame{\frametitle{Regression with ARMA errors} \pause
-\begin{align*}
-y_t &= U_t\beta + x_t \\ \pause
-x_t &= \phi_1x_{t-1} + \cdots + \phi_Px_{t-P} + \epsilon_t + \gamma_1\epsilon_{t-1} + \cdots + \gamma_Q\epsilon_{t-Q} \\ \pause
-\epsilon_j &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2), \ j \ge 0 \pause
-\end{align*}
-\[
-\begin{array}{ll}
-x_t &= (x_{t,1} ,x_{t,2}, \ldots, x_{t,m})' \\
-m &= \mbox{max}(P,Q+1) \\ \pause
-F_t &= (1,0,\ldots,0)_{1\times m} \\ \pause
-v_t &= 0 \\ \pause
-W &= \sigma^2ee' \\
-e &= (1, \gamma_1, \ldots, \gamma_{m-1})' \\ \pause
-\phi_s &= 0, \ s > P \\ \pause
-\gamma_r &= 0, \ r > Q \pause
-\end{array} \quad
-G = \left(
- \begin{array}{ccccc}
- \phi_1 & \vdots \\
- \phi_2 & \vdots \\
- \phi_3 & \vdots && I_{m-1} \\
- \vdots & \vdots \\
- \cdots & \cdots & \cdots & \cdots & \cdots \\
- \phi_m &\vdots & 0 & \cdots & 0
- \end{array}
-\right)\] \pause
+%\frame{\frametitle{Regression with ARMA errors} \pause
+%\begin{align*}
+%y_t &= U_t\beta + w_t \\
+%w_t &= \phi_1w_{t-1} + \cdots + \phi_Pw_{t-P} + \epsilon_t + \gamma_1\epsilon_{t-1} + \cdots + \gamma_Q\epsilon_{t-Q} \\
+%t &\ge \mbox{max}(P,Q+1) \\
+%\epsilon_j &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2), \ j \ge 1
+%\end{align*} \pause
+%\[
+%\begin{array}{ll}
+%x_t &= (x_{t,1} ,x_{t,2}, \ldots, x_{t,m})' \\ \pause
+%m &= \mbox{max}(P,Q+1) \\ \pause
+%F_t &= (1,0,\ldots,0)_{1\times m} \\ \pause
+%v_t &= 0 \\ \pause
+%W &= \sigma^2ee' \\ \pause
+%e &= (1, \gamma_1, \ldots, \gamma_{m-1})' \\ \pause
+%\gamma_r &= 0, \ r > Q \\ \pause
+%\phi_s &= 0, \ s > P
+%\end{array} \quad
+%G = \left(
+% \begin{array}{ccccc}
+% \phi_1 & \vdots \\
+% \phi_2 & \vdots \\
+% \phi_3 & \vdots && I_{m-1} \\
+% \vdots & \vdots \\
+% \cdots & \cdots & \cdots & \cdots & \cdots \\
+% \phi_m &\vdots & 0 & \cdots & 0
+% \end{array}
+%\right)\]
 %$\phi_s = 0$ for $s > P$ and $\gamma_r = 0$ for $r > Q$ \pause \\
 %$y_t = U_t\beta + \phi_1x_{t-1,1} + \cdots + \phi_Px_{t-P,1} + \epsilon_t + \gamma_1\epsilon_{t-1} + \cdots + \gamma_Q\epsilon_{t-Q}$,
 %where $t \ge m$ and $\epsilon_j \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2)$ for $j \ge 0$
-}
+%}
 
-\frame{\frametitle{Regression with ARMA errors}
-Stationarity: \pause roots of $\phi(z)$ lie outside of unit circle, where
-\[\phi(z) = 1 - \phi_1z - \phi_2z^2 - \cdots - \phi_Pz^P \label{eqn:arpoly}\] \pause
-Invertibility: roots of $\gamma(z)$ lie outside of unit circle, where
-\[\gamma(z) = 1 + \gamma_1z + \gamma_2z^2 + \cdots + \gamma_Qz^Q\] \pause
-Stationary presample errors: \pause
-\[x_0 \sim \mbox{N}(0, \sigma^2\Omega),\]
-where $\mbox{vec}(\Omega) = (I_{m^2} - G\otimes G)^{-1} \mbox{vec}(ee')$ \\ \pause
-Example: regression with AR(1) errors \\ \pause
-Set: $m = P = 1$, $Q = 0$, $F_t = 1$, $W = \sigma^2$, $G = \phi$ \\ \pause
-Model: $y_t = U_t\beta + x_t  \quad x_t = \phi x_{t-1} + \epsilon_t \quad \ t \ge 1$ \\ \pause
-Stationarity: $-1 < \phi < 1$, $x_0 \sim \mbox{N}(0, \sigma^2 / (1 - \phi^2))$
-}
+%\frame{\frametitle{Regression with ARMA errors}
+%Stationarity: \pause roots of $\phi(z)$ lie outside of unit circle, where
+%\[\phi(z) = 1 - \phi_1z - \phi_2z^2 - \cdots - \phi_Pz^P \label{eqn:arpoly}\] \pause
+%Invertibility: \pause roots of $\gamma(z)$ lie outside of unit circle, where
+%\[\gamma(z) = 1 + \gamma_1z + \gamma_2z^2 + \cdots + \gamma_Qz^Q\] \pause
+%Stationary presample errors: \pause
+%\[x_0 \sim \mbox{N}(0, \sigma^2\Omega),\]
+%where $\mbox{vec}(\Omega) = (I_{m^2} - G\otimes G)^{-1} \mbox{vec}(ee')$ \\ \pause
+%Example: regression with AR(1) errors \\ \pause
+%Set: $m = P = 1$, $Q = 0$, $F_t = 1$, $W = \sigma^2$, $G = \phi$ \\ \pause
+%Model: $y_t = U_t\beta + x_t  \quad x_t = \phi x_{t-1} + \epsilon_t \quad \ t \ge 1$ \\ \pause
+%Stationarity: $-1 < \phi < 1$, $x_0 \sim \mbox{N}(0, \sigma^2 / (1 - \phi^2))$
+%}
 
 \frame{\frametitle{Dynamic regression models} \pause
 \begin{align*}
 y_t &= U_t\beta + F_tx_t + v_t, &\quad v_t \stackrel{iid}{\sim} \mbox{N}(0,V) \\
 x_t &= Gx_{t-1} + w_t, &\quad w_t \stackrel{iid}{\sim} \mbox{N}(0,W)
 \end{align*} \pause
-Let $x_t$ follow an AR(1) process, i.e. $W = \sigma^2_s$ and $G = \phi$ \pause \\
-Let $V = \sigma^2_m$, $U_t = (1,u_t)$, and $\beta = (\beta_0,\beta_1)'$ \pause \\
+Let $x_t$ be univariate, follow an AR(1) process, i.e. $W = \sigma^2_s$ and $G = \phi$ \pause \\
+Let $y_t$ be univariate, $V = \sigma^2_m$, $U_t = (1,u_t)$, and $\beta = (\beta_0,\beta_1)'$ \pause \\
 %Let $p(x_0) = \delta_{0}(x_0)$, i.e. $x_0 = 0$ \pause \\
-Dynamic intercept model: $F_t = 1$ for all $t$ \pause \\
-\[y_t = (\beta_0 + x_t) + \beta_1u_t + v_t, \ v_t \stackrel{iid}{\sim}\mbox{N}(0,\sigma^2_m)\] \pause
+Dynamic intercept model, i.e. reg. with AR(1)+WN errors: $F_t = 1 \ \forall t$ \pause
+\begin{align*}
+y_t &= (\beta_0 + x_t) + \beta_1u_t + v_t, \ v_t \stackrel{iid}{\sim}\mbox{N}(0,\sigma^2_m) \\
+y_t &= \beta_0 + \beta_1u_t + x_t + v_t
+\end{align*} \pause
 Dynamic slope model: $F_t = u_t$ \pause \\
 \[y_t = \beta_0 + (\beta_1 + x_t)u_t + v_t, \ v_t \stackrel{iid}{\sim}\mbox{N}(0,\sigma^2_m)\] \pause
-Unknown fixed parameters $\theta = (\beta',\phi,\sigma^2_s,\sigma^2_m)'$ \\ \pause
-Nonstationarity: $p(x_0) = \delta_{0}(x_0)$, i.e. $x_0 = 0$
+Unknown fixed parameters $\theta = (\beta_0,\beta_1,\phi,\sigma^2_s,\sigma^2_m)'$ \\ \pause
+Constrain initial state: $p(x_0) = \delta_{0}(x_0)$, i.e. $x_0 = 0$
 }
 
 \frame{\frametitle{Dynamic regression models}
 Dynamic intercept and slope model: \pause
 \begin{align*}
-F_t &= (1, u_t) & G &= \left(\begin{array}{cc} \phi & 0 \\ 0 & \rho \end{array}\right) & W &= \left(\begin{array}{cc} \sigma^2_s & 0 \\ 0 & \sigma^2_b \end{array}\right) \\ \pause
+F_t &= (1, u_t) & G &= \left(\begin{array}{cc} \phi & 0 \\ 0 & \rho \end{array}\right) & W &= \left(\begin{array}{cc} \sigma^2_s & 0 \\ 0 & \sigma^2_b \end{array}\right) \\
 x_t &= (x_{t,1},x_{t,2})' & V &= \sigma^2_m
-\end{align*}
+\end{align*} \pause
 \begin{align*}
 y_t &= (\beta_0 + x_{t,1}) + (\beta_1 + x_{t,2})u_t + v_t, & \ v_t &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_m) \\
 x_{t,1} &= \phi x_{t-1,1} + w_{t,1}, & \ w_{t,1} &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_s) \\
 x_{t,2} &= \rho x_{t-1,2} + w_{t,2}, & \ w_{t,2} &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_b)
 \end{align*} \pause
 Unknown fixed parameters $\theta = (\beta_0,\beta_1,\phi,\rho,\sigma^2_s,\sigma^2_b,\sigma^2_m)'$ \\ \pause
-Nonstationarity: $p(x_0) = \delta_{(0,0)}(x_0)$, i.e. $x_{0,1} = x_{0,2} = 0$
+Constrain initial state: $p(x_0) = \delta_{(0,0)}(x_0)$, i.e. $x_{0,1} = x_{0,2} = 0$
 }
 
 \frame{\frametitle{Dynamic regression models}
 Model notation: $M_{ijk}$ \pause
 \begin{itemize}
-\item $i$ is AR order of change in intercept
-\item $j$ is AR order of change in slope
+\item $i$ is 1 or 0 indicating whether intercept follows AR(1)
+\item $j$ is 1 or 0 indicating whether slope follows AR(1)
 \item $k$ is 1 or 0 indicating whether additional measurement noise is included
 \end{itemize} \pause
 Dynamic intercept model: $M_{101}$ \\ \pause
 Dynamic slope model: $M_{011}$ \\ \pause
 Dynamic intercept and slope model: $M_{111}$ \\ \pause
-Regression with AR(1) errors: $M_{100}$ \\ \pause
+%Regression with AR(1) errors: $M_{100}$ \\ \pause
 Simple linear regression: $M_{001}$
 }
 
 \subsection{Sequential estimation}
 
-\frame{\frametitle{Sequential estimation in state-space models} \pause
+\frame{\frametitle{Bayesian sequential estimation in state-space models} \pause
 Joint likelihood \pause
 \begin{itemize}
 \item $p(y_{1:t},x_{0:t},\theta) = p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(y_{1:t-1},x_{0:t-1},\theta)$
 \end{itemize} \pause
-Filtered distributions \pause
+Filtered distribution \pause
 \begin{itemize}
 \item $p(x_{0:t},\theta|y_{1:t}) \propto p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(x_{0:t-1},\theta|y_{1:t-1})$ \pause
 \item $p(x_t,\theta| y_{1:t}) \propto \int p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(x_{t-1},\theta|y_{1:t-1})\mbox{d}x_{t-1}$ \pause
 \end{itemize}
 Smoothed distributions: $p(x_s,\theta|y_{1:t})$ for any $s < t$ \pause
 \begin{itemize}
-\item $p(x_s,\theta|y_{1:t}) = \int_{x_{0:s-1}} \int_{x_{s+1:t}} p(x_{0:t},\theta|y_{1:t},)\mbox{d}x_{0:s-1}\mbox{d}x_{s+1:t}$ \pause
+\item $p(x_s,\theta|y_{1:t}) = \int_{x_{0:s-1}} \int_{x_{s+1:t}} p(x_{0:t},\theta|y_{1:t})\mbox{d}x_{0:s-1}\mbox{d}x_{s+1:t}$ \pause
 \end{itemize}
 Marginal likelihood of the data: $p(y_{1:t})$ \pause
 \begin{itemize}
 \item $p(y_{1:t}) = \int_{\theta} \int_{x_{0:t}} p(y_{1:t},x_{0:t},\theta)\mbox{d}x_{0:t}\mbox{d}\theta$ \pause
 \end{itemize}
-Analytical tractability only in special cases
+Analytical tractability only in special cases \pause
 \begin{itemize}
 \item DLM with fixed parameters known \pause
 \item First-order DLM with common state and observation variance
@@ -398,32 +403,35 @@ Sequential Monte Carlo (SMC), a.k.a. particle filtering \pause
 \subsection{Particle filtering}
 
 \frame{\frametitle{Particle filtering} \pause
-Based on a sequential use of important sampling \\ \pause
-Approximates $p(x_t,\theta|y_{1:t})$ through a weighted Monte Carlo realization in terms of $J$ particles, i.e.
+Based on a sequential use of importance sampling \\ \pause
+Approximates $p(x_t,\theta|y_{1:t})$ through a weighted Monte Carlo realization in terms of $J$ particles\pause, i.e.
 \[p(x_t,\theta| y_{1:t}) \approx \sum_{j=1}^J w_t^{(j)} \delta_{\left(x_t^{(j)},\theta^{(j)}\right)}(x_t,\theta)\] \pause
 \begin{itemize}
 \item $\left(x_t^{(j)},\theta^{(j)}\right)$ - location of the $j^{\mbox{th}}$ particle at time $t$ \pause
-\item $w_t^{(j)}$ - weight of particle $j$ with $\sum_{j=1}^J w_t^{(j)}=1$ \pause
+\item $w_t^{(j)}$ - weight of particle $j$ with $\sum_{j=1}^J w_t^{(j)}=1$ 
+%\item $\delta_{w_0}(w) = \left\{\begin{array}{ll} 1, & \ \ w = w_0 \\ 0, & \ \ w \ne w_0 \end{array}\right.$ \pause
 \end{itemize}
 }
 
 \frame{\frametitle{Bootstrap filter (BF) \citep{Gord:Salm:Smit:nove:1993,Kita:mont:1996}} \pause
-Assume $\theta$ known \\ \pause
-Given a particle approximation to $p(x_t|y_{1:t})$, approximate $p(x_{t+1}|y_{1:t+1})$ \\ \pause
-For each particle $j=1,\ldots,J$:
-\begin{enumerate}
-\item Resample: sample an index $k\in\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\left\{w_t^{(1)},\ldots,w_t^{(j)},\ldots,w_t^{(J)}\right\}$, \pause
-\item Propagate: sample $x_{t+1}^{(j)} \sim p\left( x_{t+1}\left|x_t^{(k)}\right.\right)$, and \pause
-\item Calculate weights and renormalize:
-\[ \tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}\left|x_{t+1}^{(j)}\right.\right) \qquad w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)}\left/ \sum_{l=1}^J \tilde{w}_{t+1}^{(l)} \right. .\] \pause
-\end{enumerate}
-Apply recursively \\ \pause
+Assume $\theta$ known, approximate $p(x_t|y_{1:t})$ \\ \pause
 Initial weights $w_0^{(j)}$ and locations $x_0^{(j)}$ for all $j$ \\ \pause
-Sample from $p(x_0)$ with uniform weights
+Sample from $p(x_0)$ with uniform weights \\ \pause
+Given a particle approximation to $p(x_t|y_{1:t})$, approximate $p(x_{t+1}|y_{1:t+1})$ \\ \pause
+For each particle $j=1,\ldots,J$: \pause
+\begin{enumerate}
+\item Propagate: sample $x_{t+1}^{(j)} \sim p\left( x_{t+1}\left|x_t^{(j)}\right.\right)$ \pause
+\item Update weights: $\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}\left|x_{t+1}^{(j)}\right.\right)$ \pause
+\end{enumerate}
+Renormalize weights: $w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)}\left/ \sum_{l=1}^J \tilde{w}_{t+1}^{(l)} \right.$ \\ \pause
+Optional: resample the particles to balance weights \\ \pause
+%\item Resample: (optionally) sample an index $k\in\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\left\{w_t^{(1)},\ldots,w_t^{(j)},\ldots,w_t^{(J)}\right\}$, \pause
+%\end{enumerate}
+Apply recursively
 }
 
 \frame{\frametitle{Auxiliary particle filter (APF) \citep{Pitt:Shep:filt:1999}} \pause
-Problem: $w_t^{(j)}$ small for particles for which $p\left(y_{t}\left|x_{t}^{(j)}\right.\right)$ is small \\ \pause
+Problem: Degeneracy - $w_t^{(j)}$ small where $p\left(y_{t}\left|x_{t}^{(j)}\right.\right)$ is small \\ \pause
 Solution: look ahead for particles with higher likelihood using $y_{t+1}$ \\ \pause
 \begin{enumerate}
 \item For each particle $j$, calculate a point estimate of $x_{t+1}^{(j)}$ called $\mu_{t+1}^{(j)}$ \pause
@@ -431,47 +439,47 @@ Solution: look ahead for particles with higher likelihood using $y_{t+1}$ \\ \pa
 \item Renormalize weights: $g_{t+1}^{(j)} = \tilde{g}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{g}_{t+1}^{(l)}.\right.$ \pause
 \item For each particle $j=1,\ldots,J$,
 	\begin{enumerate}
-    \item Resample: sample an index $k\in\{1,\ldots,j,\ldots,J\}$ with associated probabilities \pause $\left\{g_{t+1}^{(1)},\ldots,g_{t+1}^{(j)},\ldots,g_{t+1}^{(J)}\right\}$,
+    \item Resample: sample an index $k\in\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\left\{g_{t+1}^{(1)},\ldots,g_{t+1}^{(j)},\ldots,g_{t+1}^{(J)}\right\}$, \pause
 	\item Propagate: sample $x_{t+1}^{(j)} \sim p\left(x_{t+1}\left|x_t^{(k)}\right.\right)$, and \pause
-	\item Calculate weights: $\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}\left|x_{t+1}^{(j)}\right.\right) \left/ p\left(y_{t+1}\left|\mu_{t+1}^{(k)}\right.\right)\right.$ \pause
+	\item Calculate weights: $\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}\left|x_{t+1}^{(j)}\right.\right) \left/ p\left(y_{t+1}\left|\mu_{t+1}^{(k)}\right.\right)\right.$
     \item Renormalize: $w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}. \right.$ \pause
 	\end{enumerate}
 \end{enumerate}
 Typically $\mu_{t+1}^{(j)} = E\left(x_{t+1}\left|x_t^{(j)} \right.\right)$
 }
 
-\frame{\frametitle{Resampling} \pause
-Sample tends to degenerate toward one or a few particles \\ \pause
-Randomly select particles with probabilities equal to their weights \\ \pause
-\begin{center}
-\begin{table}
-\begin{tabular}{|cccccc|}
-\hline
-$j$ & 1 & 2 & 3 & 4 & 5 \\
-\hline
-$x_t^{(j)}$ & 0.04 & 0.05 & 0.03 & 0.07 & 0.02 \\
-$w_t^{(j)}$ & .2 & .4 & 0 & .2 & .2 \\
-\hline
-\end{tabular}
-\end{table} \pause
-$\stackrel{\downarrow}{\mbox{resample}}$
-\begin{table}
-\begin{tabular}{|cccccc|}
-\hline
-$j$ & 1 & 2 & 3 & 4 & 5 \\
-\hline
-$x_t^{(j)}$ & 0.04 & 0.05 & 0.05 & {\bf 0.05} & 0.02 \\
-$w_t^{(j)}$ & .2 & .2 & .2 & .2 & .2 \\
-\hline
-\end{tabular}
-\end{table}
-\end{center} \pause
-Avoids degeneracy in the weights \\ \pause
-Introduces more Monte Carlo variability into particle sample \\ \pause
-Degeneracy in fixed parameter values
-}
+%\frame{\frametitle{Resampling} \pause
+%Sample tends to degenerate toward one or a few particles \\ \pause
+%Randomly select particles with probabilities equal to their weights \\ \pause
+%\begin{center}
+%\begin{table}
+%\begin{tabular}{|cccccc|}
+%\hline
+%$j$ & 1 & 2 & 3 & 4 & 5 \\
+%\hline
+%$x_t^{(j)}$ & 0.04 & 0.05 & 0.03 & 0.07 & 0.02 \\
+%$w_t^{(j)}$ & .2 & .4 & 0 & .2 & .2 \\
+%\hline
+%\end{tabular}
+%\end{table} \pause
+%$\stackrel{\downarrow}{\mbox{resample}}$
+%\begin{table}
+%\begin{tabular}{|cccccc|}
+%\hline
+%$j$ & 1 & 2 & 3 & 4 & 5 \\
+%\hline
+%$x_t^{(j)}$ & 0.04 & 0.05 & 0.05 & {\bf 0.05} & 0.02 \\
+%$w_t^{(j)}$ & .2 & .2 & .2 & .2 & .2 \\
+%\hline
+%\end{tabular}
+%\end{table}
+%\end{center} \pause
+%Avoids degeneracy in the weights \\ \pause
+%Introduces more Monte Carlo variability into particle sample \\ \pause
+%Degeneracy in fixed parameter values
+%}
 
-\frame{\frametitle{Kernel density particle filter (KDPF) \citep{Liu:West:comb:2001}} \pause
+\frame{\frametitle{Kernel density particle filter (KDPF) \citep{Liu:West:comb:2001}}
 Problem: degeneracy in $\theta$ \\ \pause
 Solution: regenerate $\left\{\theta_t^{(1)},\ldots,\theta_t^{(J)}\right\}$ from a kernel density approximation \\ \pause
 Mixture of normals:
@@ -479,84 +487,90 @@ Mixture of normals:
 \begin{align*}
 m_t^{(j)} &= a\theta_t^{(j)} + (1-a)\bar{\theta}_t \\
 \bar{\theta}_t &= \mbox{ sample mean of } \theta_t^{(1)},\ldots,\theta_t^{(J)} \\
-V_t &= \mbox{ sample covariance of } \theta_t^{(1)},\ldots,\theta_t^{(J)} \\ \pause
+V_t &= \mbox{ sample covariance of } \theta_t^{(1)},\ldots,\theta_t^{(J)} \\
 a^2 &= 1 - h^2 \\
 h^2 &= 1 - ((3\Delta - 1)/2\Delta)^2 \\
 \Delta &= \mbox{ discount factor } \in [0.95,0.99]
 \end{align*}
 }
 
-\frame{\frametitle{Kernel density particle filter (KDPF) \citep{Liu:West:comb:2001}}
-\begin{enumerate}
-\item For each particle $j$, set $m_t^{(j)} = a\theta_t^{(j)} + (1-a)\bar{\theta}_t$ and calculate a point estimate of $x_{t+1}^{(j)}$ called $\mu_{t+1}^{(j)}$ \pause
-\item Calculate auxiliary weights: $\tilde{g}_{t+1}^{(j)} = w_t^{(j)} p\left(y_{t+1}\left|\mu_{t+1}^{(j)},m_t^{(j)}\right.\right)$ \pause
-\item Renormalize: $g_{t+1}^{(j)} = \tilde{g}_{t+1}^{(j)}\left/ \sum_{l=1}^J \tilde{g}_{t+1}^{(l)}. \right.$ \pause
-\item For each particle $j=1,\ldots,J$,
-	\begin{enumerate}
-    \item Resample: sample an index $k\in\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\left\{g_{t+1}^{(1)},\ldots,g_{t+1}^{(j)},\ldots,g_{t+1}^{(J)}\right\}$, \pause
-	\item Regenerate the fixed parameters: sample $\theta_{t+1}^{(j)} \sim \mbox{N}\left(m_t^{(k)}, h^2V_t \right)$, \pause
-	\item Propagate: sample $x_{t+1}^{(j)} \sim p\left(x_{t+1}\left|x_t^{(k)},\theta_{t+1}^{(j)}\right.\right)$, and \pause
-	\item Calculate weights: $\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}\left|x_{t+1}^{(j)},\theta_{t+1}^{(j)}\right.\right)\left/p\left(y_{t+1}\left|\mu_{t+1}^{(k)},m_t^{(k)}\right.\right)\right.$ \pause
-    \item Renormalize: $w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}. \right.$ \pause
-	\end{enumerate}
-\end{enumerate}
-}
+%\frame{\frametitle{Kernel density particle filter (KDPF) \citep{Liu:West:comb:2001}}
+%\begin{enumerate}
+%\item For each particle $j$, set $m_t^{(j)} = a\theta_t^{(j)} + (1-a)\bar{\theta}_t$ and calculate a point estimate of $x_{t+1}^{(j)}$ called $\mu_{t+1}^{(j)}$ \pause
+%\item Calculate auxiliary weights: $\tilde{g}_{t+1}^{(j)} = w_t^{(j)} p\left(y_{t+1}\left|\mu_{t+1}^{(j)},m_t^{(j)}\right.\right)$ \pause
+%\item Renormalize: $g_{t+1}^{(j)} = \tilde{g}_{t+1}^{(j)}\left/ \sum_{l=1}^J \tilde{g}_{t+1}^{(l)}. \right.$ \pause
+%\item For each particle $j=1,\ldots,J$,
+%	\begin{enumerate}
+%    \item Resample: sample an index $k\in\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\left\{g_{t+1}^{(1)},\ldots,g_{t+1}^{(j)},\ldots,g_{t+1}^{(J)}\right\}$, \pause
+%	\item Regenerate the fixed parameters: sample $\theta_{t+1}^{(j)} \sim \mbox{N}\left(m_t^{(k)}, h^2V_t \right)$, \pause
+%	\item Propagate: sample $x_{t+1}^{(j)} \sim p\left(x_{t+1}\left|x_t^{(k)},\theta_{t+1}^{(j)}\right.\right)$, and \pause
+%	\item Calculate weights: $\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}\left|x_{t+1}^{(j)},\theta_{t+1}^{(j)}\right.\right)\left/p\left(y_{t+1}\left|\mu_{t+1}^{(k)},m_t^{(k)}\right.\right)\right.$ \pause
+%    \item Renormalize: $w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}. \right.$
+%	\end{enumerate}
+%\end{enumerate}
+%}
 
-\frame{\frametitle{Resample-move (RM) \citep{Gilk:Berz:foll:2001}} \pause
+\frame{\frametitle{Resample-move (RM) \citep{Gilk:Berz:foll:2001}}
 Regenerate fixed parameter values using a kernel closer to $p(\theta|y_{1:t})$ \\ \pause
 \begin{itemize}
 \item MCMC transition kernel $q$ \\ \pause
 \item Add past states to particles\pause, i.e.
 \[\left(x_{0:t}^{(j)},\theta_t^{(j)}\right) \ \mbox{with} \ x_{0:t}^{(j)} = \left(x_0^{(j)},x_1^{(j)},\ldots,x_t^{(j)}\right)\] \pause
-\item $q$ satisfies $\int_{\theta}\int_{x_{0:t}} p(x_{0:t},\theta|y_{1:t})q\left(x_{0:t}^*,\theta^*|x_{0:t}^{(j)},\theta_t^{(j)}\right)\mbox{d}x_{0:t}\mbox{d}\theta = p(x_{0:t},\theta|y_{1:t})$ \\ \pause
-\item Draw $\left( x_{0:t}^*, \theta^*\right) \sim q\left(x_{0:t}^*,\theta^*|x_{0:t}^{(j)},\theta_t^{(j)}\right)$ \pause
+\item Draw $\left( x_{0:t}^*, \theta^*\right) \sim q\left(x_{0:t},\theta|x_{0:t}^{(j)},\theta_t^{(j)}\right)$ \pause
+\item $q\left(x_{0:t},\theta|x_{0:t}^{(j)},\theta_t^{(j)}\right)$ satisfies $\int_{\theta}\int_{x_{0:t}} p(x_{0:t},\theta|y_{1:t})q\left(x_{0:t},\theta|x_{0:t}^{(j)},\theta_t^{(j)}\right)\mbox{d}x_{0:t}\mbox{d}\theta = p(x_{0:t},\theta|y_{1:t})$ \\ \pause
 \item $\left(x_{0:t}^{(j)},\theta_t^{(j)}\right) \stackrel{.}{\sim} p(x_{0:t},\theta|y_{1:t}) \Rightarrow \theta^* \stackrel{.}{\sim} p(\theta|y_{1:t})$
 \end{itemize}
 }
 
-\frame{\frametitle{Resample-move (RM) \citep{Gilk:Berz:foll:2001}}
-Given a particle approximation to $p(x_{0:t},\theta|y_{1:t})$, approximate $p(x_{t+1},\theta|y_{1:t+1})$ \\ \pause
-For each particle $j=1,\ldots,J$:
-\begin{enumerate}
-\item Propagate: draw $\tilde{x}^{(j)}_{t+1}$ from $p\left(x_{t+1}|x^{(j)}_t,\theta^{(j)}_t\right)$ \pause
-\item Augment: add $\tilde{x}^{(j)}_{t+1}$ to particle $j$ and call new particle $\left(\tilde{x}^{(j)}_{0:t+1},\theta^{(j)}_t\right)$ \pause
-\item Calculate weights: $\tilde{w}^{(j)}_t = p\left(y_{t+1}|\tilde{x}^{(j)}_{t+1},\theta^{(j)}_t\right)$ \pause
-\item Renormalize: $w^{(j)}_{t+1} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)} \right.$ \pause
-\item Resample: sample an index $k$ from $\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w^{(1)}_{t+1},\ldots,w^{(j)}_{t+1},\ldots,w^{(J)}_{t+1}\}$\pause
-\item \label{step:move} Move particles: draw a new particle $\left(x^{(j)}_{0:t+1},\theta^{(j)}_{t+1}\right) \sim q\left(x_{0:t+1},\theta|\tilde{x}^{(k)}_{0:t+1},\theta^{(k)}_t\right)$
-\end{enumerate}
-}
+%\frame{\frametitle{Resample-move (RM) \citep{Gilk:Berz:foll:2001}}
+%Given a particle approximation to $p(x_{0:t},\theta|y_{1:t})$, approximate $p(x_{0:t+1},\theta|y_{1:t+1})$ \\ \pause
+%For each particle $j=1,\ldots,J$:
+%\begin{enumerate}
+%\item Propagate: draw $\tilde{x}^{(j)}_{t+1}$ from $p\left(x_{t+1}|x^{(j)}_t,\theta^{(j)}_t\right)$ \pause
+%\item Augment: add $\tilde{x}^{(j)}_{t+1}$ to particle $j$ and call new particle $\left(\tilde{x}^{(j)}_{0:t+1},\theta^{(j)}_t\right)$ \pause
+%\item Calculate weights: $\tilde{w}^{(j)}_t = p\left(y_{t+1}|\tilde{x}^{(j)}_{t+1},\theta^{(j)}_t\right)$ \pause
+%\item Renormalize: $w^{(j)}_{t+1} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)} \right.$ \pause
+%\item Resample: sample an index $k$ from $\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w^{(1)}_{t+1},\ldots,w^{(j)}_{t+1},\ldots,w^{(J)}_{t+1}\}$\pause
+%\item \label{step:move} Move particles: draw a new particle $\left(x^{(j)}_{0:t+1},\theta^{(j)}_{t+1}\right) \sim q\left(x_{0:t+1},\theta|\tilde{x}^{(k)}_{0:t+1},\theta^{(k)}_t\right)$
+%\end{enumerate}
+%}
 
 \frame{\frametitle{Particle learning (PL) \citep{Carv:Joha:Lope:Pols:part}} \pause
 Let $s_t$ be sufficient statistics for $\theta$ \\ \pause
 Regenerate $\theta$ from $p(\theta|s_t)$ \\ \pause
 \begin{align*}
 &p(x_{t+1},s_{t+1},\theta|y_{1:t+1}) \propto & \int_{s_t}\int_{x_t} &p(s_{t+1}|y_{t+1},x_{t+1},s_t)p(x_{t+1}|y_{t+1},x_t,\theta) \\
-& & &p(y_{t+1}|x_t,\theta)p(x_t,s_t,\theta|y_{1:t})\mbox{d}x_t\mbox{d}s_t \pause
-\end{align*}
+& & &p(y_{t+1}|x_t,\theta)p(x_t,s_t,\theta|y_{1:t})\mbox{d}x_t\mbox{d}s_t
+\end{align*} \pause
 \begin{itemize}
 \item looks ahead, like in APF, through $p(y_{t+1}|x_t,\theta)$ \pause
 \item propagate states through $p(x_{t+1}|y_{t+1},x_t,\theta)$ \pause
-\item need $p(y_{t+1}|x_t,\theta)$, $p(x_{t+1}|y_{t+1},x_t,\theta)$, and $p(\theta|s_t)$ \pause
-\item need to track $s_t$
-\item add $s_t$ to particles: $\left(x^{(j)}_t,\theta^{(j)}_t,s_t^{(j)}\right)$
+\item track $s_{t+1}$ through $S(y_{t+1},x_{t+1},s_t)$ \pause
+\item need $p(y_{t+1}|x_t,\theta)$, $p(x_{t+1}|y_{t+1},x_t,\theta)$, and $p(\theta|s_t)$
 \end{itemize}
 }
 
-\frame{\frametitle{Particle learning (PL) \citep{Carv:Joha:Lope:Pols:part}}
-Given a particle approximation to $p(x_t|y_{1:t})$, approximate $p(x_{t+1}|y_{1:t+1})$ \\ \pause
-For each particle $j=1,\ldots,J$:
-\begin{enumerate}
-\item Calculate weights: $\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}\left|x_t^{(j)},\theta_t^{(j)}\right.\right)$ \pause
-\item Renormalize: $w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)} \left/ \sum_{l=1}^J \tilde{w}_{t+1}^{(l)}\right.$ \pause
-\item Resample: sample an index $k \in \{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w_{t+1}^{(1)},\ldots,w_{t+1}^{(j)},\ldots,w_{t+1}^{(J)}\}$, \pause
-\item Propagate: sample $x_{t+1}^{(j)} \sim p\left(x_{t+1}\left|y_{t+1},x_t^{(k)},\theta_t^{(k)}\right.\right)$, \pause
-\item Update sufficient statistics: calculate $s_{t+1}^{(j)} = S\left(y_{t+1},x_{t+1}^{(j)},s_t^{(k)}\right)$, and \pause
-\item Regenerate: sample $\theta_{t+1}^{(j)} \sim p\left(\theta\left|s_{t+1}^{(j)}\right.\right)$.
-\end{enumerate}
-}
+%\frame{\frametitle{Particle learning (PL) \citep{Carv:Joha:Lope:Pols:part}}
+%Add $s_t$ to particles: $\left(x^{(j)}_t,\theta^{(j)}_t,s_t^{(j)}\right)$ \\ \pause
+%Given a particle approximation to $p(x_t,s_t,\theta|y_{1:t})$, approximate $p(x_{t+1},s_{t+1},\theta|y_{1:t+1})$ \\ \pause
+%For each particle $j=1,\ldots,J$:
+%\begin{enumerate}
+%\item Calculate weights: $\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}\left|x_t^{(j)},\theta_t^{(j)}\right.\right)$ \pause
+%\item Renormalize: $w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)} \left/ \sum_{l=1}^J \tilde{w}_{t+1}^{(l)}\right.$ \pause
+%\item Resample: sample an index $k \in \{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w_{t+1}^{(1)},\ldots,w_{t+1}^{(j)},\ldots,w_{t+1}^{(J)}\}$, \pause
+%\item Propagate: sample $x_{t+1}^{(j)} \sim p\left(x_{t+1}\left|y_{t+1},x_t^{(k)},\theta_t^{(k)}\right.\right)$, \pause
+%\item Update sufficient statistics: calculate $s_{t+1}^{(j)} = S\left(y_{t+1},x_{t+1}^{(j)},s_t^{(k)}\right)$, and \pause
+%\item Regenerate: sample $\theta_{t+1}^{(j)} \sim p\left(\theta\left|s_{t+1}^{(j)}\right.\right)$.
+%\end{enumerate}
+%}
 
 \frame{\frametitle{Practical implementation} \pause
+Can only use PL in special cases: \pause
+\begin{itemize}
+\item first-order DLM with common state and observation variance \pause
+\item dynamic regression \pause
+\item conjugate priors on $\theta$ \pause
+\end{itemize}
 When to resample? \pause
 \begin{itemize}
 \item when particle weights are out of balance \pause
@@ -568,18 +582,19 @@ How to resample? \pause
 \item multinomial, residual, stratified, systematic resampling \pause
 \end{itemize}
 Influence of priors \\ \pause
-\citet{sheinson:niemi:meiring:epidtrack:2014} \\ \pause
+\citet{sheinson:niemi:meiring:epidtrack:2014} \\
 \begin{itemize}
-\item epidemic model \pause
-\item compare BF, APF, KDPF \pause
+\item epidemic model
+\item compare BF, APF, KDPF
 \item compare priors, resampling schemes
 \end{itemize}
 }
 
 \subsection{Model comparison}
 
-\frame{\frametitle{Estimating the marginal likelihood}
-Calculate $p(y_{1:T})$ through $p(y_1)$ and $p(y_t|y_{1:t-1})$ for $t=2,\ldots,T$ \\ \pause
+\frame{\frametitle{Estimating the marginal likelihood} \pause
+Consider data $y_1,\ldots,y_T$ \\ \pause
+Calculate $p(y_{1:T})$ through $p(y_1)$ and $p(y_t|y_{1:t-1})$ for $t=2,\ldots,T$ \\
 \[p(y_{1:T}) = \left(\prod_{t=2}^T p(y_t|y_{1:t-1})\right)p(y_1)\] \pause
 Approximate $p(y_t|y_{1:t-1})$ using particle filter: \\ \pause
 \begin{align*}
@@ -589,15 +604,16 @@ p(y_t|y_{1:t-1}) &\approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{t-1}\ti
 
 \frame{\frametitle{Comparing alternative models}
 Compare $N$ possible models ${M_1,M_2,\ldots,M_N}$ \\ \pause
-\[p(M_i|y_{1:t}) = \frac{p(y_{1:t}|M_i)p(M_i)}{\sum_{i=1}^N p(y_{1:t}|M_i)p(M_i)}\] \pause
-Example: first-order DLM with $\theta = \lambda = 1$ \pause
+\[p(M_i|y_{1:T}) = \frac{p(y_{1:T}|M_i)p(M_i)}{\sum_{i=1}^N p(y_{1:T}|M_i)p(M_i)}\] \pause
+Example: first-order DLM with $\theta = \lambda = 1$
 \begin{itemize}
 \item single simulated time series of length $T = 100$ \pause
+\item consider three models: $M_1: \lambda = 0.5, \ M_2: \lambda = 1, \ M_3: \lambda = 2$ \pause
+\item $p(M_i) = 1/3$ for all $i$ \pause
 \item can calculate true $p(y_{1:T})$, $p(M_i|y_{1:T})$ \pause
-\item consider three models: $\lambda = 0.5, 1, 2$ \pause
-\item $p(M_i|y_{1:T}) = 1/3$ for all $i$ \pause
-\item estimate $p(M_i|y_{1:T})$ using KPDF, RM, and PL \pause
-\item 20 separate runs on each model with each algorithm
+\item estimate $p(M_i|y_{1:T})$ using KDPF, RM, and PL \pause
+\item 20 separate runs on each model with each algorithm \pause
+\item $J = 100, 500, 1000, 5000$ particles
 \end{itemize}
 }
 
@@ -623,7 +639,7 @@ Example: first-order DLM with $\theta = \lambda = 1$ \pause
 \[h(s) = \frac{(s/\tau)^{n-1}e^{-s/\tau}}{\tau(n-1)!}\]
 }
 
-\frame{\frametitle{Canonical hrf} \pause
+\frame{\frametitle{Canonical hrf}
 \centering
 \includegraphics[width=0.65\textwidth]{CanonicalHRF}
 }
@@ -637,7 +653,7 @@ Example: first-order DLM with $\theta = \lambda = 1$ \pause
 \item 36 slices / scan \pause
 \item slice $= 64\times64$ grid of 3 $\mbox{mm}^3$ voxels \pause
 \item $64 \times 64 \times 36 \times 245 > 36 \ \mbox{mil}$ data points \pause
-\item $5 \times 5 \times 5$ voxel regions from 6 brain areas
+\item $5 \times 5 \times 5$ voxel regions from 6 brain areas \pause
 \item preprocessing
 \end{itemize}
 }
@@ -650,7 +666,7 @@ Example: first-order DLM with $\theta = \lambda = 1$ \pause
 \[\mbox{conv}_t = \int_0^t N(s)h(t-s)\mbox{d}s\] \pause
 \item $\beta_0$ - baseline BOLD level \pause
 \item $\beta_1$ - activation parameter \pause
-\item $\sigma^2$ - measurement variance \pause
+\item $\sigma^2$ - measurement variance
 \end{itemize}
 }
 
@@ -663,60 +679,60 @@ Example: first-order DLM with $\theta = \lambda = 1$ \pause
 \begin{align*}
 &y_t = \beta_0 + \beta_1\mbox{conv}_t + \epsilon_t, \ \epsilon_t \stackrel{iid}{\sim}\mbox{N}(0,\sigma^2) \\
 & \\
-&H_0: \beta_1 = 0 \quad H_A: \beta_1 > 0 \pause
-\end{align*}
+&H_0: \beta_1 = 0 \quad H_A: \beta_1 > 0
+\end{align*} \pause
 \begin{itemize}
-\item ordinary least squares (OLS) estimation, t-test \pause
+\item ordinary least squares (OLS) estimation, t-test with $T - 2$ df \pause
 \item statistical parametric maps \pause
 \item multiple comparisons \pause
 \item invalid assumption of independent errors \pause
 \begin{itemize}
 \item uniform hrf \pause
-\item physiological noise \pause
+\item physiological noise
 \end{itemize}
 \end{itemize}
 }
 
 \subsection{Temporal autocorrelation}
 
-\frame{\frametitle{Exploration of ARMA error models} \pause
-\begin{align*}
-y_t &= \beta_0 + \beta_1\mbox{conv}_t + x_t \\
-x_t &= \phi_1x_{t-1} + \cdots + \phi_Px_{t-P} + \epsilon_t + \gamma_1\epsilon_{t-1} + \cdots + \gamma_Q\epsilon_{t-Q} \\
-\epsilon_j &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2), \ j \ge 0 \\ \pause
-\theta &= (\beta_0,\beta_1,\phi_1,\ldots,\phi_P,\gamma_1,\ldots,\gamma_Q,\sigma^2)' \pause
-\end{align*}
-\begin{itemize}
-\item chose 5 voxels randomly from each region \pause
-\item estimate $\theta$ via maximum likelihood for all $P$ and $Q$ up to order 10 \pause
-\item compare AIC, AICC, BIC
-\end{itemize}
-}
-
-\frame{\frametitle{Exploration of ARMA error models}
-\begin{table}
-\centering
-\caption*{Mean AR and MA orders}
-\begin{tabular}{|l|cc|cc|cc|}
-\hline
-Region & \multicolumn{6}{|c|}{Criterion} \\
-\hline
- & \multicolumn{2}{|c|}{AIC} & \multicolumn{2}{|c|}{AICC} & \multicolumn{2}{|c|}{BIC} \\
-\hline
- & $P$ & $Q$ & $P$ & $Q$ & $P$ & $Q$ \\
-\hline
-Left frontal pole          & 2.80 & 3.20 & 2.80 & 2.90 & 1.70 & 0.90 \\
-Left intraparietal sulcus  & 3.75 & 3.50 & 3.50 & 3.25 & 1.81 & 0.06 \\
-Right intraparietal sulcus & 3.20 & 2.80 & 3.20 & 2.80 & 0.80 & 0.80 \\
-Primary visual             & 3.10 & 3.00 & 3.10 & 2.70 & 0.90 & 1.70 \\
-Secondary visual left      & 3.20 & 2.90 & 2.10 & 2.40 & 1.40 & 0.00 \\
-Secondary visual right     & 3.20 & 3.00 & 3.10 & 2.50 & 0.70 & 0.70 \\
-\hline
-Mean across regions     & 3.21 & 3.07 & 2.97 & 2.76 & 1.22 & 0.69 \\
-\hline
-\end{tabular}
-\end{table}
-}
+%\frame{\frametitle{Exploration of ARMA error models} \pause
+%\begin{align*}
+%y_t &= \beta_0 + \beta_1\mbox{conv}_t + x_t \\
+%x_t &= \phi_1x_{t-1} + \cdots + \phi_Px_{t-P} + \epsilon_t + \gamma_1\epsilon_{t-1} + \cdots + \gamma_Q\epsilon_{t-Q} \\
+%\epsilon_j &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2), \ j \ge 0 \\
+%\theta &= (\beta_0,\beta_1,\phi_1,\ldots,\phi_P,\gamma_1,\ldots,\gamma_Q,\sigma^2)'
+%\end{align*} \pause
+%\begin{itemize}
+%\item chose 5 voxels randomly from each region \pause
+%\item estimate $\theta$ via maximum likelihood for all $P$ and $Q$ up to order 10 \pause
+%\item compare AIC, AICC, BIC
+%\end{itemize}
+%}
+%
+%\frame{\frametitle{Exploration of ARMA error models}
+%\begin{table}
+%\centering
+%\caption*{Mean AR and MA orders}
+%\begin{tabular}{|l|cc|cc|cc|}
+%\hline
+%Region & \multicolumn{6}{|c|}{Criterion} \\
+%\hline
+% & \multicolumn{2}{|c|}{AIC} & \multicolumn{2}{|c|}{AICC} & \multicolumn{2}{|c|}{BIC} \\
+%\hline
+% & $P$ & $Q$ & $P$ & $Q$ & $P$ & $Q$ \\
+%\hline
+%Left frontal pole          & 2.80 & 3.20 & 2.80 & 2.90 & 1.70 & 0.90 \\
+%Left intraparietal sulcus  & 3.75 & 3.50 & 3.50 & 3.25 & 1.81 & 0.06 \\
+%Right intraparietal sulcus & 3.20 & 2.80 & 3.20 & 2.80 & 0.80 & 0.80 \\
+%Primary visual             & 3.10 & 3.00 & 3.10 & 2.70 & 0.90 & 1.70 \\
+%Secondary visual left      & 3.20 & 2.90 & 2.10 & 2.40 & 1.40 & 0.00 \\
+%Secondary visual right     & 3.20 & 3.00 & 3.10 & 2.50 & 0.70 & 0.70 \\
+%\hline
+%Mean across regions     & 3.21 & 3.07 & 2.97 & 2.76 & 1.22 & 0.69 \\
+%\hline
+%\end{tabular}
+%\end{table}
+%}
 
 \frame{\frametitle{Autocorrelation estimation algorithms} \pause
 Prewhitening (FSL) \\ \pause
@@ -729,64 +745,60 @@ Prewhitening (FSL) \\ \pause
 Explicitly model autocorrelation (SPM) \\ \pause
 \begin{itemize}
 \item Restricted maximum likelihood estimation (REML) \pause
-\item adjust degrees of freedom in t-test (REMLc) \pause
+\item adjust degrees of freedom in t-test (REMLc)
 \end{itemize}
 }
 
-\frame{\frametitle{Comparing autocorrelation estimation algorithms} \pause
-Assume AR(1) errors \\ \pause
-\begin{align*}
-y_t &= \beta_0 + \beta_1\mbox{conv}_t + x_t \\
-x_t &= \phi x_{t-1} + \epsilon_t \\
-\epsilon_j &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2), \ j \ge 0 \\ \pause
-\theta &= (\beta_0,\beta_1,\phi,\sigma^2)' \pause
-\end{align*}
-Simulate 1000 time series with $\beta_0 = 750$, $\sigma^2 = 10$, and each of \pause
-\begin{itemize}
-\item $\beta_1 \in \{0,1,2,3\}$
-\item $\phi \in \{0.25,0.5,0.75,0.95\}$ \pause
-\end{itemize}
-False positive rate of concluding significant activation \\ \pause
-%ROC curves
-}
-
-\frame{\frametitle{False positive rates} \pause
-\begin{table}
-\resizebox{0.75\textwidth}{!}{\begin{minipage}{\textwidth}
-\centering
-\caption*{False positive rates for simulated fMRI data} \label{tab:fmri:fpr}
-\begin{tabular}{|c|cccc|}
-\hline
-$\alpha$ & OLS & PW & REML & REMLc \\
-\hline
- & \multicolumn{4}{|c|}{$\phi = 0.25$} \\
-\hline
-0.001 & 0.006 & 0.001 & 0.001 & 0.001 \\
-0.010 & 0.028 & 0.011 & 0.010 & 0.010 \\
-0.050 & 0.106 & 0.050 & 0.049 & 0.048 \\
-\hline
- & \multicolumn{4}{|c|}{$\phi = 0.50$} \\
-\hline
-0.001 & 0.022 & 0.002 & 0.002 & 0.002 \\
-0.010 & 0.070 & 0.010 & 0.009 & 0.007 \\
-0.050 & 0.161 & 0.054 & 0.052 & 0.052 \\
-\hline
- & \multicolumn{4}{|c|}{$\phi = 0.75$} \\
-\hline
-0.001 & 0.061 & 0.001 & 0.001 & 0.000 \\
-0.010 & 0.130 & 0.017 & 0.016 & 0.015 \\
-0.050 & 0.213 & 0.064 & 0.062 & 0.055 \\
-\hline
- & \multicolumn{4}{|c|}{$\phi = 0.95$} \\
-\hline
-0.001 & 0.072 & 0.000 & 0.000 & 0.000 \\
-0.010 & 0.144 & 0.011 & 0.011 & 0.000 \\
-0.050 & 0.230 & 0.046 & 0.049 & 0.023 \\
-\hline
-\end{tabular}
-\end{minipage} }
-\end{table}
-}
+%\frame{\frametitle{Comparing autocorrelation estimation algorithms} \pause
+%$M_{100}$: assume regression with AR(1) errors \\
+%\begin{align*}
+%y_t &= \beta_0 + \beta_1\mbox{conv}_t + x_t \\
+%x_t &= \phi x_{t-1} + \epsilon_t \\
+%\epsilon_j &\stackrel{iid}{\sim} \mbox{N}(0,\sigma^2), \ j \ge 0 \\
+%\theta &= (\beta_0,\beta_1,\phi,\sigma^2)'
+%\end{align*} \pause
+%Simulate 1000 time series with $\beta_0 = 750$, $\beta_1 = 0$, $\sigma^2 = 10$, and each of $\phi \in \{0.25,0.5,0.75,0.95\}$ \\ \pause
+%False positive rate of concluding significant activation
+%%ROC curves
+%}
+%
+%\frame{\frametitle{False positive rates}
+%\begin{table}
+%\resizebox{0.75\textwidth}{!}{\begin{minipage}{\textwidth}
+%\centering
+%\caption*{False positive rates for simulated fMRI data}
+%\begin{tabular}{|c|cccc|}
+%\hline
+%$\alpha$ & OLS & PW & REML & REMLc \\
+%\hline
+% & \multicolumn{4}{|c|}{$\phi = 0.25$} \\
+%\hline
+%0.001 & 0.006 & 0.001 & 0.001 & 0.001 \\
+%0.010 & 0.028 & 0.011 & 0.010 & 0.010 \\
+%0.050 & 0.106 & 0.050 & 0.049 & 0.048 \\
+%\hline
+% & \multicolumn{4}{|c|}{$\phi = 0.50$} \\
+%\hline
+%0.001 & 0.022 & 0.002 & 0.002 & 0.002 \\
+%0.010 & 0.070 & 0.010 & 0.009 & 0.007 \\
+%0.050 & 0.161 & 0.054 & 0.052 & 0.052 \\
+%\hline
+% & \multicolumn{4}{|c|}{$\phi = 0.75$} \\
+%\hline
+%0.001 & 0.061 & 0.001 & 0.001 & 0.000 \\
+%0.010 & 0.130 & 0.017 & 0.016 & 0.015 \\
+%0.050 & 0.213 & 0.064 & 0.062 & 0.055 \\
+%\hline
+% & \multicolumn{4}{|c|}{$\phi = 0.95$} \\
+%\hline
+%0.001 & 0.072 & 0.000 & 0.000 & 0.000 \\
+%0.010 & 0.144 & 0.011 & 0.011 & 0.000 \\
+%0.050 & 0.230 & 0.046 & 0.049 & 0.023 \\
+%\hline
+%\end{tabular}
+%\end{minipage} }
+%\end{table}
+%}
 
 %\frame{\frametitle{ROC curves} \pause
 %\centering
@@ -806,72 +818,75 @@ $M_{011}$: dynamic slope - changing activation with independent errors
 \end{itemize}
 $M_{001}$: standard OLS, independent errors
 \begin{align*}
-&y_t = \beta_0 + \beta_1\mbox{conv}_t + v_t, \ v_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_m) \\ \pause
-&\theta = (\beta_0,\beta_1,\sigma^2_m)' \pause
-\end{align*}
+&y_t = \beta_0 + \beta_1\mbox{conv}_t + v_t, \ v_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_m) \\
+&\theta = (\beta_0,\beta_1,\sigma^2_m)'
+\end{align*} \pause
 Estimate $\theta$ via maximum likelihood \\ \pause
 Identifiability problems in $M_{111}$
 }
 
-\frame{\frametitle{Fitting dynamic regression models} \pause
+\frame{\frametitle{Fitting dynamic regression models}
 \centering
 \includegraphics[width=1.0\textwidth]{craig_mle-beta-clusters}
 }
 
-\frame{\frametitle{Model comparison - simulated data} \pause
-Compare $p(M_{101}|y_{1:T})$, $p(M_{011}|y_{1:T})$, and $p(M_{001}|y_{1:T})$ \\ \pause
-Simulate time series from $M_{101}$ and $M_{011}$ \pause
-\begin{itemize}
-\item $T = 250$ \pause
-\item $\beta_0 = 750$, $\beta_1 = 15$, $\sigma^2_m = 10$ \pause
-\item various $\sigma^2_s$, $\phi$ \pause
-\end{itemize}
-$p(M_{101}) = p(M_{011}) = p(M_{001}) = 1/3$ \\ \pause
-Calculate $p(y_{1:T}|M_{001})$ analytically \\ \pause
-Estimate $p(y_{1:T}|M_{101})$ and $p(y_{1:T}|M_{011})$ using PL
-}
-
-\frame{\frametitle{Running PL on $M_{101}$ and $M_{011}$} \pause
-$\theta = (\beta_0,\beta_1,\phi,\sigma^2_s,\sigma^2_m)'$ \\ \pause
-Prior: $p(x_0, \theta) = p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s)\delta_0(x_0)$ \pause
-\begin{align*}
-&\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_mB_0) \qquad \sigma^2_m \sim \mbox{IG}(a_{m_0}, b_{m_0}) \\ \pause
-&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0}) \pause
-\end{align*}
-\begin{itemize}
-\item $B_0 = \left(\begin{array}{cc} 1000 & 0 \\ 0 & 225 \end{array}\right) \quad \Phi_0 = 0.25$ \pause
-\item $\vartheta_0 = \hat{\beta} \quad \varphi_0 = \hat{\phi}$ \pause
-\item $E(\sigma^2_m) = \hat{\sigma}^2_m \quad E(\sigma^2_s) = \hat{\sigma}^2_s$ \pause
-\item $Var(\sigma^2_m) = Var(\sigma^2_s) = 500$ \pause
-\end{itemize}
-Three PL runs per simulation, 500 particles
-}
-
-\frame{\frametitle{Identifying dynamic slope model} \pause
-\centering
-\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-M101-1-500-phi-496-594-1}
-}
-
-\frame{\frametitle{Identifying dynamic intercept model} \pause
-\centering
-\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-M011-1-500-phi-496-594-1}
-}
-
-\frame{\frametitle{Model comparison using PL - word recognition data} \pause
-Prior: $p(x_0, \theta) = p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s)\delta_0(x_0)$ \pause
-\begin{align*}
-&\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_mB_0) \qquad \sigma^2_m \sim \mbox{IG}(a_{m_0}, b_{m_0}) \\ \pause
-&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0}) \pause
-\end{align*}
-\begin{itemize}
-\item $B_0 = \left(\begin{array}{cc} 1000 & 0 \\ 0 & 225 \end{array}\right) \quad \Phi_0 = 0.25$ \pause
-\item $\vartheta_0$, $\varphi_0$, $E(\sigma^2_m)$, $E(\sigma^2_s$ = Average MLE in brain region or cluster \pause
-\item $Var(\sigma^2_m) = Var(\sigma^2_s) = 500$ \pause
-\end{itemize}
-One PL run / voxel (750 total), 5000 particles
-}
+%\frame{\frametitle{Model comparison - simulated data}
+%Compare $p(M_{101}|y_{1:T})$, $p(M_{011}|y_{1:T})$, and $p(M_{001}|y_{1:T})$ \\ \pause
+%Simulate time series from $M_{101}$ and $M_{011}$ \pause
+%\begin{itemize}
+%\item $T = 250$ \pause
+%\item $\beta_0 = 750$, $\beta_1 = 15$, $\sigma^2_m = 10$ \pause
+%\item various $\sigma^2_s$, $\phi$ \pause
+%\end{itemize}
+%Calculate $p(y_{1:T}|M_{001})$ analytically \\ \pause
+%Estimate $p(y_{1:T}|M_{101})$ and $p(y_{1:T}|M_{011})$ using PL
+%}
+%
+%\frame{\frametitle{Running PL on $M_{101}$ and $M_{011}$}
+%Need to define: $J$, prior on $x_0$, $\theta = (\beta_0,\beta_1,\phi,\sigma^2_s,\sigma^2_m)'$ \\ \pause
+%Prior: $p(x_0, \theta) = p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s)\delta_0(x_0)$
+%\begin{align*}
+%&\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_mB_0) \qquad \sigma^2_m \sim \mbox{IG}(a_{m_0}, b_{m_0}) \\
+%&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0})
+%\end{align*} \pause
+%\begin{itemize}
+%\item $B_0 = \left(\begin{array}{cc} 1000 & 0 \\ 0 & 225 \end{array}\right) \quad \Phi_0 = 0.25$ \pause
+%\item $\vartheta_0 = \hat{\beta} \quad \varphi_0 = \hat{\phi}$ \pause
+%\item $E(\sigma^2_m) = \hat{\sigma}^2_m \quad E(\sigma^2_s) = \hat{\sigma}^2_s$
+%\item $Var(\sigma^2_m) = Var(\sigma^2_s) = 500$ \pause
+%\end{itemize}
+%Three PL runs per simulation, 500 particles \\ \pause
+%Estimate $\log p(y_{1:T}|M_{101})$, $\log p(y_{1:T}|M_{011})$
+%}
+%
+%\frame{\frametitle{Identifying dynamic slope model}
+%\centering
+%\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-M101-1-500-phi-496-594-1}
+%}
+%
+%\frame{\frametitle{Identifying dynamic intercept model}
+%\centering
+%\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-M011-1-500-phi-496-594-1}
+%}
 
 \frame{\frametitle{Model comparison using PL - word recognition data} \pause
+Prior: $p(x_0, \theta) = p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s)\delta_0(x_0)$
+\begin{align*}
+&\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_mB_0) \qquad \sigma^2_m \sim \mbox{IG}(a_{m_0}, b_{m_0}) \\
+&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0})
+\end{align*} \pause
+\begin{itemize}
+\item $B_0 = \left(\begin{array}{cc} 1000 & 0 \\ 0 & 225 \end{array}\right) \quad \Phi_0 = 0.25$ \pause
+\item $Var(\sigma^2_m) = Var(\sigma^2_s) = 500$ \pause
+\item $\vartheta_0$, $\varphi_0$, $E(\sigma^2_m)$, $E(\sigma^2_s)$ = Average MLE in brain region or cluster \pause
+\end{itemize}
+One PL run / voxel (750 total) under both $M_{101}$ and $M_{011}$, 5000 particles \\ \pause
+$p(y_{1:T}|M_{001})$ calculated analytically \\ \pause
+\[p(M_i|y_{1:T}) = \frac{p(y_{1:T}|M_i)p(M_i)}{\sum_{i=1}^N p(y_{1:T}|M_i)p(M_i)}\] \pause
+$p(M_{101}) = p(M_{011}) = p(M_{001}) = 1/3$
+}
+
+\frame{\frametitle{Model comparison using PL - word recognition data}
 \begin{table}
 \centering
 \caption*{Proportion of voxels favoring different regression models}
@@ -890,7 +905,7 @@ SV-right & 0.952 & 0.032 & 0.016 \\
 \end{table}
 }
 
-\frame{\frametitle{Dynamic slopes in SV-left} \pause
+\frame{\frametitle{Dynamic slopes in SV-left}
 \centering
 \includegraphics[width=1.0\textwidth]{craig_state-pl-SV-left-M101-3-FALSE-5000}
 }
@@ -900,15 +915,14 @@ SV-right & 0.952 & 0.032 & 0.016 \\
 \frame{\frametitle{Future work} \pause
 Particle learning \pause
 \begin{itemize}
-\item Rao-Blackwellization \citep{Douc:Gods:Andr:on:2000} \pause
-\item combining algorithms \pause
+\item state sufficient statistics, Rao-Blackwellization \citep{Douc:Gods:Andr:on:2000} \pause
+\item combining algorithms \citep{dukic2012tracking} \pause
 \item cross model jumps \citep{berz:gilks:rmcross:2001,zhou:joh:smcmodcomp:2013} \pause
 \end{itemize}
-fMRI \pause
+fMRI
 \begin{itemize}
-\item dynamic connectivity \citep{ho:ombao:2005:statespace}
-\item spatial smoothing \pause
-\item spatio-temporal modeling
+\item dynamic connectivity \citep{ho:ombao:2005:statespace} \pause
+\item borrow information spatially, spatio-temporal modeling
 \end{itemize}
 }
 
