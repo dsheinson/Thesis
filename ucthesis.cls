@@ -1109,7 +1109,7 @@
     $\mbox{Unif}(a,b)$ & the continuous uniform distribution on $[a,b]$ \\
     \hline
     $\delta_{x_0}(x)$ & the Dirac delta function that places \\
-     & point mass at $x_0$ \\
+     & point mass for random vector $x$ at $x_0$ \\
     \hline
     $. \sim f$ & `.' distributed according to $f$ \\
     \hline

@@ -6,7 +6,7 @@ Sequential Monte Carlo (SMC) - or particle filtering - techniques, on the other 
 
 In Chapters \ref{ch:epid} and \ref{ch:comp}, we compare the performance of several particle filtering algorithms in different model settings. In Chapter \ref{ch:fmri}, we use SMC methods as a tool for model comparison, where we compare the relative posterior probabilities of several models that represent different types/sources of autocorrelation that might be present in fMRI time series data. We discuss possible reasons for the presence of autocorrelation in fMRI time series data and possible modeling approaches in Section \ref{sec:fmri:cor}. In each of Chapters \ref{ch:epid}, \ref{ch:comp}, and \ref{ch:fmri}, we compare SMC results with MCMC, which has been the standard over the past two decades for Bayesian analysis of analytically intractable models. Thus, in this chapter, we review several strategies for both MCMC and particle filtering.
 
-Specifically, in Section \ref{sec:mcmc}, we describe the MCMC algorithms we use for the epidemic model described in Section \ref{sec:epid} ( considered further in Chapter \ref{ch:epid}) and the dynamic regression models described in Sections \ref{sec:dlm:M101} and \ref{sec:dlm:M011} (considered further Chapter \ref{ch:fmri}). In Section \ref{sec:filtering}, we describe several particle filtering strategies and how to apply them to the models outlined in Chapter \ref{ch:models}. In Section \ref{sec:resample}, we discuss the resampling methods within several particle filtering algorithms. In Section \ref{sec:comp}, we show how SMC techniques can be used for model comparison. Lastly, in Section \ref{sec:pmcmc}, we describe a particle MCMC algorithm that we also use to analyze simulated data from the epidemic model, and which we found to perform more efficiently than standard MCMC.
+Specifically, in Section \ref{sec:mcmc}, we describe the MCMC algorithms we use for the epidemic model described in Section \ref{sec:epid} (considered further in Chapter \ref{ch:epid}) and the dynamic regression models described in Sections \ref{sec:dlm:M101} and \ref{sec:dlm:M011} (considered further in Chapter \ref{ch:fmri}). In Section \ref{sec:filtering}, we describe several particle filtering strategies and how to apply them to the models outlined in Chapter \ref{ch:models}. In Section \ref{sec:resample}, we discuss the resampling methods within several particle filtering algorithms. In Section \ref{sec:comp}, we show how SMC techniques can be used for model comparison. Lastly, in Section \ref{sec:pmcmc}, we describe a particle MCMC algorithm that we also use to analyze simulated data from the epidemic model, and which we found to perform more efficiently than standard MCMC.
 
 \section{Markov chain Monte Carlo (MCMC) algorithms \label{sec:mcmc}}
 
@@ -33,13 +33,13 @@ p(\beta|\hdots) &\propto \prod_{t=1}^T \left\{p(x_t|x_{t-1},\theta)\right\}p(\be
 p(\gamma|\hdots) &\propto \prod_{t=1}^T \left\{p(x_t|x_{t-1},\theta)\right\}p(\beta, \gamma) \nonumber \\
 p(\nu|\hdots) &\propto \prod_{t=1}^T \left\{p(x_t|x_{t-1},\theta)\right\}p(\nu), \nonumber
 \end{align}
-where $p(w|\hdots)$ represents the full conditional distribution of $w$, for any $w$. Note that since each of the unknown fixed parameters $\beta$, $\gamma$, and $\nu$ is present only in the state equation \eqref{eqn:epid:state} of the model, their full conditional distributions do not depend on $y_t$. By the same argument $p(y_t|x_t,\theta)$ reduces to $p(y_t|x_t)$.
+where $p(w|\hdots)$ represents the full conditional distribution of $w$, for any $w$. Note that since each of the unknown fixed parameters $\beta$, $\gamma$, and $\nu$ is present only in the state equation \eqref{eqn:epid:state} of the model, their full conditional distributions do not depend on $y_t$. By the same argument, $p(y_t|x_t,\theta)$ reduces to $p(y_t|x_t)$.
 
-We use these full conditional distributions to generate samples from $p(x_{0:T},\theta|y_{1:T})$ by implementing a Gibbs sampler with adaptive rejection Metropolis-Hastings (MH) steps \citep{Metr:Rose:Rose:Tell:Tell:equa:1953, Hast:mont:1970,  Gema:Gema:stoc:1984, gilks1995adaptive}. In general, the algorithm works by iteratively sampling each state and fixed parameter, conditional on the current sample, from some proposal distribution, $g$, and accepting the proposed sample with probability $R$. $R$ is given by
+We use these full conditional distributions to generate samples from $p(x_{0:T},\theta|y_{1:T})$ by implementing a Gibbs sampler with adaptive rejection Metropolis-Hastings (MH) steps \citep{Metr:Rose:Rose:Tell:Tell:equa:1953, Hast:mont:1970,  Gema:Gema:stoc:1984, gilks1995adaptive}. In general, the algorithm works by iteratively sampling each state and fixed parameter, conditional on the current sample, from some proposal distribution, $g$, and accepting the proposed sample with probability $R$. $R$, termed the \emph{Metropolis ratio}, is given by
 \begin{equation}
 R = \frac{f(w^*)g(w|w^*)}{f(w)g(w^*|w)}, \label{eqn:mhrat}
 \end{equation}
-where $w$ is the current sample, $w^*$ is the proposed sample from $g$, and $f(\cdot)$ is the full conditional distribution of the state or fixed parameter evaluated at `$\cdot$' \cite[Chapter 7][]{giv:hoet:2005:comp}. $R$ is termed the \emph{Metropolis ratio}. In our algorithm, we use Gaussian random-walk proposals for each state and fixed parameter, i.e. each proposed sample is drawn from a normal distribution centered at the current sampled value with standard deviation given by a tuning parameter that is adjusted according to the MH acceptance rate. Because these proposal distributions are symmetric, $g(w|w^*)$ and $g(w^*|w)$ cancel out, reducing the Metropolis ratio to
+where $w$ is the current sample, $w^*$ is the proposed sample from $g$, and $f(\cdot)$ is the full conditional distribution of the state or fixed parameter evaluated at `$\cdot$' \cite[Chapter 7][]{giv:hoet:2005:comp}. In our algorithm, we use Gaussian random-walk proposals for each state and fixed parameter, i.e. each proposed sample is drawn from a normal distribution centered at the current sampled value with standard deviation given by a tuning parameter that is adjusted according to the MH acceptance rate. Because these proposal distributions are symmetric, $g(w|w^*)$ and $g(w^*|w)$ cancel out, reducing the Metropolis ratio to
 \begin{equation}
 R = \frac{f(w^*)}{f(w)}. \label{eqn:mhrat:reduce}
 \end{equation}
@@ -98,26 +98,26 @@ Let $x^{(j)}_{0:T} = \left(x^{(j)}_0, x^{(j)}_1, \ldots, x^{(j)}_T\right)'$ and 
 
 The output of this algorithm is a dependent chain of samples which, provided $j$ is large enough, can be assumed to represent draws from the stationary distribution $p(x_{0:T},\theta|y_{1:T})$ \cite[Chapter 7][]{Robe:Case:mont:2004}. Initial values $\theta^{(0)}$ and $x_{0:T}^{(0)}$ could be chosen arbitrarily or by sampling from the prior $\prod_{t=1}^T\left\{p(x_t|x_{t-1},\theta)\right\}p(x_0,\theta)$. In either case, the effective sample size of the chain could be sensitive to the initial values. Generating multiple chains from different starting points could help determine reasonable starting values or the burn-in period required before the samples can be assumed to come from the stationary distribution \citep{giv:hoet:2005:comp}. In Section \ref{sec:epid:pmcmc}, we state the initial values used in our implementation of this algorithm applied to data simulated from the epidemic model described in Section \ref{sec:epid}.
 
-The standard deviations of the random-walk proposal distributions, i.e. $\tau_{x_t}$ for $t = 0,1,\ldots,T$, $\tau_{\beta}$, $\tau_{\gamma}$, and $\tau_{\nu}$, are tuning parameters that are adjusted during the burn-in period of the MCMC. During burn-in in our MCMC chains, if the proposed value of a state or parameter at any given iteration of the Gibbs sampler was accepted, the corresponding tuning parameter was adjusted by multiplying by 1.1. If the proposed value was rejected, the tuning parameter was adjusted by dividing by 1.1. The idea here is that a high acceptance rate indicates that proposed samples are in areas of high posterior probability while a low acceptance rate indicates that they are in areas of low posterior probability. We seek proposal distributions that strike a balance in the acceptance rate such that the entire sample space of the posterior is explored. Acceptance rates for optimal mixing of MCMC chains will vary by model, and have been explored by \citet{Robe:Gel:gilks:1997:optmh} and \citet{bed:2008:optmh}.
+The standard deviations of the random-walk proposal distributions, i.e. $\tau_{x_t}$ for $t = 0,1,\ldots,T$, $\tau_{\beta}$, $\tau_{\gamma}$, and $\tau_{\nu}$, are tuning parameters that are adjusted during the burn-in period of the MCMC. During burn-in, if the proposed value of a state or parameter at any given iteration of the Gibbs sampler is accepted, we adjust the corresponding tuning parameter by multiplying by 1.1. If the proposed value is rejected, we adjust the tuning parameter by dividing by 1.1. The idea here is that a high acceptance rate indicates that proposed samples are in areas of high posterior probability while a low acceptance rate indicates that they are in areas of low posterior probability. We seek proposal distributions that strike a balance in the acceptance rate such that the entire sample space of the posterior is explored. Acceptance rates for optimal mixing of MCMC chains will vary by model and have been explored by \citet{Robe:Gel:gilks:1997:optmh} and \citet{bed:2008:optmh}.
 
 \subsection{MCMC applied to dynamic regression \label{sec:mcmc:dr}}
 
-We now derive an MCMC algorithm to sample from the joint posterior distribution of states and unknown parameters from the dynamic intercept ($M_{101}$) and dynamic slope ($M_{011}$) models discussed in Sections \ref{sec:dlm:M101} and \ref{sec:dlm:M011}. Recall that these models are DLMs of the form given in equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with
+We now derive an MCMC algorithm to sample from the joint posterior distribution of states and unknown parameters from the dynamic intercept ($M_{101}$) and dynamic slope ($M_{011}$) models discussed in Section \ref{sec:dlm:arwn}. Recall that these models are DLMs of the form given by equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with
 \begin{align*}
 U_t &= (1, u_t) &\quad \beta &= (\beta_0, \beta_1)' \\
 V &= \sigma^2_m &\quad F_t &= \left\{\begin{array}{ll} 1, & \mbox{for } M_{101} \\ u_t, & \mbox{for } M_{011} \end{array}\right. \\
 G &= \phi &\quad W &= \sigma^2_s,
 \end{align*}
-where $x_t$ is the univariate state representing the change in the intercept or slope at time $t$ and $\theta = (\beta',\phi,\sigma^2_s,\sigma^2_m)'$ are the unknown fixed parameters. We place a prior of the form
+where $x_t$ is the univariate state representing the change in the intercept or slope at time $t$, and $\theta = (\beta',\phi,\sigma^2_s,\sigma^2_m)'$ are the unknown fixed parameters. We place a prior of the form
 \begin{equation}
 p(x_0, \theta) = p(x_0)p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s) \label{eqn:dr:prior}
 \end{equation}
 on the initial state and fixed parameters, where $p(x_0) = \delta_0(x_0)$ and, as stated in equations \eqref{eqn:dynreg:prior1} and \eqref{eqn:dynreg:prior2},
 \begin{align*}
 &\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_mB_0) \qquad \sigma^2_m \sim \mbox{IG}(a_{m_0}, b_{m_0}) \\
-&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0}).
+&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0})
 \end{align*}
-The conjugate form of these priors, conditional on $x_t$, allows for direct sampling from the full conditional distributions of the fixed parameters. Combining this with the forward-filtering backward sampling (FFBS) algorithm for jointly sampling the states \citep{Cart:Kohn:on:1994} allows for a relatively straightforward Gibbs sampler.
+with known $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$. The conjugate form of these priors, conditional on $x_t$, allows for direct sampling from the full conditional distributions of the fixed parameters. Combining this with the forward-filtering backward sampling (FFBS) algorithm for jointly sampling the states \citep{Cart:Kohn:on:1994} allows for a relatively straightforward Gibbs sampler.
 
 Suppose we observe $y_t$ for $t = 1,2,\ldots,T$ and let $x^{(j)}_{0:T} = \left(x^{(j)}_0, x^{(j)}_1, \ldots, x^{(j)}_T\right)'$ and $\theta^{(j)} = \left({\beta^{(j)}}', \phi^{(j)}, {\sigma^2_s}^{(j)}, {\sigma^2_m}^{(j)}\right)'$ represent the sampled values of the states and fixed parameters, respectively, at iteration $j$ of the Gibbs sampler. We generate samples from $p(x_{0:T},\theta|y_{1:T})$ using the following Gibbs sampling algorithm:
 \begin{enumerate}
@@ -150,6 +150,7 @@ b_{s_T} &= \frac{1}{2}(\mbox{SS}_x + \varphi_0'\Phi_0^{-1}\varphi_0 - \varphi_T'
 \end{enumerate}
 \item Set $j = j + 1$ and go back to Step \ref{step:gibbs:dr:beta}.
 \end{enumerate}
+
 We discuss initial values that we use in Step \ref{step:init} when we apply this algorithm to simulated fMRI data in Section \ref{sec:fmri:sim}. Note that both this algorithm and the MCMC for the epidemic model described in Section \ref{sec:mcmc:epid} provide joint samples from $p(x_{0:T},\theta|y_{1:T})$. Samples from the smoothed distributions, $p(x_s,\theta|y_{1:T})$ for $s < T$, can be directly obtained from these joint samples through Monte Carlo integration \cite[Chapter 3][]{Robe:Case:mont:2004}.
 
 \section{Particle filtering \label{sec:filtering}}
@@ -229,7 +230,7 @@ Since distributions that need to evaluated in MCMC algorithms often depend on al
 
 The general RM algorithm proceeds in the following way. Given a particle approximation to $p(x_{0:t},\theta|y_{1:t})$, we move to a particle approximation to $p(x_{0:t+1},\theta|y_{1:t+1})$ by the following steps for each particle $j=1,\ldots,J$:
 \begin{enumerate}
-\item Propagate: draw $\tilde{x}^{(j)}_{t+1}$ from $p\left(x_{t+1}|x^{(j)}_t,\theta^{(j)}_t\right)$. Incorporate $\tilde{x}^{(j)}_{t+1}$ into particle $j$ and denote the new augmented particle by $\left(\tilde{x}^{(j)}_{0:t+1},\theta^{(j)}_t\right)$,
+\item Propagate: draw $\tilde{x}^{(j)}_{t+1}$ from $p\left(x_{t+1}|x^{(j)}_t,\theta^{(j)}_t\right)$. Incorporate $\tilde{x}^{(j)}_{t+1}$ into particle $j$ and denote the new augmented particle by $\left(\tilde{x}^{(j)}_{0:t+1},\theta^{(j)}_t\right)$, where $\tilde{x}^{(j)}_{0:t+1} = \left(\tilde{x}_0^{(j)},\tilde{x}_1^{(j)},\ldots,\tilde{x}_t^{(j)},\tilde{x}_{t+1}^{(j)}\right)$,
 \item Calculate weights and renormalize:
     \[\tilde{w}^{(j)}_t = p\left(y_{t+1}|\tilde{x}^{(j)}_{t+1},\theta^{(j)}_t\right) \qquad w^{(j)}_{t+1} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}, \right.\]
 \item Resample: sample an index $k$ from $\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w^{(1)}_{t+1},\ldots,w^{(j)}_{t+1},\ldots,w^{(J)}_{t+1}\}$, and
@@ -240,28 +241,28 @@ The general RM algorithm proceeds in the following way. Given a particle approxi
 
 In Chapter \ref{ch:comp}, we run this algorithm on data simulated from the local level DLM with unknown common variance factor, $\theta$, described in Section \ref{sec:dlm:ll}. To do this, we need to define an MCMC kernel, $q$, for the ``Move particles'' step in the above algorithm. In this case, we sample from $q$ as follows: For a given particle $j$ and sampled index $k$,
 \begin{enumerate}
-\item \label{step:move:ll} Sample $\theta^{(j)}_{t+1} \sim \mbox{IG}(a_t, b_t)$, where
+\item \label{step:move:ll} Sample $\theta^{(j)}_{t+1} \sim \mbox{IG}(a_{t+1}, b_{t+1})$, where
 \begin{align*}
-a_t &= a_0 + 1/2 + t \\
-b_t &= b_0 + \frac{1}{2}\left(\sum_{i=1}^t \left(y_i - x_i^{(k)}\right)^2 + \frac{1}{\lambda}\sum_{i=1}^t \left(x_i^{(k)} - x_{i-1}^{(k)}\right)^2 + \left(x^{(k)}_0\right)^2\right),\mbox{ and}
+a_t &= a_0 + 1/2 + t+1 \\
+b_t &= b_0 + \frac{1}{2}\left(\sum_{i=1}^{t+1} \left(y_i - \tilde{x}_i^{(k)}\right)^2 + \frac{1}{\lambda}\sum_{i=1}^t \left(\tilde{x}_i^{(k)} - \tilde{x}_{i-1}^{(k)}\right)^2 + \left(\tilde{x}^{(k)}_0\right)^2\right),\mbox{ and}
 \end{align*}
-\item Sample $x_{0:t+1}^{(j)}$ using the FFBS algorithm detailed in Steps \ref{ffbs:kal} and \ref{ffbs:sample} of the Gibbs sampler from Section \ref{sec:mcmc:dr} with
+\item Sample $x_{0:t+1}^{(j)}$ using the FFBS algorithm detailed in Steps \ref{ffbs:kal} and \ref{ffbs:sample} of the Gibbs sampler from Section \ref{sec:mcmc:dr} with $T = t+1$ and
 \[m_0 = 0 \quad C_0 = V = \theta^{(j)}_{t+1} \quad W = \theta_{t+1}^{(j)}\lambda \quad F_t = G = 1.\]
 \end{enumerate}
 Note that the RM is not a truly sequential particle filter because of the increase in computation required with increasing $t$, due to the increasing dimension of the state component.
 
 \subsection{Particle learning (PL) \label{sec:pl}}
 
-We consider a particle filtering algorithm called particle learning \citep{Carv:Joha:Lope:Pols:part} that can be applied to a particular class of state-space models which includes DLMs. For models within this class, particle learning prescribes a truly sequential algorithm that samples new values for $\theta$ from $p(\theta|y_{1:t})$ using conditional sufficient statistics. Let $s_t$ denote the sufficient statistics for $\theta$ conditional on the current state $x_t$ (unrelated to $s_t$ in the epidemic model from Section \ref{sec:epid}). Then, we incorporate the sampled values of the sufficient statistics, $s_t^{(j)}$, into the particles, i.e. particle $j$ at time $t$ is now represented by $\left(x_t^{(j)},s_t^{(j)},\theta_t^{(j)}\right)$. We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\theta|y_{1:t+1})$ by the following procedure for each particle $j = 1,2,\ldots,J$:
+We consider a particle filtering algorithm called particle learning \citep{Carv:Joha:Lope:Pols:part} that can be applied to a particular class of state-space models which includes DLMs. For models within this class, particle learning prescribes a truly sequential algorithm that samples new values for $\theta$ from $p(\theta|y_{1:t})$ using conditional sufficient statistics. Let $s_t$ denote the sufficient statistics for $\theta$ conditional on the states $x_{0:t}$ (unrelated to $s_t$ in the epidemic model from Section \ref{sec:epid}). Then, we incorporate the sampled values of the sufficient statistics, $s_t^{(j)}$, into the particles, i.e. particle $j$ at time $t$ is now represented by $\left(x_t^{(j)},s_t^{(j)},\theta_t^{(j)}\right)$. We move from an approximation to $p(x_t,\theta|y_{1:t})$ to that of $p(x_{t+1},\theta|y_{1:t+1})$ by the following procedure for each particle $j = 1,2,\ldots,J$:
 \begin{enumerate}
 \item Calculate weights and renormalize:
-    \[\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}|x_t^{(j)},\theta_t^{(j)}\right) \qquad w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)} \left/ \sum_{l=1}^J \tilde{w}_{t+1}^{(l)}\right.,\]
-\item Resample: sample an index $k \in \{1,\ldots,j,\ldots,J\}$ with associated probabilities $\{w_{t+1}^{(1)},\ldots,w_{t+1}^{(j)},\ldots,w_{t+1}^{(J)}\}$,
-\item Propagate: sample $x_{t+1}^{(j)} \sim p\left(x_{t+1}|y_{t+1},x_t^{(k)},\theta_t^{(k)}\right)$,
+    \[\tilde{w}_{t+1}^{(j)} = p\left(y_{t+1}\left|x_t^{(j)},\theta_t^{(j)}\right.\right) \qquad w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)} \left/ \sum_{l=1}^J \tilde{w}_{t+1}^{(l)}\right.,\]
+\item Resample: sample an index $k \in \{1,\ldots,j,\ldots,J\}$ with associated probabilities $\left\{w_{t+1}^{(1)},\ldots,w_{t+1}^{(j)},\ldots,w_{t+1}^{(J)}\right\}$,
+\item Propagate: sample $x_{t+1}^{(j)} \sim p\left(x_{t+1}\left|y_{t+1},x_t^{(k)},\theta_t^{(k)}\right.\right)$,
 \item Update sufficient statistics: calculate $s_{t+1}^{(j)} = S\left(y_{t+1},x_{t+1}^{(j)},s_t^{(k)}\right)$, and
-\item Regenerate: sample $\theta_{t+1}^{(j)} \sim p\left(\theta|s_{t+1}^{(j)}\right)$.
+\item Regenerate: sample $\theta_{t+1}^{(j)} \sim p\left(\theta\left|s_{t+1}^{(j)}\right.\right)$.
 \end{enumerate}
-Note that this algorithm puts the ``Resample'' step ahead of the ``Propagate'' step, and thus is sometimes referred to as a \emph{resample-propagate} particle filter. Also, this algorithm requires the ability to evaluate the conditional predictive distribution $p(y_{t+1}|x_t,\theta)$ and sample from the conditional filtered distributions $p(x_{t+1}|y_{t+1},x_t,\theta)$ and $p(\theta|s_t)$. Thus, particle learning is only applicable to models for which the form of these distributions is analytically tractable. In addition, we must define the recursive map $S$ to update the sufficient statistics based on the new observation $y_{t+1}$ and the newly sampled state $x_{t+1}^{(j)}$. In Chapter \ref{ch:comp} we run PL on simulated data from the local level DLM described in Section \ref{sec:dlm:ll}, and in Chapter \ref{ch:fmri}, we apply PL to the dynamic regression models described in Sections \ref{sec:dlm:M101} and \ref{sec:dlm:M011} using real and simulated fMRI data. We now show how to implement PL for these specific models.
+Note that this algorithm requires the ability to evaluate the conditional predictive distribution $p(y_{t+1}|x_t,\theta)$ and sample from the conditional filtered distributions $p(x_{t+1}|y_{t+1},x_t,\theta)$ and $p(\theta|s_t)$. Thus, particle learning is only applicable to models for which the form of these distributions is analytically tractable. In addition, we must define the recursive map $S$ to update the sufficient statistics based on the new observation $y_{t+1}$ and the newly sampled state $x_{t+1}^{(j)}$. In Chapter \ref{ch:comp}, we run PL on simulated data from the local level DLM described in Section \ref{sec:dlm:ll}, and in Chapter \ref{ch:fmri}, we apply PL to the dynamic regression models described in Section \ref{sec:dlm:arwn} using real and simulated fMRI data. We now show how to implement PL for these specific models.
 
 \subsubsection{\emph{PL for the local level DLM with common observation and state variance factor} \label{sec:pl:ll}}
 
@@ -296,10 +297,10 @@ b_1 &= \frac{1}{2}\left((y_1-x_1)^2 + \frac{1}{\lambda}(x_1-x_0)^2 + x_0^2\right
 
 \subsubsection{\emph{PL for dynamic regression models} \label{sec:pl:dr}}
 
-Consider the dynamic regression models $M_{101}$ and $M_{011}$ described in Sections \ref{sec:dlm:M101} and \ref{sec:dlm:M011} and given by equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with
+Consider the dynamic regression models $M_{101}$ and $M_{011}$ described in Section \ref{sec:dlm:arwn} and given by equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with
 \begin{align*}
 U_t &= (1, u_t) &\quad \beta &= (\beta_0, \beta_1)' \\
-V &= \sigma^2_m &\quad F_t &= \left\{\begin{array}{ll} 1, & \mbox{for} M_{101} \\ u_t, & \mbox{for} M_{011} \end{array}\right. \\
+V &= \sigma^2_m &\quad F_t &= \left\{\begin{array}{ll} 1, & \mbox{for} \ M_{101} \\ u_t, & \mbox{for} \ M_{011} \end{array}\right. \\
 G &= \phi &\quad W &= \sigma^2_s.
 \end{align*}
 We specify the prior distributions $p(\beta,\sigma^2_m)$ and $p(\phi,\sigma^2_s)$ according to equations \eqref{eqn:dynreg:prior1} and \eqref{eqn:dynreg:prior2}, restated below as
@@ -317,7 +318,7 @@ To implement a particle learning algorithm for this model, we derive the conditi
 where \[\mu_t = \tau_t^2\left(\frac{(y_{t+1}-U_{t+1}\beta)F_{t+1}}{\sigma^2_m} + \frac{\phi x_t}{\sigma^2_s}\right) \qquad \tau_t^2 = \left(\frac{F_{t+1}^2}{\sigma^2_m} + \frac{1}{\sigma^2_s}\right)^{-1}.\]
 In addition, we derive $p(\theta|y_{1:t},x_{0:t})$ using the fact that
 \begin{equation}
-p(\theta|y_{1:t},x_{0:t}) \propto \left(\prod_{k=1}^t p(y_k|x_k,\beta,\sigma^2_m)p(x_k|x_{k-1},\phi,\sigma^2_s)\right)p(\beta,\sigma^2_m)p(\phi,\sigma^2_s)\delta_0(x_0). \label{eqn:pl:dr:theta}
+p(\theta|y_{1:t},x_{0:t}) \propto \left(\prod_{k=1}^t p(y_k|x_k,\beta,\sigma^2_m)p(x_k|x_{k-1},\phi,\sigma^2_s)\right)p(\beta,\sigma^2_m)p(\phi,\sigma^2_s). \label{eqn:pl:dr:theta}
 \end{equation}
 The filtered distribution for $\theta$ conditional on the states is then given by
 \begin{align}
@@ -331,7 +332,7 @@ a_{m_t} &= a_{m_{t-1}} + 1/2 & \xi_{m_t} &= \xi_{m_{t-1}} + (y_t - F_tx_t)^2 \no
 \Phi_t^{-1}\varphi_t &= \Phi_{t-1}^{-1}\varphi_{t-1} + x_tx_{t-1} & \Phi_t^{-1} &= \Phi_{t-1}^{-1} + x_{t-1}^2 \nonumber \\
 a_{s_t} &= a_{s_{t-1}} + 1/2 & \xi_{s_t} &= \xi_{s_{t-1}} + x_t^2, \nonumber
 \end{align}
-where $\xi_{m_0} = \xi_{s_0} = 0$. Note that we update $\xi_{m_t}$ and $\xi_{s_t}$ in the recursive map and calculate the inverse-gamma rate parameters $b_{m_t}$ and $b_{s_t}$ according to
+where $\xi_{m_0} = \xi_{s_0} = 0$. We update $\xi_{m_t}$ and $\xi_{s_t}$ in the recursive map and calculate the inverse-gamma rate parameters $b_{m_t}$ and $b_{s_t}$ according to
 \begin{align}
 b_{m_t} &= \frac{1}{2}\left(\xi_{m_t} + \vartheta_0'B_0^{-1}\vartheta_0 - \vartheta_t'B_t^{-1}\vartheta_t\right) + b_{m_0} \label{eqn:pl:dr:rate} \\
 b_{s_t} &= \frac{1}{2}\left(\xi_{s_t} + \varphi_0'\Phi_0^{-1}\varphi_0 - \varphi_t'\Phi_t^{-1}\varphi_t\right) + b_{s_0}. \nonumber
@@ -353,17 +354,17 @@ Each of the particle filters described in previous sections, in addition to gene
 \begin{equation}
 p(y_{1:t}) = p(y_t|y_{1:t-1})p(y_{1:t-1}), \mbox{ for } t \ge 2. \label{eqn:marglik:recurse}
 \end{equation}
-Thus, $p(y_{1:t})$ can be calculated through the one-step ahead predictive densities, $p(y_k|y_{1:k-1})$ for $k=2,\ldots,t$ and $p(y_1)$, according to
+Thus, $p(y_{1:t})$ can be calculated through $p(y_1)$ and the one-step ahead predictive densities $p(y_k|y_{1:k-1})$ for $k=2,\ldots,t$, according to
 \begin{equation}
 p(y_{1:t}) = \left(\prod_{k=2}^t p(y_k|y_{1:k-1})\right)p(y_1). \label{eqn:marglik}
 \end{equation}
 At any step of the particle filter (i.e. for any time $t \ge 1$), an approximation to $p(y_t|y_{1:t-1})$ (or $p(y_1)$ if $t = 1$) can be obtained by the following equations:
 \begin{align}
-\mbox{if } t = 1, & \nonumber \\
-p(y_1) &\approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{0}\tilde{w}^{(j)}_1, & \mbox{for the BF, RM, and PL} \\ \left(\frac{1}{J}\sum_{j=1}^J \tilde{w}^{(j)}_{0}\right)\left(\sum_{j=1}^J\tilde{g}^{(j)}_1\right) & \mbox{for the APF and KDPF} \end{array} \right. \label{eqn:onestep:pf:init} \\
+\mbox{If } t = 1, & \nonumber \\
+p(y_1) &\approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{0}\tilde{w}^{(j)}_1, & \mbox{for the BF, RM, and PL} \\ \left(\frac{1}{J}\sum_{j=1}^J \tilde{w}^{(j)}_{0}\right)\left(\sum_{j=1}^J\tilde{g}^{(j)}_1\right) & \mbox{for the APF and KDPF} \end{array} \right., \ \mbox{and} \label{eqn:onestep:pf:init} \\
  & \nonumber \\
 \mbox{if } t \ge 2, & \nonumber \\
-p(y_t|y_{1:t-1}) &\approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{t-1}\tilde{w}^{(j)}_t, & \mbox{for the BF, RM, and PL} \\ \left(\frac{1}{J}\sum_{j=1}^J \tilde{w}^{(j)}_{t-1}\right)\left(\sum_{j=1}^J\tilde{g}^{(j)}_t\right) & \mbox{for the APF and KDPF} \end{array} \right. \label{eqn:onestep:pf} \\
+p(y_t|y_{1:t-1}) &\approx \left\{\begin{array}{ll} \sum_{j=1}^J w^{(j)}_{t-1}\tilde{w}^{(j)}_t, & \mbox{for the BF, RM, and PL} \\ \left(\frac{1}{J}\sum_{j=1}^J \tilde{w}^{(j)}_{t-1}\right)\left(\sum_{j=1}^J\tilde{g}^{(j)}_t\right) & \mbox{for the APF and KDPF} \end{array} \right.. \label{eqn:onestep:pf} \\
  & \nonumber
 \end{align}
 \cite[Section 4.2][]{douc:joh:tut:2009}. Given approximations to $p(y_1)$ and $p(y_k|y_{1:k-1})$ for $k = 2,\ldots,t$, the marginal likelihood can be approximated via equation \eqref{eqn:marglik}.

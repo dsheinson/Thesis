@@ -4,7 +4,7 @@ In this chapter, we describe the specific models that we use for analyzing fMRI 
 
 \section{State-space models \label{sec:ss}}
 
-State-space models are a general class of statistical models used for analysis of dynamic data.  They are constructed using an observation equation, $y_t \sim p_{y,t}(y_t|x_t,\theta)$, and a state evolution equation, $x_t \sim p_{x,t}(x_t|x_{t-1},\theta)$, where $y_t$ is the observed response, $x_t$ is a latent, dynamic state, the subscript $t$ is a time index, and $\theta$ is an unknown fixed parameter, all of which could be vectors. The $y_t$'s are assumed independent given $x_t$ and $\theta$, and the $x_t$'s are assumed independent given $x_{t-1}$ and $\theta$. That is, $y_t|x_t,\theta \perp y_1,\ldots,y_{t-1}|x_t,\theta$ and $x_t|x_{t-1},\theta \perp x_{1:t-2}|x_{t-1},\theta$ (see Figure \ref{fig:ssdraw}). The distributions $p_{y,t}$ and $p_{x,t}$ are assumed known conditional on the values of $\theta$ and $x_t$ in the observation equation and conditional on $\theta$ and $x_{t-1}$ in the evolution equation, respectively. Depending on whether the observations and the states are continuous or discrete, the distributions themselves may be continuous or discrete. The distributions are typically assumed to only vary with $x_t$ and $\theta$, and therefore the $t$ subscript is dropped. For simplicity, we also drop the $x$ and $y$ subscripts and instead let the arguments make clear which distribution we are referring to. Thus, the general state-space model is
+State-space models are a general class of statistical models used for analysis of dynamic data.  They are constructed using an observation equation, $y_t \sim p_{y,t}(y_t|x_t,\theta)$, and a state evolution equation, $x_t \sim p_{x,t}(x_t|x_{t-1},\theta)$, where $y_t$ is the observed response, $x_t$ is a latent, dynamic state, the subscript $t$ is a time index, and $\theta$ is an unknown fixed parameter, all of which could be vectors. The $y_t$'s are assumed independent given $x_t$ and $\theta$, and $x_t$ is assumed independent of all states prior to time $t - 1$ and all data prior to time $t$ given $x_{t-1}$ and $\theta$. That is, $(y_t \perp y_{1:t-1},y_{t+1:T}) | x_t,\theta$ and $(x_t \perp x_{0:t-2},y_{1:t-1}) | x_{t-1},\theta$  (see Figure \ref{fig:ssdraw}). The distributions $p_{y,t}$ and $p_{x,t}$ are assumed known conditional on the values of $\theta$ and $x_t$ in the observation equation and conditional on $\theta$ and $x_{t-1}$ in the evolution equation, respectively. Depending on whether the observations and the states are continuous or discrete, the distributions themselves may be continuous or discrete. The distributions are typically assumed to only vary with $x_t$ and $\theta$, and therefore the $t$ subscript is dropped. For simplicity, we also drop the $x$ and $y$ subscripts and instead let the arguments make clear which distribution we are referring to. Thus, the general state-space model is
 \begin{align}
 y_t &\sim p(y_t|x_t,\theta) \label{eqn:obs} \\
 x_t &\sim p(x_t|x_{t-1},\theta). \label{eqn:state}
@@ -133,7 +133,7 @@ x_t &= Gx_{t-1} + w_t, \label{eqn:dlm:reg:state}
 \end{align}
 where $U_t$ is a known $q \times d$ matrix and $\beta$ is an unknown $d \times 1$ vector. Alternatively, a regression model could be specified without introducing $U_t$ and $\beta$ by instead incorporating $U_t$ inside of $F_t$ and including $\beta$ as part of $x_t$. However, we write the model as in equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} to make the separation of fixed regression coefficients and the dynamic state explicit.
 
-In Chapter \ref{ch:fmri}, we consider regression models for univariate $y_t$ with autoregressive-moving average (ARMA) error structure, i.e. models of the form given in equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with $q = 1$ and $x_t$ following a zero-mean $\mbox{ARMA}(P, Q)$ stochastic process \citep{shum:stof:2006:timeseries}, where $P$ and $Q$ are the orders of the autoregressive (AR) and moving average (MA) components, respectively. In these models, $x_t = (x_{t,1} ,x_{t,2}, \ldots, x_{t,m})'$ is an $m$-dimensional vector with $m = \mbox{max}(P,Q+1)$, $F_t$ is a time-invariant $1 \times m$ vector with first element equal to 1 and the rest 0, $v_t = 0$, $G$ is an $m \times m$ matrix that takes the form
+In Chapter \ref{ch:fmri}, we consider regression models for univariate $y_t$ with autoregressive-moving average (ARMA) error structure, i.e. models of the form given in equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:state} with $q = 1$ and $x_t$ following a zero-mean $\mbox{ARMA}(P, Q)$ stochastic process \citep{shum:stof:2006:timeseries}, where $P$ and $Q$ are the orders of the autoregressive (AR) and moving average (MA) components, respectively. In these models, $x_t = (x_{t,1} ,x_{t,2}, \ldots, x_{t,m})'$ is an $m$-dimensional vector with $m = \mbox{max}(P,Q+1)$, $F_t$ is a time-invariant $1 \times m$ vector with first element equal to 1 and the rest 0, $v_t \sim \delta_0(v_t)$ where $\delta_a(x)$ is the Dirac delta function that places point mass for random vector $x$ at $a$ (i.e $v_t = 0$ for all $t$), $G$ is an $m \times m$ matrix that takes the form
 \[
 G = \left(
  \begin{array}{ccccc}
@@ -214,23 +214,23 @@ In Chapter \ref{ch:fmri}, we compare the dynamic slope, dynamic intercept, and s
 In all of these dynamic regression models, we allow for nonstationarity of the state process. This is intended to enable modeling of a wider range of behavior in fMRI data, as well as estimation using the particle learning algorithm, which we describe in Chapter \ref{ch:meth}. In this setting, $x_t$ may not have a stationary mean, in which case the model may not be properly identified by unique values of the fixed parameters \citep{pagan:identify:1979}. To alleviate this concern, we constrain $x_0 = 0$ (or $x_0 = (0,0)'$ for $M_{111}$) so that $x_t$ is interpreted as the change in the dynamic slope or intercept (or both) from time $t = 0$. This is equivalent to setting the marginal prior distribution of the initial state as $p(x_0) = \delta_{0}(x_0)$. In Chapter \ref{ch:fmri}, Bayesian models for $M_{101}$ and $M_{011}$ are analyzed using priors of the form $p(x_0, \theta) = p(\beta|\sigma^2_m)p(\sigma^2_m)p(\phi|\sigma^2_s)p(\sigma^2_s)\delta_0(x_0)$, where
 \begin{align}
 &\beta|\sigma^2_m \sim \mbox{N}(\vartheta_0, \sigma^2_mB_0) \qquad \sigma^2_m \sim \mbox{IG}(a_{m_0}, b_{m_0}) \label{eqn:dynreg:prior1} \\
-&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0}), \label{eqn:dynreg:prior2}
+&\phi|\sigma^2_s \sim \mbox{N}(\varphi_0, \sigma^2_s\Phi_0) \qquad \sigma^2_s \sim \mbox{IG}(a_{s_0}, b_{s_0}) \label{eqn:dynreg:prior2}
 \end{align}
-$\delta_a(x)$ is the Dirac delta function that places point mass at $a$, and the hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are assumed known.
+and the hyperparameters $\vartheta_0$, $B_0$, $\varphi_0$, $\Phi_0$, $a_{m_0}$, $b_{m_0}$, $a_{s_0}$, and $b_{s_0}$ are assumed known.
 
 \section{Sequential estimation \label{sec:sequential}}
 
 When data are collected sequentially, it is often of interest to determine the \emph{filtered distribution} $p(x_t,\theta|y_{1:t})$, i.e. the distribution of the current state and parameters conditional on the data observed up to that time. This distribution describes all of the available information up to time $t$ about the current state of the system and any fixed parameters. We may also be interested in the filtered distribution of the entire state history and any fixed parameters, $p(x_{0:t},\theta|y_{1:t})$. Both can be updated recursively using Bayes' rule:
 \begin{align}
-p(x_t,\theta| y_{1:t}) &\propto p(y_t|x_t,\theta)p(x_t,\theta|y_{1:t-1}) \label{eqn:filtered} \\
+p(x_t,\theta| y_{1:t}) &\propto \int p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(x_{t-1},\theta|y_{1:t-1})\mbox{d}x_{t-1} \label{eqn:filtered} \\
 p(x_{0:t},\theta|y_{1:t}) &\propto p(y_t|x_t,\theta)p(x_t|x_{t-1},\theta)p(x_{0:t-1},\theta|y_{1:t-1}), \label{eqn:filtered:hist}
 \end{align}
 where $y_{1:t} = (y_1,\ldots,y_t)$. The \emph{smoothed distribution}, $p(x_s,\theta|y_{1:t})$ for any $s < t$, is then calculated by integrating $p(x_{0:t},\theta|y_{1:t})$ over all states $\left\{x_j: j \in \{0,\ldots,t\} / \{s\}\right\}$.
 
-Only in special cases can these filtered or smoothed distributions be evaluated analytically. The DLM described by equations \eqref{eqn:dlm:obs} and \eqref{eqn:dlm:state} is one such case, provided all fixed parameters (i.e. $\theta$) are known. In this case, an explicit form for $p(x_t|y_{1:t})$ can be found according to $x_t|y_{1:t} \sim \mbox{N}(m_t,C_t)$, where $m_t$ and $C_t$ are calculated recursively using the Kalman filter \citep{kal:1960:ekf}. Starting with known $m_0$ and $C_0$, the filtering recursions are given by the following equations \cite[Section 2.7.2][]{petris:camp:2009:dynamic}:
+Only in special cases can these filtered or smoothed distributions be evaluated analytically. The DLM described by equations \eqref{eqn:dlm:reg:obs} and \eqref{eqn:dlm:reg:obs} is one such case, provided all fixed parameters (i.e. $\theta$) are known. In this case, an explicit form for $p(x_t|y_{1:t})$ can be found according to $x_t|y_{1:t} \sim \mbox{N}(m_t,C_t)$, where $m_t$ and $C_t$ are calculated recursively using the Kalman filter \citep{kal:1960:ekf}. Starting with known $m_0$ and $C_0$, the filtering recursions are given by the following equations \cite[Section 2.7.2][]{petris:camp:2009:dynamic}:
 \begin{align}
 z_t &= Gm_{t-1} &\qquad R_t &= GC_{t-1}G' + W \label{eqn:dlm:kal} \\
-f_t &= F_tz_t &\qquad Q_t &= F_tR_tF_t' + V \nonumber \\
+f_t &= U_t\beta + F_tz_t &\qquad Q_t &= F_tR_tF_t' + V \nonumber \\
 m_t &= z_t + R_tF_t'Q_t^{-1}(y_t-f_t) &\qquad C_t &= R_t - R_tF_t'Q_t^{-1}F_tR_t. \nonumber
 \end{align}
 
@@ -246,10 +246,10 @@ a_t &= a_{t-1} + \frac{1}{2} &\qquad b_t &= b_{t-1} + \frac{(y_t-f_t)^2}{2q_t}, 
 \end{align}
 starting with $m_0 = 0$, $c_0 = 1$, and known $a_0$ and $b_0$. These equations can also be used to calculate the marginal filtered distribution of the state, $p(x_t|y_{1:t})$, and one-step ahead predictive density, $p(y_t|y_{1:t-1})$, given by
 \begin{align}
-x_t|y_{1:t} &\sim \mbox{T}\left(m_t,c_t \frac{b_t}{a_t},2a_t\right) \label{eqn:ll:marg} \\
-y_t|y_{1:t-1} &\sim \mbox{T}\left(f_t,q_t \frac{b_{t-1}}{a_{t-1}},2a_{t-1}\right). \label{eqn:ll:onestep}
+x_t|y_{1:t} &\sim \mbox{T}\left(m_t,c_t \frac{b_t}{a_t},2a_t\right), \ \ t = 1,2,\ldots \label{eqn:ll:marg} \\
+y_t|y_{1:t-1} &\sim \mbox{T}\left(f_t,q_t \frac{b_{t-1}}{a_{t-1}},2a_{t-1}\right), \ \ t =2,3,\ldots \label{eqn:ll:onestep}
 \end{align}
-In Chapter \ref{ch:comp}, we evaluate the abilities of several particle filters to approximate the marginal likelihood of data generated from this model through comparison with the true marginal likelihood that can be calculated analytically according to
+with initial $y_1 \sim \mbox{T}\left(f_1,q_1 \frac{b_0}{a_0},2a_0\right)$. In Chapter \ref{ch:comp}, we evaluate the abilities of several particle filters to approximate the marginal likelihood of data generated from this model through comparison with the true marginal likelihood that can be calculated analytically according to
 \begin{equation}
 p(y_{1:t}) = \left(\prod_{k=2}^t p(y_k|y_{1:k-1})\right)p(y_1) \label{eqn:ll:marglik}.
 \end{equation}
