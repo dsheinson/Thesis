@@ -100,7 +100,7 @@ An approach to handling temporally autocorrelated fMRI time series that was deve
 
 The prewhitening approach to handling autocorrelated errors is the standard technique used in the FSL software package (http://fsl.fmrib.ox.ac.uk/fsl/fslwiki/). Other approaches attempt to account for temporal autocorrelations explicitly through modeling. For example, \citet{lund:mad:nvr:2006} measured effects thought to contribute to autocorrelated noise such as heartbeat, respiration, and magnetic field strength, and included them as additional covariates in the GLM. SPM uses an approach developed by \citet{kiebel:holmes:spm:2007} that models the correlation in the errors by
 \begin{equation}
-\epsilon \sim \mbox{N}(0,\sigma^2 I_T + \lambda Q) \quad Q_{i,j} = \left\{\begin{array}{ll} 0, & \mbox{if } i=j \\ e^{-|i-j|}, & \mbox{if } i\ne j, \end{array} \right.
+\epsilon \sim \mbox{N}(0,\sigma^2 I_T + \lambda Q) \quad Q_{i,j} = \left\{\begin{array}{ll} 0, & \mbox{if } i=j \\ e^{-|i-j|}, & \mbox{if } i\ne j, \end{array} \right. \label{eqn:fmri:kiebel}
 \end{equation}
 where $T$ is the total number of TRs in the experiment, $\epsilon = (\epsilon_1,\ldots,\epsilon_T)'$, and $\lambda$ is another unknown fixed parameter. Restricted maximum likelihood estimation (REML) is carried out to estimate the unknown fixed parameters, and the hypothesis test in equation \eqref{eqn:fmri:hyp} is performed using the test statistic
 \begin{equation}
@@ -190,7 +190,7 @@ y &= X\beta + \epsilon, \quad \mbox{ where} \label{eqn:fmri:ar1} \\
 \epsilon &\sim \mbox{N}(0,\sigma^2\Lambda), \nonumber \\
 \Lambda_{i,j} &= \frac{\phi^{|i-j|}}{1 - \phi^2}, \nonumber
 \end{align}
-where $\beta = (\beta_0,\beta_1)'$ are the fixed regression coefficients, $y$ and $X$ are data vector and design matrix, respectively, as defined immediately after equation \eqref{eqn:fmri:ols}, and $\epsilon = (\epsilon_1,\ldots,\epsilon_T)'$ is the vector of error terms.
+$\beta = (\beta_0,\beta_1)'$ are the fixed regression coefficients, $y$ and $X$ are data vector and design matrix, respectively, as defined immediately after equation \eqref{eqn:fmri:ols}, and $\epsilon = (\epsilon_1,\ldots,\epsilon_T)'$ is the vector of error terms.
 
 The PW approach uses the fact that if $\Lambda$ is known, the data can be transformed via
 \begin{equation}
@@ -214,13 +214,12 @@ where $\hat{S}$ is the Cholesky decomposition of $\hat{\Lambda}$. Lastly, the hy
 Estimation using the restricted likelihood is intended to remove bias in estimating variance components that is due to fixed regression coefficients being included in the model. This is achieved by integrating $\beta$ out of the full likelihood. For hypothesis tests using REML, we first obtain an estimate of $\phi$ by maximizing the profiled log-restricted likelihood, derived by \citet{harville:reml:1977} and given by
 \begin{align}
 \log p(y|\phi) \propto & -(T-2)\log\left|\left| y^* - X^*\left[(X^*)'X^*\right]^{-1}(X^*)'y^* \right|\right| \label{eqn:fmri:plrl} \\
- & - \frac{1}{2}\log\left|(X^*)'X^*\right| - \frac{1}{2} \log \Lambda. \nonumber
+ & - \frac{1}{2}\log\left|(X^*)'X^*\right| - \frac{1}{2} \log |\Lambda| \nonumber
 \end{align}
-Here, we note that the data $y$ and design matrix $X$ have been transformed such that the model errors are independent, and each of $y^*$, $X^*$, and $\Lambda$ are implicitly functions of $\phi$. Once $\hat{\phi}$ that maximizes $\log p(y|\phi)$ in equation \eqref{eqn:fmri:plrl} is found, estimates of $\beta$ and $\sigma^2$ are computed according to
+\citep[Page 205]{pin:bates:mixed:2000}. Here, $y^*$, $X^*$, and $\Lambda$ are implicitly functions of $\phi$, with $y^*$ and $X^*$ described by equation \eqref{eqn:gls:trans} and $\Lambda$ described by the third line of equation \eqref{eqn:fmri:ar1}. Once $\hat{\phi}$ that maximizes $\log p(y|\phi)$ in equation \eqref{eqn:fmri:plrl} is found, $\hat{\Lambda}$ is calculated according to equation \eqref{eqn:pw:cor}, $\hat{X}^*$ and $\hat{y}^*$ are calculated according to equation \eqref{eqn:pw:trans}, and REML estimates of $\beta$ and $\sigma^2$ are computed according to
 \begin{equation}
-\hat{\beta} = \left[(\hat{X}^*)'\hat{X}^*\right]^{-1}(\hat{X}^*)'\hat{y}^* \qquad \hat{\sigma}^2 = \frac{1}{T-2}\left|\left| \hat{y}^*-\hat{X}^*\hat{\beta} \right|\right|, \label{eqn:fmri:reml}
+\hat{\beta} = \left[(\hat{X}^*)'\hat{X}^*\right]^{-1}(\hat{X}^*)'\hat{y}^* \qquad \hat{\sigma}^2 = \frac{1}{T-2}\left|\left| \hat{y}^*-\hat{X}^*\hat{\beta} \right|\right|^2. \label{eqn:fmri:reml}
 \end{equation}
-where $\hat{X}^*$ and $\hat{y}^*$ are calculated using equations \eqref{eqn:pw:cor} and \eqref{eqn:pw:trans}. The t-test in equation \eqref{eqn:fmri:ttest} is then carried out using the REML estimates of $\hat{\beta}_1$ and $\hat{\sigma}^2$, with $\hat{X}^*$ used in place of $X$.
 
 % using the test statistic
 %\begin{equation}
@@ -228,13 +227,15 @@ where $\hat{X}^*$ and $\hat{y}^*$ are calculated using equations \eqref{eqn:pw:c
 %\end{equation}
 %and $p^*$ is calculated as in equation \eqref{eqn:fmri:ttest} under the assumption that $t^* \sim \mbox{T}(0,1,T-2)$.
 
-We used the {\tt gls} function in R package {\tt nlme} to find $\hat{\phi}$ that maximizes the profiled log-restricted likelihood in equation \eqref{eqn:fmri:plrl} \citep{pin:bates:mixed:2000}. The t-test described above was then performed conditional on the REML estimate of $\Lambda$. However, because the correlation structure is estimated and not known, the null distribution of the t-statistic does not exactly follow $\mbox{T}(0,1,T-2)$. Alternatively, we can adjust the degrees of freedom of the t-distribution to account for the estimated autocorrelation in the data. We consider a strategy that corrects the degrees of freedom using an effective sample size adjustment for time series with first-order autocorrelation \citep{dawdy:matalas:ess:1964}. Specifically, we adjust the degrees of freedom in the t-test to $T' - 2$, where
-\begin{equation}
-T' = T\frac{1-\hat{\phi}}{1+\hat{\phi}}. \label{eqn:fmri:ess}
-\end{equation}
-We will refer to the method that incorporates REML estimates of the unknown fixed parameters with an effective sample size adjustment to the degrees of freedom of the t-test as REMLc (for corrected REML).
+We used the {\tt gls} function in R package {\tt nlme} to find $\hat{\phi}$ that maximizes the profiled log-restricted likelihood in equation \eqref{eqn:fmri:plrl} \citep{pin:bates:mixed:2000}, and then used equations \eqref{eqn:fmri:reml} to calculate $\hat{\beta}$ and $\hat{\sigma}^2$. We then performed the t-test in equation \eqref{eqn:fmri:ttest} using these estimates of $\hat{\beta}_1$ and $\hat{\sigma}^2$, with $\hat{X}^*$ used in place of $X$. However, because $\phi$ is estimated in addition to $\sigma^2$, the null distribution of the test statistic $T^*$ no longer follows a t-distribution. Nonetheless, we can perform the t-test conditional on the REML estimate of $\phi$ by using $\mbox{T}(0,1,T-2)$ as an approximation to the null distribution of $T^*$.
 
-Table \ref{tab:fmri:fpr} displays false positive rates of rejecting $H_0$ using significance thresholds $\alpha = 0.001, 0.01, \mbox{ and } 0.05$ for the 1000 simulations using $\beta_1 = 0$ and increasing values of $\phi$. Methods of estimation that accurately assess the uncertainty in $\hat{\beta_1}$ should yield false positive rates equal to $\alpha$. We can see from the table that using OLS inflates the false positive rate, and furthermore that the factor by which the false positive rate is inflated relative to $\alpha$ increases as $\alpha$ decreases. This is an undesirable feature, since lower $\alpha$ levels should result in more conservative tests.
+A better approximation to the null distribution of $T^*$ can be achieved by using a t-distribution with an adjusted degrees of freedom. For example, \citet{kiebel:holmes:spm:2007} adjusts the degrees of freedom of the t-test for the model described by equation \eqref{eqn:fmri:kiebel} using the Satterthwaite approximation described in \citet{wors:frist:color:1995}. We consider a strategy prescribed by \citet{dawdy:matalas:ess:1964}, where the problem of autocorrelated time series within the context of statistical tests that depend on an assumption of independent random samples is circumvented by calculating the so-called ``effective sample size''. Specifically, we use an effective sample size adjustment for time series with first-order autocorrelation, given by
+\begin{equation}
+T' = T\frac{1-\hat{\phi}}{1+\hat{\phi}}, \label{eqn:fmri:ess}
+\end{equation}
+and we adjust the degrees of freedom of the t-test by using $T' - 2$. We will refer to the method that approximates the null distribution of $T^*$ using $\mbox{T}(0,1,T-2)$ as the REML approach, and we will refer to the method that approximates this distribution using $\mbox{T}(0,1,T'-2)$ as the REMLc approach (for corrected REML).
+
+Table \ref{tab:fmri:fpr} displays false positive rates of rejecting $H_0$ using significance thresholds $\alpha = 0.001, 0.01, \mbox{ and } 0.05$ for the 1000 simulations using $\beta_1 = 0$ and for each of four values of $\phi$. Methods of estimation that accurately assess the uncertainty in $\hat{\beta_1}$ should yield false positive rates equal to $\alpha$. The results from Table \ref{tab:fmri:fpr} illustrate that using OLS inflates the false positive rate, and furthermore that the ratio of the false positive rate to $\alpha$ increases as $\alpha$ decreases. %This is an undesirable feature, since lower $\alpha$ levels should result in more conservative tests.
 
 Figure \ref{fig:fmri:fpr} displays false positive rates with increasing $\alpha$ for each method and each true value of $\phi$, as well as 95\% confidence intervals for the false positive rates calculated using a normal approximation to the distribution of the proportion of false positives out of the 1000 simulations. From the plots in this figure, we see that 95\% confidence intervals around the false positive rate for PW and REML contain the nominal threshold $\alpha$ for all values of $\phi$. REMLc appears to give slightly lower false positive rates than REML and PW for $\phi \le 0.75$ and decidedly lower false positive rates for $\phi = 0.95$. While this may seem to be an advantage of REMLc, a decrease in the false positive rate can come at the cost of a decrease in the true positive rate as well. Figure \ref{fig:fmri:roc} illustrates this point using ROC curves. The ROC curves in this figure display the true positive rate versus the false positive rate for the hypothesis tests performed according to each method. The methods with the largest area under the ROC curve performed the best in terms of distinguishing between the null and alternative hypotheses. We see from the curve corresponding to $\phi = 0.95$ that REMLc is outperformed by PW and REML, suggesting that although REMLc offers a decrease in the false positive rate for highly autocorrelated data relative to the other methods, it does not identify as many active voxels.
 
