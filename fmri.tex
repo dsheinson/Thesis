@@ -132,7 +132,7 @@ Maximization of the likelihood is performed using the R function {\tt arima} \ci
 -\log p(y_{1:T}|\theta) = \frac{1}{2}\sum_{t=1}^T \log|Q_t| + \frac{1}{2}\sum_{t=1}^T \zeta_t' Q_t^{-1} \zeta_t \label{eqn:fmri:loglik}
 \end{equation}
 \citep[Chapter 6]{shum:stof:2006:timeseries}. Here, $\zeta_t = y_t - f_t$ are the \emph{innovations} of the ARMA process, with $f_t$ and $Q_t$ being the mean and variance of the one-step ahead forecasts for $y_t$. For fixed $\theta$, $f_t$ and $Q_t$ are computed via the Kalman filter in equation \eqref{eqn:dlm:kal}, provided the initial values $m_0$ and $C_0$. These initial values are chosen automatically by {\tt arima} such that the stationarity constraint given in equation \eqref{eqn:arma:prior} is satisfied \citep{gardner:harvey:mlearma:1980}. Given an initial set of fixed parameter values, optimization is performed using an iterative algorithm that alternates between running the Kalman filter conditional on $\theta$ and minimizing equation \eqref{eqn:fmri:loglik} conditional on $f_{1:T}$ and $Q_{1:T}$ \citep{durbin:koopman:timeseries:2012}. Fixed parameter values are constrained to their regions of stationarity, given by equations \eqref{eqn:arpoly} and \eqref{eqn:mapoly}, using the transformation method of \citet{jones:arma:1980}.
- 
+
 Time series regression models with ARMA errors for all combinations of $P$ and $Q$ up to order 10 were fit to data from five randomly chosen voxels from each of the six brain regions using the {\tt arima} function. We then evaluated each model fit using three criteria: Akaike's information criterion (AIC) \citep{sak:ish:kit:aic:1986}, AIC corrected for bias (AICC) \citep{sug:aicc:1978,hurv:tsai:aicc:1989}, and Bayes' information criterion (BIC) \citep{schwarz:bic:1978}. For our model with a single regression covariate, the formulas for these criteria are given by
 \begin{align}
 AIC &= -2\log p(y_{1:T}|\hat{\theta}) + 2(P+Q+3) \label{eqn:aic} \\
@@ -237,7 +237,7 @@ and we adjust the degrees of freedom of the t-test by using $T' - 2$. We will re
 
 Table \ref{tab:fmri:fpr} displays false positive rates of rejecting $H_0$ using significance thresholds $\alpha = 0.001, 0.01, \mbox{ and } 0.05$ for the 1000 simulations using $\beta_1 = 0$ and for each of four values of $\phi$. Methods of estimation that accurately assess the uncertainty in $\hat{\beta_1}$ should yield false positive rates equal to $\alpha$. The results from Table \ref{tab:fmri:fpr} illustrate that using OLS inflates the false positive rate, and furthermore that the ratio of the false positive rate to $\alpha$ increases as $\alpha$ decreases. %This is an undesirable feature, since lower $\alpha$ levels should result in more conservative tests.
 
-Figure \ref{fig:fmri:fpr} displays false positive rates with increasing $\alpha$ for each method and each true value of $\phi$, as well as 95\% confidence intervals for the false positive rates calculated using a normal approximation to the distribution of the proportion of false positives out of the 1000 simulations. From the plots in this figure, we see that 95\% confidence intervals around the false positive rate for PW and REML contain the nominal threshold $\alpha$ for all values of $\phi$. REMLc appears to give slightly lower false positive rates than REML and PW for $\phi \le 0.75$ and decidedly lower false positive rates for $\phi = 0.95$. While this may seem to be an advantage of REMLc, a decrease in the false positive rate can come at the cost of a decrease in the true positive rate as well. Figure \ref{fig:fmri:roc} illustrates this point using ROC curves. The ROC curves in this figure display the true positive rate versus the false positive rate for the hypothesis tests performed according to each method. The methods with the largest area under the ROC curve performed the best in terms of distinguishing between the null and alternative hypotheses. We see from the curve corresponding to $\phi = 0.95$ that REMLc is outperformed by PW and REML, suggesting that although REMLc offers a decrease in the false positive rate for highly autocorrelated data relative to the other methods, it does not identify as many active voxels.
+Figure \ref{fig:fmri:fpr} displays false positive rates with increasing $\alpha$ for each method and each true value of $\phi$, as well as 95\% confidence intervals for the false positive rates calculated using a normal approximation to the distribution of the proportion of false positives out of the 1000 simulations. The 95\% confidence intervals around the false positive rate for PW and REML contain the nominal threshold $\alpha$ for all values of $\phi$. REMLc appears to give slightly lower false positive rates than REML and PW for $\phi \le 0.75$ and decidedly lower false positive rates for $\phi = 0.95$ (for which the approximate confidence intervals for REMLc do not contain the nominal value of $\alpha$). While at first glance this may seem to be an advantage of REMLc, a decrease in the false positive rate can come at the cost of a decrease in the true positive rate as well. Figure \ref{fig:fmri:roc} illustrates this point using ROC curves. The ROC curves in this figure display the true positive rate versus the false positive rate for the hypothesis tests performed according to each method. The methods with the largest area under the ROC curve performed the best in terms of distinguishing between the null and alternative hypotheses. The curve corresponding to $\phi = 0.95$ shows that REMLc is outperformed by PW and REML in our simulation, suggesting that although REMLc offers a decrease in the false positive rate for highly autocorrelated data relative to the other methods, it does not correctly identify as many truly active voxels.
 
 \begin{table}
 \ssp
@@ -272,7 +272,7 @@ $\alpha$ & OLS & PW & REML & REMLc \\
 0.050 & 0.230 & 0.046 & 0.049 & 0.023 \\
 \hline
 \end{tabular}
-\caption*{False positive rates at significance levels $\alpha = 0.001, 0.01, \mbox{ and } 0.05$ (rows) for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ using OLS, PW, REML, and REMLc (columns) on simulated data from $M_{100}$ with $\beta = (750, 3)$, $\sigma^2 = 15$, and increasing $\phi$ (embedded tables).}
+\caption*{False positive rates at significance levels $\alpha = 0.001, 0.01, \mbox{ and } 0.05$ (rows) for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ using OLS, PW, REML, and REMLc (columns) on 1000 simulated data sets of length $T = 250$ from $M_{100}$ with $\beta = (750, 3)$, $\sigma^2 = 15$, and for each $\phi \in \{0.25, 0.50, 0.75, 0.95\}$.}
 \end{table}
 
 \begin{figure}
@@ -280,7 +280,7 @@ $\alpha$ & OLS & PW & REML & REMLc \\
 \centering
 \caption{False positive rates for simulated fMRI data} \label{fig:fmri:fpr}
 \includegraphics[width=1.0\textwidth]{simstudy-FPR}
-\caption*{False positive rates (solid lines) and 95\% confidence intervals (dashed lines) for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ plotted against the nominal threshold level $\alpha$ (gray line) using OLS (black lines), PW (red lines), REML (green lines), and REMLc (blue lines) on simulated data from $M_{100}$ with $\beta = (750, 0)$, $\sigma^2 = 15$, and increasing $\phi$ (plot panels).}
+\caption*{False positive rates (FPR, solid lines) and 95\% confidence intervals (dashed lines) for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ plotted against the nominal threshold level $\alpha$ (gray line) using OLS (black lines), PW (red lines), REML (green lines), and REMLc (blue lines) on simulated data from $M_{100}$ with $T = 250$, $\beta = (750, 0)$, $\sigma^2 = 15$, and increasing $\phi$ (plot panels). Each panel is based on the same set of 1000 simulations (using the specified $\phi$) for all values of $\alpha$, and plot axes are the same across all panels.}
 \end{figure}
 
 \begin{figure}
@@ -288,7 +288,7 @@ $\alpha$ & OLS & PW & REML & REMLc \\
 \centering
 \caption{ROC curves for simulated fMRI data} \label{fig:fmri:roc}
 \includegraphics[width=1.0\textwidth]{simstudy-ROC-3-fill2}
-\caption*{ROC curves for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ using OLS (black lines), PW (red lines), REML (green lines), and REMLc (blue lines) on simulated data from $M_{100}$ with $\beta = (750, 3)$, $\sigma^2 = 15$, and increasing $\phi$ (plot panels).}
+\caption*{ROC curves for testing $H_0: \beta_1 = 0$ vs $H_A: \beta_1 > 0$ using OLS (black lines), PW (red lines), REML (green lines), and REMLc (blue lines) on simulated data from $M_{100}$ with $T = 250$, $\beta = (750, 3)$, $\sigma^2 = 15$, and increasing $\phi$ (plot panels). In each panel, the vertical axis is the true positive rate (TPR) and the horizontal axis is the false positive rate (FPR). The axes are the same in all panels. Diagonal dashed line would occur if TPR and FPR equalled each other.}
 \end{figure}
 
 \subsection{Testing independence of residuals \label{sec:fmri:res}}
