@@ -442,9 +442,9 @@ Identifiability of true model parameters in all three models improves by increas
 
 \subsection{Fitting word recognition data \label{sec:fmri:mle}}
 
-We now provide results from fitting the word recognition data set to $M_{101}$ and $M_{011}$ using maximum likelihood estimation. As in Section \ref{sec:fmri:id}, the {\tt dlmMLE} function was used to obtain MLEs for fixed parameters in $M_{101}$ and $M_{011}$. In addition, we offer a comparison with standard GLM fits of $M_{001}$ using OLS. OLS estimates are obtained according to equation \eqref{eqn:fmri:ols}, and in this case we let $\hat{\sigma}^2_m = \hat{\sigma}^2$. We let $\hat{\theta} = (\hat{\beta}',\hat{\phi},\hat{\sigma}^2_s,\hat{\sigma}^2_m)'$ denote the MLEs of the fixed parameters in $M_{011}$ and $M_{101}$, and $\hat{\theta} = (\hat{\beta}',\hat{\sigma}^2_m)'$ are the MLEs for fixed parameters in $M_{001}$.
+We now provide results from fitting $M_{101}$ and $M_{011}$ to the word recognition data set, using maximum likelihood estimation. As in Section \ref{sec:fmri:id}, the {\tt dlmMLE} function was used to obtain MLEs for all the fixed parameters in $M_{101}$ and $M_{011}$. In addition, we offer a comparison with standard GLM fits of $M_{001}$ using OLS. That is, we use OLS to fit the model of the form shown in equation \eqref{eqn:dlm:reg:obs} with $U_t = (1, \mbox{conv}_t)$, $\beta = {\beta_0,\beta_1)'$, $F_t = 0$ for all $t$ (making the state equation \eqref{eqn:dlm:reg:state} irrelevant), and $v_t \stackrel{iid}{\sim} \mbox{N}(0,\sigma^2_m)$. OLS estimates are obtained according to equation \eqref{eqn:fmri:ols}, and in this case we let $\hat{\sigma}^2_m = \hat{\sigma}^2$ from equation \eqref{eqn:fmri:ols}. We let $\hat{\theta} = (\hat{\beta}',\hat{\phi},\hat{\sigma}^2_s,\hat{\sigma}^2_m)'$ denote the MLEs of the fixed parameters in $M_{011}$ and $M_{101}$, and $\hat{\theta} = (\hat{\beta}',\hat{\sigma}^2_m)'$ be the MLEs of the fixed parameters in $M_{001}$.
 
-Figure \ref{fig:fmri:mle:beta} displays two-dimensional histograms of $\hat{\beta}$ over the 125 voxels from each brain region according to each model. The histograms suggest that significant brain activation is present in all regions except for FP. Also, estimates are relatively consistent across models for all brain regions with the exception of FP, where histograms for $M_{011}$ include a cloud of more active voxels while the other two models don't.
+Figure \ref{fig:fmri:mle:beta} displays two-dimensional kernel density estimates of $\hat{\beta}$ over the 125 voxels from each of the 6 brain regions in Table \ref{tab:fmri:arma} according to each model. These density estimates suggest that significant brain activation is present in all regions except for FP. Also, estimates are relatively consistent across models for all brain regions with the exception of FP, where histograms for $M_{011}$ include a cloud of more active voxels while the other two models don't.
 
 Also apparent from this figure is the bimodal nature of brain activation in SV-left and SV-right. For each model, voxels in these two regions were divided into high and low clusters, denoted by ``Cluster H'' and ``Cluster L'', respectively, using the K-means clustering method \citep{hartigan:wong:kmeans:1979} applied to $\hat{\theta}$. Table \ref{tab:fmri:prop} shows that about 65\% of voxels from these two regions fall into a cluster of higher activation and higher baseline BOLD response, evidenced by the higher regional average values of $\hat{\beta_1}$ and $\hat{\beta_0}$ in Table \ref{tab:fmri:mle:clusters}. The clustering of voxels in these brain regions could provide support for the $M_{011}$ model, since an apparent change in the regression slope over such close space might suggest that a change in the regression slope over time might also be reasonable.
 
@@ -455,9 +455,9 @@ Unlike MLEs for $\beta$, MLEs for $\phi$, $\sigma^2_s$, and $\sigma^2_m$ are not
 \begin{figure}
 \ssp
 \centering
-\caption{Histograms of MLEs of regression coefficients} \label{fig:fmri:mle:beta}
+\caption{Kernel density estimates of MLEs of regression coefficients} \label{fig:fmri:mle:beta}
 \includegraphics[width=0.6\textwidth]{craig_mle-beta}
-\caption*{Two-dimensional histograms of MLEs for $\beta$ using fMRI data from a word recognition experiment extracted from six brain regions (rows) fit to models $M_{011}$, $M_{101}$, and $M_{001}$ (columns). Blue X's denote the marginal averages of the MLEs from each brain region, and for each of two clusters in SV-left and SV-right.}
+\caption*{Two-dimensional kernel density estimates of MLEs for $\beta$ using fMRI data from a word recognition experiment extracted from six brain regions (rows) fit to models $M_{011}$, $M_{101}$, and $M_{001}$ (columns). Blue crosses denote the marginal averages of the MLEs from each brain region, and for each of two clusters in SV-left and SV-right.}
 \end{figure}
 
 %\begin{figure}
@@ -507,7 +507,7 @@ $\beta_1$ & -1.448 & 16.087 & 24.688 & 19.039 \\
 $\sigma^2_m$ & 12.480 & 29.579 & 54.511 & 37.629 \\
 \hline
 \end{tabular}
-\caption*{Average MLEs calculated marginally for each fixed parameter (rows) using fMRI data from a word recognition experiment extracted from four different brain regions (columns) fit to models $M_{011}$, $M_{101}$, and $M_{001}$ (embedded tables).}
+\caption*{Average MLEs calculated marginally for each fixed parameter (rows) using fMRI data from a word recognition experiment extracted from four different brain regions (columns) based on fitting models $M_{011}$, $M_{101}$, and $M_{001}$ (embedded tables).}
 \end{table}
 
 \begin{table}
@@ -559,7 +559,7 @@ $M_{101}$ & 0.677 & 0.648 \\
 $M_{001}$ & 0.672 & 0.648 \\
 \hline
 \end{tabular}
-\caption*{Proportion of voxels in each of secondary visual left and right (columns) classified into high activation cluster for each model fit (rows).}
+\caption*{Proportion of voxels in each of secondary visual left and right (columns) classified into high activation cluster after applying the K-means clustering algorithm to MLEs of $\theta$ under each model (rows).}
 \end{table}
 
 \section{Comparing dynamic regression models using particle learning \label{sec:fmri:pl}}
