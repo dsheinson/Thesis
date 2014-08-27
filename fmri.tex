@@ -386,7 +386,7 @@ Lastly, we comment on the skewness of the distribution of the MLEs for $\phi$ wh
 \ssp
 \centering
 \caption{Identifying dynamic slope model by increasing signal-to-noise ratio} \label{fig:fmri:id:M011SNR}
-\includegraphics[width=0.75\textwidth]{1000-250-M011-conv-750-15-1-5-SNR-10-10}
+\includegraphics[width=0.7\textwidth]{1000-250-M011-conv-750-15-1-5-SNR-10-10}
 \caption*{Histograms in 1D (for $\phi$, second column) and 2D kernel density estimates (for $\beta$ in first column and $(\sigma^2_s,\sigma^2_m)$ in the third column) of MLEs of fits of $M_{011}$ to data simulated from $M_{011}$ with true $\beta = (750,15)'$, $\phi = 0.1$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows). Blue crosses indicate the true values of $\beta$ and $(\sigma^2_s,\sigma^2_s)$ in each of the corresponding image panels, and blue vertical lines indicate the true value of $\phi$. Plot axes are the same within the first and second columns, but differ within the third column due to differing true signal to noise ratios $\sigma^2_s / \sigma^2_m$.}
 \end{figure}
 
@@ -404,8 +404,8 @@ Figures \ref{fig:fmri:id:M011SNR} and \ref{fig:fmri:id:M011PRR} provide evidence
 \ssp
 \centering
 \caption{Identifying dynamic intercept model by increasing signal-to-noise ratio} \label{fig:fmri:id:M101SNR}
-\includegraphics[width=0.75\textwidth]{1000-250-M101-conv-750-15-1-5-SNR-10-10}
-\caption*{Histograms in 1D (for $\phi$, second column) and 2D kernel density estimates (for $\beta$ in first column and $(\sigma^2_s,\sigma^2_m)$ in third column) of MLEs of fits of $M_{101}$ to data simulated from $M_{101}$ with true $\beta = (750,15)'$, $\phi = 0.1$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows). Blue crosses indicate true values of $\beta$ and $(\sigma^2_s,\sigma^2_s)$ in each of the corresponding image panels, and blue vertical lines indicate the true value of $\phi$.}
+\includegraphics[width=0.7\textwidth]{1000-250-M101-conv-750-15-1-5-SNR-10-10}
+\caption*{Histograms in 1D (for $\phi$, second column) and 2D kernel density estimates (for $\beta$ in first column and $(\sigma^2_s,\sigma^2_m)$ in third column) of MLEs of fits of $M_{101}$ to data simulated from $M_{101}$ with true $\beta = (750,15)'$, $\phi = 0.1$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows). Blue crosses indicate true values of $\beta$ and $(\sigma^2_s,\sigma^2_s)$ in each of the corresponding image panels, and blue vertical lines indicate the true value of $\phi$. Plot axes are the same within the first and second columns, but differ within the third column due to differing true signal to noise ratios $\sigma^2_s / \sigma^2_m$.}
 \end{figure}
 
 \begin{figure}
@@ -413,7 +413,7 @@ Figures \ref{fig:fmri:id:M011SNR} and \ref{fig:fmri:id:M011PRR} provide evidence
 \centering
 \caption{Identifying dynamic intercept model by increasing autocorrelation} \label{fig:fmri:id:M101PRR}
 \includegraphics[width=1.0\textwidth]{1000-250-M101-conv-750-15-PRR-5-1-10-10}
-\caption*{Histograms in 1D (for $\phi$, second column) and 2D kernel density estimates (for $\beta$ in first column and $(\sigma^2_s,\sigma^2_m)$ in third column) of MLEs of fits of $M_{101}$ to data simulated from $M_{101}$ with true $\beta = (750,15)'$, $\sigma^2_s = 1$, $\sigma^2_m = 10$, and increasing $\phi$ (rows). Blue crosses indictate the true values of $\beta$ and $(\sigma^2_s,\sigma^2_s)$ in each of the corresponding image panels, and blue vertical lines indicate the true values of $\phi$.}
+\caption*{Histograms in 1D (for $\phi$, second column) and 2D kernel density estimates (for $\beta$ in first column and $(\sigma^2_s,\sigma^2_m)$ in third column) of MLEs of fits of $M_{101}$ to data simulated from $M_{101}$ with true $\beta = (750,15)'$, $\sigma^2_s = 1$, $\sigma^2_m = 10$, and increasing $\phi$ (rows). Blue crosses indicate the true values of $\beta$ and $(\sigma^2_s,\sigma^2_s)$ in each of the corresponding image panels, and blue vertical lines indicate the true values of $\phi$. Plot axes are the same within the first and third columns, but differ within the second column due to differing true lag-1 autocorrelations $\phi$.}
 \end{figure}
 
 Lastly, identification of model parameters in $M_{111}$ appears to be the most challenging. Figure \ref{fig:fmri:id:M111lowb} shows that for fixed $\phi = 0.9$, $\rho = 0.6$, $\sigma^2_b = 1$, and $\sigma^2_m = 10$, increasing the true white noise variance of the dynamic intercept, $\sigma^2_s$, to 15 improves identification of $\sigma^2_m$ while the distributions of MLEs for $\phi$ and $\sigma^2_b$ are skewed and not centered at the true values. On the other hand, if $\sigma^2_b$ is increased to 20 as in Figure \ref{fig:fmri:id:M111highb}, identification of $\phi$ and $\sigma^2_b$ improves with increasing $\sigma^2_s$, but the distribution of MLEs for $\sigma^2_m$ is now skewed and off-center. As with $M_{011}$ and $M_{101}$, $\beta$ appears to be better identified than other model parameters.
@@ -422,16 +422,16 @@ Lastly, identification of model parameters in $M_{111}$ appears to be the most c
 \ssp
 \centering
 \caption{Identifying model with both dynamic slope and intercept with small slope variance} \label{fig:fmri:id:M111lowb}
-\includegraphics[width=1.0\textwidth]{1000-250-M111-conv-750-15-9-6-SNR-1-10}
-\caption*{Histograms in 1D (for $\sigma^2_m$, last column) and 2D kernel density estimates (for $\beta$ in first column, $(\phi,\rho)$ in second column, and $(\sigma^2_s,\sigma^2_m)$ in third column) of MLEs of fits of $M_{111}$ to data simulated from $M_{111}$ with true $\beta = (750,15)'$, $\phi = 0.9$, $\rho = 0.6$, $\sigma^2_b = 1$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows). Blue crosses indicate true values of $\beta$, $(\phi,\rho)$, and $(\sigma^2_s,\sigma^2_b)$ in each of the corresponding image panels, and blue vertical lines indicate the true value of $\sigma^2_m$.}
+\includegraphics[width=0.9\textwidth]{1000-250-M111-conv-750-15-9-6-SNR-1-10}
+\caption*{Histograms in 1D (for $\sigma^2_m$, last column) and 2D kernel density estimates (for $\beta$ in first column, $(\phi,\rho)$ in second column, and $(\sigma^2_s,\sigma^2_b)$ in third column) of MLEs of fits of $M_{111}$ to data simulated from $M_{111}$ with true $\beta = (750,15)'$, $\phi = 0.9$, $\rho = 0.6$, $\sigma^2_b = 1$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows). Blue crosses indicate true values of $\beta$, $(\phi,\rho)$, and $(\sigma^2_s,\sigma^2_b)$ in each of the corresponding image panels, and blue vertical lines indicate the true value of $\sigma^2_m$. Plot axes are the same within the first, second, and fourth columns, but differ within the third column due to differing true signal to noise ratios $\sigma^2_s / \sigma^2_b$.}
 \end{figure}
 
 \begin{figure}
 \ssp
 \centering
 \caption{Identifying model with both dynamic slope and intercept with large slope variance} \label{fig:fmri:id:M111highb}
-\includegraphics[width=1.0\textwidth]{1000-250-M111-conv-750-15-9-6-SNR-20-10}
-\caption*{Histograms in 1D (for $\sigma^2_m$, last column) and 2D kernel density estimates (for $\beta$ in first column, $(\phi,\rho)$ in second column, and $(\sigma^2_s,\sigma^2_m)$ in third column) of MLEs of fits of $M_{111}$ to data simulated from $M_{111}$ with true $\beta = (750,15)'$, $\phi = 0.9$, $\rho = 0.6$, $\sigma^2_b = 20$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows). Blue crosses indicate the true values of $\beta$, $(\phi,\rho)$, and $(\sigma^2_s,\sigma^2_b)$ in each of the corresponding image panels, and blue vertical lines indicate the true value of $\sigma^2_m$.}
+\includegraphics[width=0.9\textwidth]{1000-250-M111-conv-750-15-9-6-SNR-20-10}
+\caption*{Histograms in 1D (for $\sigma^2_m$, last column) and 2D kernel density estimates (for $\beta$ in first column, $(\phi,\rho)$ in second column, and $(\sigma^2_s,\sigma^2_b)$ in third column) of MLEs of fits of $M_{111}$ to data simulated from $M_{111}$ with true $\beta = (750,15)'$, $\phi = 0.9$, $\rho = 0.6$, $\sigma^2_b = 20$, $\sigma^2_m = 10$, and increasing $\sigma^2_s$ (rows). Blue crosses indicate the true values of $\beta$, $(\phi,\rho)$, and $(\sigma^2_s,\sigma^2_b)$ in each of the corresponding image panels, and blue vertical lines indicate the true value of $\sigma^2_m$. Plot axes are the same within the first, second, and fourth columns, but differ within the third column due to differing true signal to noise ratios $\sigma^2_s / \sigma^2_b$.}
 \end{figure}
 
 Unimodal and elliptical distributions of MLEs for $\beta$ under all three models provides some confidence that we can expect estimates of the regression coefficients to be unbiased. However, when the true autocorrelation and signal-to-noise ratio are low, bimodal or non-normal distributions of MLEs appear for other model parameters, suggesting that inference on $\beta$, and specifically the conclusion of the hypothesis test in equation \eqref{eqn:fmri:hyp}, could be incorrect. Figures \ref{fig:fmri:id:M011SNR} through \ref{fig:fmri:id:M111highb} suggest that out of the three models, $M_{011}$ is the most likely to be well identified for a given set of values for true model parameters, while $M_{111}$ is least likely to be well-identified.
@@ -676,7 +676,7 @@ We use a prior of the form given by equations \eqref{eqn:fmri:pl:prior1} and \eq
 \ssp
 \centering
 \caption{Distinguishing the true dynamic slope model $M_{011}$ from the dynamic intercept and simple linear regression models with increasing prior variance} \label{fig:fmri:kappa:M011}
-\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-phiSNR-M101-3-500-496-594-1-5-10-15}
+\includegraphics[width=0.9\textwidth]{fmri_pl_loglik-phiSNR-M101-3-500-496-594-1-5-10-15}
 \caption*{Minimum values of $\phi \in \{0.1,0.2,\ldots,0.9,0.95,0.99\}$ (y-axis) for which the log marginal likelihood estimates under $M_{011}$ (obtained from three independent PL runs with 500 particles on data simulated from $M_{011}$) with $\beta = (750,15)'$, $\sigma^2_m = 10$, and fixed $\sigma^2_s \in \{0.1,0.2,\ldots,0.5,1.0,1.5,2.0,2.5\}$ (x-axis) each exceed all the log marginal likelihood estimates from the three PL runs on the same data under $M_{101}$, and also exceed the analytical estimates of the log marginal likelihood under $M_{001}$. Each panel corresponds to one of four increasing $\kappa$ values (where $\kappa$ partially determines the prior hyperparameters under $M_{011}$ - as described further in Section \ref{sec:fmri:dist} and equation \eqref{eqn:fmri:kappa}). Results are shown for three separate sets of simulations from $M_{011}$, where each set consists of simulated time series under all combinations of the aforementioned fixed parameter values. Prior hyperparameters under $M_{101}$ and $M_{001}$ were set as described in Section \ref{sec:fmri:dist} with $\kappa = 1$. If there exists no value of $\phi$ for which $M_{011}$ is distinguished from $M_{101}$ and $M_{001}$ for fixed $\sigma^2_s / \sigma^2_m$ within a given set of simulations, no point is plotted for that value of $\sigma^2_s / \sigma^2_m$.}
 \end{figure}
 
@@ -684,7 +684,7 @@ We use a prior of the form given by equations \eqref{eqn:fmri:pl:prior1} and \eq
 \ssp
 \centering
 \caption{Distinguishing the true dynamic intercept model $M_{101}$ from the dynamic slope and simple linear regression models with increasing prior variance} \label{fig:fmri:kappa:M101}
-\includegraphics[width=1.0\textwidth]{fmri_pl_loglik-phiSNR-M011-3-500-496-594-1-5-10-15}
+\includegraphics[width=0.9\textwidth]{fmri_pl_loglik-phiSNR-M011-3-500-496-594-1-5-10-15}
 \caption*{Minimum values of $\phi \in \{0.1,0.2,\ldots,0.9,0.95,0.99\}$ (y-axis) for which the log marginal likelihood estimates under $M_{101}$ (obtained from three independent PL runs with 500 particles on data simulated from $M_{101}$) with $\beta = (750,15)'$, $\sigma^2_m = 10$, and fixed $\sigma^2_s \in \{0.1,0.2,\ldots,0.5,1.0,1.5,2.0,2.5\}$ (x-axis) each exceed all the log marginal likelihood estimates from the three PL runs on the same data under $M_{011}$, and also exceed the analytical estimates of the log marginal likelihood under $M_{001}$.
 Each panel corresponds to one of four increasing $\kappa$ values (where $\kappa$ partially determines the prior hyperparameters under $M_{101}$ - as described further in Section \ref{sec:fmri:dist} and equation \eqref{eqn:fmri:kappa}). Results are shown for three
 separate sets of simulations from $M_{101}$, where each set consists of simulated time series under all combinations of the aforementioned fixed parameter values. Prior hyperparameters under $M_{011}$ and $M_{001}$ were set as described in Section \ref{sec:fmri:dist} with $\kappa = 1$. If there exists no value of $\phi$ for which $M_{101}$ is distinguished from $M_{011}$ and $M_{001}$ for fixed $\sigma^2_s / \sigma^2_m$ within a given set of simulations, no point is plotted for that value of $\sigma^2_s / \sigma^2_m$.}
